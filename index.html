@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Polymarket Strategies</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0b0e1a; color: #e2e8f0; font-family: 'Space Mono', monospace; min-height: 100vh; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: #0b0e1a; }
+    ::-webkit-scrollbar-thumb { background: #1e2438; border-radius: 2px; }
+
+    .wrapper { max-width: 1140px; margin: 0 auto; padding: 48px 24px; }
+
+    h1 { font-size: 28px; font-weight: 700; letter-spacing: 0.04em; color: #f0f4ff; margin-bottom: 12px; animation: fadeUp 0.4s ease both; }
+    .subtitle { font-size: 12px; color: #6b7a99; line-height: 1.7; max-width: 680px; animation: fadeUp 0.4s ease 0.05s both; }
+    .subtitle span { color: #818cf8; }
+
+    .filters { display: flex; justify-content: space-between; align-items: center; margin: 28px 0 36px; flex-wrap: wrap; gap: 12px; animation: fadeUp 0.4s ease 0.08s both; }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tab { background: transparent; border: 1px solid #1e2438; color: #6b7a99; padding: 6px 16px; border-radius: 4px; font-size: 12px; font-weight: 700; font-family: 'Space Mono', monospace; cursor: pointer; transition: all 0.15s; }
+    .tab.active { background: #818cf8; border-color: #818cf8; color: #0b0e1a; }
+    .tab:hover:not(.active) { border-color: #2e3650; color: #aab; }
+
+    select { background: #111520; border: 1px solid #1e2438; color: #6b7a99; padding: 6px 32px 6px 12px; border-radius: 4px; font-size: 12px; font-family: 'Space Mono', monospace; cursor: pointer; outline: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7a99' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .section-label { font-size: 12px; color: #4a5578; letter-spacing: 0.08em; font-weight: 700; }
+    .install-all { background: transparent; border: 1px solid #1e2438; color: #6b7a99; padding: 6px 14px; border-radius: 4px; font-size: 11px; font-family: 'Space Mono', monospace; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
+    .install-all:hover { border-color: #2e3650; color: #aab; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; margin-bottom: 40px; }
+
+    .card { background: #111520; border: 1px solid #1e2438; border-radius: 8px; padding: 18px 20px 16px; text-decoration: none; color: inherit; display: block; transition: all 0.18s ease; cursor: pointer; }
+    .card:hover { background: #1a1f2e; border-color: #2e3650; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+
+    .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .card-icon { font-size: 22px; }
+    .card-level { font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
+    .level-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+
+    .card-title { font-size: 15px; font-weight: 700; color: #f0f4ff; margin-bottom: 8px; line-height: 1.3; }
+    .card-desc { font-size: 12px; color: #6b7a99; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+    .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1e2438; padding-top: 12px; }
+    .card-author { font-size: 11px; color: #4a5578; }
+    .card-author span { color: #6b7a99; }
+    .card-stats { display: flex; gap: 12px; font-size: 11px; color: #4a5578; }
+
+    .banner { background: linear-gradient(135deg, #0f1e3a 0%, #1a1040 100%); border: 1px solid #6366f130; border-radius: 12px; padding: 18px 24px; margin-bottom: 36px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; animation: fadeUp 0.4s ease 0.1s both; }
+    .banner-text h2 { font-size: 22px; color: #a78bfa; margin-bottom: 6px; }
+    .banner-text p { font-size: 12px; color: #6b7a99; }
+    .banner-btn { background: linear-gradient(135deg, #6366f1, #a78bfa); color: #fff; padding: 10px 22px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; font-family: 'Space Mono', monospace; }
+
+    .footer-links { margin-top: 48px; padding-top: 24px; border-top: 1px solid #1e2438; display: flex; gap: 24px; flex-wrap: wrap; }
+    .footer-links a { font-size: 11px; color: #4a5578; text-decoration: none; display: flex; align-items: center; gap: 6px; }
+    .footer-links a:hover { color: #6b7a99; }
+
+    .hidden { display: none; }
+  </style>
+</head>
+<body>
+<div class="wrapper">
+
+  <h1>POLYMARKET_STRATEGIES</h1>
+  <p class="subtitle">Supercharge your trading with Polymarket strategies. Templates are remixable — <span>install, then make it yours.</span></p>
+
+  <!-- Banner -->
+  <div class="banner">
+    <div class="banner-text">
+      <h2>Earn 4% APY</h2>
+      <p>Dépose des USDC sur Polymarket et gagne 4% APY passivement. Sans trading requis.</p>
+    </div>
+    <a class="banner-btn" href="https://polymarket.com/predictions/earn-4" target="_blank">Commencer →</a>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="tabs">
+      <button class="tab active" onclick="filterTab(this, 'all')">All</button>
+      <button class="tab" onclick="filterTab(this, 'earn')">Earn 4%</button>
+      <button class="tab" onclick="filterTab(this, 'rewards')">Daily Rewards</button>
+      <button class="tab" onclick="filterTab(this, 'beginner')">Beginner</button>
+      <button class="tab" onclick="filterTab(this, 'advanced')">Advanced</button>
+    </div>
+    <select onchange="sortCards(this.value)">
+      <option value="installs">Most installs</option>
+      <option value="stars">Most stars</option>
+    </select>
+  </div>
+
+  <!-- Official Section -->
+  <div id="section-official">
+    <div class="section-header">
+      <span class="section-label">OFFICIAL</span>
+      <button class="install-all">⊕ Install all</button>
+    </div>
+    <div class="grid" id="grid-official"></div>
+  </div>
+
+  <!-- Community Section -->
+  <div id="section-community">
+    <div class="section-header">
+      <span class="section-label">COMMUNITY</span>
+    </div>
+    <div class="grid" id="grid-community"></div>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer-links">
+    <a href="https://polymarket.com/predictions/earn-4" target="_blank"><span style="color:#4ade80">●</span> Earn 4% APY sur Polymarket →</a>
+    <a href="https://polymarket.com/rewards?id=competitiveness&desc=true&q=&page=18" target="_blank"><span style="color:#818cf8">●</span> Daily Rewards Leaderboard →</a>
+  </div>
+
+</div>
+
+<script>
+const CARDS = [
+  { id:1, icon:"💰", title:"Earn 4% APY", level:"Beginner", levelColor:"#4ade80", desc:"Dépose des USDC sur Polymarket et gagne 4% APY passivement. Aucun trading requis — tes fonds travaillent pour toi.", author:"Polymarket", version:"v2.1.0", stars:48, installs:12430, link:"https://polymarket.com/predictions/earn-4", official:true, tag:"earn" },
+  { id:2, icon:"⚡", title:"Earn & Trade Loop", level:"Advanced", levelColor:"#f97316", desc:"Combine le dépôt 4% APY avec le trading actif. Maximise le rendement en réinjectant les intérêts dans des positions à haute conviction.", author:"Polymarket", version:"v1.3.2", stars:32, installs:5840, link:"https://polymarket.com/predictions/earn-4", official:true, tag:"earn" },
+  { id:3, icon:"🌊", title:"Liquidity Provider Earn", level:"Intermediate", levelColor:"#818cf8", desc:"Fournis de la liquidité aux marchés de prédiction et cumule le rendement de base 4% avec les frais LP.", author:"Polymarket", version:"v1.0.5", stars:19, installs:3215, link:"https://polymarket.com/predictions/earn-4", official:true, tag:"earn" },
+  { id:4, icon:"🏆", title:"Daily Rewards Sniper", level:"Advanced", levelColor:"#f97316", desc:"Maximise les récompenses journalières en ciblant les marchés compétitifs avec les meilleurs multiplicateurs de rewards.", author:"Polymarket", version:"v3.0.1", stars:64, installs:18920, link:"https://polymarket.com/rewards?id=competitiveness&desc=true", official:true, tag:"rewards" },
+  { id:5, icon:"🎯", title:"Competitiveness Tracker", level:"Beginner", levelColor:"#4ade80", desc:"Suis ton score de compétitivité quotidien et ton classement. Reçois des alertes quand les fenêtres à hautes récompenses s'ouvrent.", author:"Polymarket", version:"v1.6.0", stars:41, installs:9310, link:"https://polymarket.com/rewards?id=competitiveness&desc=true", official:true, tag:"rewards" },
+  { id:6, icon:"⚔️", title:"Reward Farm Loop", level:"Intermediate", levelColor:"#818cf8", desc:"Farm les récompenses journalières en tournant les positions sur les marchés compétitifs. Identifie le meilleur ratio reward/risque.", author:"Polymarket", version:"v2.2.3", stars:28, installs:6450, link:"https://polymarket.com/rewards?id=competitiveness&desc=true", official:true, tag:"rewards" },
+  { id:7, icon:"🛡️", title:"Safe Yield Strategy", level:"Beginner", levelColor:"#4ade80", desc:"Gare tes USDC inactifs à 4% APY entre les trades. Évite le slippage et le risque de timing — gagne en attendant.", author:"Simmer", version:"v1.1.0", stars:11, installs:2874, link:"https://polymarket.com/predictions/earn-4", official:false, tag:"earn" },
+  { id:8, icon:"📈", title:"Compound Earn", level:"Intermediate", levelColor:"#818cf8", desc:"Réinvestis automatiquement tes gains 4% APY chaque jour pour composer les retours. Full automation via Simmer API.", author:"Simmer", version:"v2.0.1", stars:7, installs:1190, link:"https://polymarket.com/predictions/earn-4", official:false, tag:"earn" },
+  { id:9, icon:"📊", title:"Reward Leaderboard Bot", level:"Intermediate", levelColor:"#818cf8", desc:"Suivi automatique du classement journalier. Alertes sur les mouvements de rang et fluctuations du pool de récompenses.", author:"Simmer", version:"v1.2.7", stars:15, installs:3870, link:"https://polymarket.com/rewards?id=competitiveness&desc=true", official:false, tag:"rewards" },
+  { id:10, icon:"💡", title:"Signal + Reward Stack", level:"Advanced", levelColor:"#f97316", desc:"Superpose des sources de signaux externes sur le reward farming. Gagne sur les deux tableaux : rewards ET P&L basé sur l'edge.", author:"Simmer", version:"v1.0.9", stars:9, installs:2140, link:"https://polymarket.com/rewards?id=competitiveness&desc=true", official:false, tag:"rewards" },
+  { id:11, icon:"🔁", title:"Earn + Hedge", level:"Advanced", levelColor:"#f97316", desc:"Gagne 4% APY tout en couvrant l'exposition directionnelle. Maintient une position delta-neutre avec une couche de revenu passif.", author:"Simmer", version:"v1.0.3", stars:3, installs:672, link:"https://polymarket.com/predictions/earn-4", official:false, tag:"earn" },
+  { id:12, icon:"🔥", title:"Hot Market Reward Seeker", level:"Beginner", levelColor:"#4ade80", desc:"Trouve les marchés avec les plus grands pools de récompenses et le moins de concurrence. Parfait pour les nouveaux traders.", author:"Simmer", version:"v1.1.2", stars:5, installs:987, link:"https://polymarket.com/rewards?id=competitiveness&desc=true", official:false, tag:"rewards" },
+];
+
+let currentFilter = 'all';
+let currentSort = 'installs';
+
+function makeCard(card, idx) {
+  return `
+    <a class="card" href="${card.link}" target="_blank" style="animation: fadeUp 0.4s ease ${idx*40}ms both">
+      <div class="card-top">
+        <span class="card-icon">${card.icon}</span>
+        <span class="card-level" style="color:${card.levelColor}">
+          <span class="level-dot" style="background:${card.levelColor}"></span>
+          ${card.level}
+        </span>
+      </div>
+      <div class="card-title">${card.title}</div>
+      <div class="card-desc">${card.desc}</div>
+      <div class="card-footer">
+        <span class="card-author">by <span>${card.author}</span> <span style="color:#2e3650">${card.version}</span></span>
+        <div class="card-stats">
+          ${card.stars > 0 ? `<span>☆ ${card.stars}</span>` : ''}
+          <span>↓ ${card.installs.toLocaleString()}</span>
+        </div>
+      </div>
+    </a>`;
+}
+
+function render() {
+  let filtered = CARDS.filter(c => {
+    if (currentFilter === 'all') return true;
+    if (currentFilter === 'earn') return c.tag === 'earn';
+    if (currentFilter === 'rewards') return c.tag === 'rewards';
+    if (currentFilter === 'beginner') return c.level === 'Beginner';
+    if (currentFilter === 'advanced') return c.level === 'Advanced';
+    return true;
+  });
+
+  filtered.sort((a, b) => currentSort === 'stars' ? b.stars - a.stars : b.installs - a.installs);
+
+  const official = filtered.filter(c => c.official);
+  const community = filtered.filter(c => !c.official);
+
+  document.getElementById('grid-official').innerHTML = official.map((c,i) => makeCard(c,i)).join('');
+  document.getElementById('grid-community').innerHTML = community.map((c,i) => makeCard(c,i)).join('');
+
+  document.getElementById('section-official').style.display = official.length ? '' : 'none';
+  document.getElementById('section-community').style.display = community.length ? '' : 'none';
+}
+
+function filterTab(btn, filter) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter = filter;
+  render();
+}
+
+function sortCards(val) {
+  currentSort = val;
+  render();
+}
+
+render();
+</script>
+</body>
+</html>
