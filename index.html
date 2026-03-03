@@ -35,18 +35,18 @@
 
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; margin-bottom: 40px; }
 
-    .card { background: #111520; border: 1px solid #1e2438; border-radius: 8px; padding: 18px 20px 16px; text-decoration: none; color: inherit; display: block; transition: all 0.18s ease; cursor: pointer; }
-    .card:hover { background: #1a1f2e; border-color: #2e3650; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+    .card { background: linear-gradient(135deg, #0f1e3a 0%, #1a1040 100%); border: 1px solid #6366f130; border-radius: 8px; padding: 18px 20px 16px; text-decoration: none; color: inherit; display: block; transition: all 0.25s ease; cursor: pointer; }
+    .card:hover { border-color: #a78bfa90; transform: translateY(-3px); box-shadow: 0 8px 32px rgba(99,102,241,0.25); background: linear-gradient(135deg, #132540 0%, #221660 100%); }
 
     .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
     .card-icon { font-size: 22px; }
     .card-level { font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
     .level-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
 
-    .card-title { font-size: 15px; font-weight: 700; color: #f0f4ff; margin-bottom: 8px; line-height: 1.3; }
+    .card-title { font-size: 22px; font-weight: 700; color: #a78bfa; margin-bottom: 8px; line-height: 1.3; }
     .card-desc { font-size: 12px; color: #6b7a99; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
 
-    .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1e2438; padding-top: 12px; }
+    .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #6366f120; padding-top: 12px; }
     .card-author { font-size: 11px; color: #4a5578; }
     .card-author span { color: #6b7a99; }
     .card-stats { display: flex; gap: 12px; font-size: 11px; color: #4a5578; }
@@ -67,46 +67,130 @@
 <div class="wrapper">
 
   <h1>POLYMARKET_STRATEGIES</h1>
-  <p class="subtitle">Supercharge your trading with Polymarket strategies. Templates are remixable — <span>install, then make it yours.</span></p>
 
-  <!-- Banner -->
-  <div class="banner">
-    <div class="banner-text">
-      <h2>Earn 4% APY</h2>
-      <p>Dépose des USDC sur Polymarket et gagne 4% APY passivement. Sans trading requis.</p>
+  <!-- Wallet Stats -->
+  <div id="wallet-stats" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:12px; margin: 28px 0;">
+    <div class="stat-card">
+      <div class="stat-label">VOLUME TOTAL</div>
+      <div class="stat-value" id="val-volume"><span class="loading">…</span></div>
     </div>
-    <a class="banner-btn" href="https://polymarket.com/predictions/earn-4" target="_blank">Commencer →</a>
+    <div class="stat-card">
+      <div class="stat-label">PNL ALL TIME</div>
+      <div class="stat-value" id="val-pnl"><span class="loading">…</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">REWARDS LP</div>
+      <div class="stat-value" id="val-lp"><span class="loading">…</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">PSEUDO</div>
+      <div class="stat-value" id="val-name" style="font-size:16px;"><span class="loading">…</span></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">WALLET</div>
+      <div class="stat-value" style="font-size:11px;">
+        <a href="https://www.betmoar.fun/profile/0xe786c3487e60cf9ae9cde877791614e0ac3d9d92?tab=portfolio" target="_blank" style="color:#818cf8; text-decoration:none;">0xe786...D92 ↗</a>
+      </div>
+    </div>
   </div>
 
-  <!-- Filters -->
-  <div class="filters">
-    <div class="tabs">
-      <button class="tab active" onclick="filterTab(this, 'all')">All</button>
-      <button class="tab" onclick="filterTab(this, 'earn')">Earn 4%</button>
-      <button class="tab" onclick="filterTab(this, 'rewards')">Daily Rewards</button>
-      <button class="tab" onclick="filterTab(this, 'beginner')">Beginner</button>
-      <button class="tab" onclick="filterTab(this, 'advanced')">Advanced</button>
-    </div>
-    <select onchange="sortCards(this.value)">
-      <option value="installs">Most installs</option>
-      <option value="stars">Most stars</option>
-    </select>
-  </div>
+  <style>
+    .stat-card { background: linear-gradient(135deg, #0f1e3a 0%, #1a1040 100%); border: 1px solid #6366f130; border-radius: 8px; padding: 18px 20px; transition: all 0.25s ease; }
+    .stat-card:hover { border-color: #a78bfa90; transform: translateY(-3px); box-shadow: 0 8px 32px rgba(99,102,241,0.25); }
+    .stat-label { font-size: 10px; color: #4a5578; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 10px; }
+    .stat-value { font-size: 24px; font-weight: 700; color: #a78bfa; }
+    .loading { font-size: 20px; color: #2e3650; animation: loadpulse 1.2s infinite; }
+    @keyframes loadpulse { 0%,100%{opacity:1} 50%{opacity:0.2} }
+  </style>
+
+  <script>
+    const WALLET = "0xe786C3487e60Cf9ae9cdE877791614E0aC3d9D92";
+
+    function fmtVol(n) {
+      if (!n && n !== 0) return "—";
+      if (n >= 1000000) return "$" + (n/1000000).toFixed(2) + "M";
+      if (n >= 1000) return "$" + (n/1000).toFixed(1) + "K";
+      return "$" + n.toFixed(0);
+    }
+    function fmtPnl(n) {
+      if (!n && n !== 0) return "—";
+      const sign = n >= 0 ? "+" : "-";
+      const abs = Math.abs(n);
+      const str = abs >= 1000 ? "$" + (abs/1000).toFixed(1) + "K" : "$" + abs.toFixed(0);
+      return sign + str;
+    }
+
+    async function loadStats() {
+      // 1. Profil public (gamma-api — CORS OK)
+      try {
+        const r = await fetch(`https://gamma-api.polymarket.com/public-profile?address=${WALLET}`);
+        const p = await r.json();
+        const name = p.name || p.pseudonym || "BlueMoon69";
+        document.getElementById("val-name").innerHTML =
+          `<span style="color:#a78bfa">${name}</span>`;
+      } catch(e) {
+        document.getElementById("val-name").innerHTML = `<span style="color:#a78bfa">BlueMoon69</span>`;
+      }
+
+      // 2. Rewards LP = REWARD + YIELD
+      try {
+        let lpTotal = 0;
+        let offset = 0;
+        const limit = 500;
+        while (true) {
+          const r = await fetch(`https://data-api.polymarket.com/activity?user=${WALLET}&limit=${limit}&offset=${offset}`);
+          const acts = await r.json();
+          if (!Array.isArray(acts) || acts.length === 0) break;
+          acts
+            .filter(a => a.type === "REWARD" || a.type === "YIELD")
+            .forEach(a => { lpTotal += parseFloat(a.usdcSize || a.amount || a.size || 0); });
+          if (acts.length < limit) break;
+          offset += limit;
+        }
+        const color = lpTotal >= 0 ? "#4ade80" : "#f87171";
+        document.getElementById("val-lp").innerHTML =
+          `<span style="color:${color}">${lpTotal >= 0 ? "+" : ""}${fmtVol(lpTotal)}</span>`;
+      } catch(e) {
+        document.getElementById("val-lp").innerHTML = `<span style="color:#4ade80">+$89</span>`;
+      }
+
+      // 3. Volume + PNL via leaderboard ALL time
+      try {
+        const r = await fetch(`https://data-api.polymarket.com/v1/leaderboard?user=${WALLET}&timePeriod=ALL&orderBy=VOL&limit=1`);
+        const d = await r.json();
+        if (Array.isArray(d) && d.length > 0) {
+          const entry = d[0];
+          document.getElementById("val-volume").innerHTML =
+            `<span style="color:#a78bfa">${fmtVol(entry.vol)}</span>`;
+          const pnlColor = (entry.pnl || 0) >= 0 ? "#4ade80" : "#f87171";
+          document.getElementById("val-pnl").innerHTML =
+            `<span style="color:${pnlColor}">${fmtPnl(entry.pnl)}</span>`;
+        } else {
+          // fallback valeurs statiques connues
+          document.getElementById("val-volume").innerHTML = `<span style="color:#a78bfa">$486.5K</span>`;
+          document.getElementById("val-pnl").innerHTML = `<span style="color:#4ade80">+$441</span>`;
+        }
+      } catch(e) {
+        document.getElementById("val-volume").innerHTML = `<span style="color:#a78bfa">$486.5K</span>`;
+        document.getElementById("val-pnl").innerHTML = `<span style="color:#4ade80">+$441</span>`;
+      }
+    }
+
+    loadStats();
+  </script>
+
+
+
+
+
 
   <!-- Official Section -->
   <div id="section-official">
-    <div class="section-header">
-      <span class="section-label">OFFICIAL</span>
-      <button class="install-all">⊕ Install all</button>
-    </div>
     <div class="grid" id="grid-official"></div>
   </div>
 
   <!-- Community Section -->
   <div id="section-community">
-    <div class="section-header">
-      <span class="section-label">COMMUNITY</span>
-    </div>
     <div class="grid" id="grid-community"></div>
   </div>
 
@@ -121,17 +205,8 @@
 <script>
 const CARDS = [
   { id:1, icon:"💰", title:"Earn 4% APY", level:"Beginner", levelColor:"#4ade80", desc:"Dépose des USDC sur Polymarket et gagne 4% APY passivement. Aucun trading requis — tes fonds travaillent pour toi.", author:"Polymarket", version:"v2.1.0", stars:48, installs:12430, link:"https://polymarket.com/predictions/earn-4", official:true, tag:"earn" },
-  { id:2, icon:"⚡", title:"Earn & Trade Loop", level:"Advanced", levelColor:"#f97316", desc:"Combine le dépôt 4% APY avec le trading actif. Maximise le rendement en réinjectant les intérêts dans des positions à haute conviction.", author:"Polymarket", version:"v1.3.2", stars:32, installs:5840, link:"https://polymarket.com/predictions/earn-4", official:true, tag:"earn" },
-  { id:3, icon:"🌊", title:"Liquidity Provider Earn", level:"Intermediate", levelColor:"#818cf8", desc:"Fournis de la liquidité aux marchés de prédiction et cumule le rendement de base 4% avec les frais LP.", author:"Polymarket", version:"v1.0.5", stars:19, installs:3215, link:"https://polymarket.com/predictions/earn-4", official:true, tag:"earn" },
-  { id:4, icon:"🏆", title:"Daily Rewards Sniper", level:"Advanced", levelColor:"#f97316", desc:"Maximise les récompenses journalières en ciblant les marchés compétitifs avec les meilleurs multiplicateurs de rewards.", author:"Polymarket", version:"v3.0.1", stars:64, installs:18920, link:"https://polymarket.com/rewards?id=competitiveness&desc=true", official:true, tag:"rewards" },
-  { id:5, icon:"🎯", title:"Competitiveness Tracker", level:"Beginner", levelColor:"#4ade80", desc:"Suis ton score de compétitivité quotidien et ton classement. Reçois des alertes quand les fenêtres à hautes récompenses s'ouvrent.", author:"Polymarket", version:"v1.6.0", stars:41, installs:9310, link:"https://polymarket.com/rewards?id=competitiveness&desc=true", official:true, tag:"rewards" },
-  { id:6, icon:"⚔️", title:"Reward Farm Loop", level:"Intermediate", levelColor:"#818cf8", desc:"Farm les récompenses journalières en tournant les positions sur les marchés compétitifs. Identifie le meilleur ratio reward/risque.", author:"Polymarket", version:"v2.2.3", stars:28, installs:6450, link:"https://polymarket.com/rewards?id=competitiveness&desc=true", official:true, tag:"rewards" },
-  { id:7, icon:"🛡️", title:"Safe Yield Strategy", level:"Beginner", levelColor:"#4ade80", desc:"Gare tes USDC inactifs à 4% APY entre les trades. Évite le slippage et le risque de timing — gagne en attendant.", author:"Simmer", version:"v1.1.0", stars:11, installs:2874, link:"https://polymarket.com/predictions/earn-4", official:false, tag:"earn" },
-  { id:8, icon:"📈", title:"Compound Earn", level:"Intermediate", levelColor:"#818cf8", desc:"Réinvestis automatiquement tes gains 4% APY chaque jour pour composer les retours. Full automation via Simmer API.", author:"Simmer", version:"v2.0.1", stars:7, installs:1190, link:"https://polymarket.com/predictions/earn-4", official:false, tag:"earn" },
-  { id:9, icon:"📊", title:"Reward Leaderboard Bot", level:"Intermediate", levelColor:"#818cf8", desc:"Suivi automatique du classement journalier. Alertes sur les mouvements de rang et fluctuations du pool de récompenses.", author:"Simmer", version:"v1.2.7", stars:15, installs:3870, link:"https://polymarket.com/rewards?id=competitiveness&desc=true", official:false, tag:"rewards" },
-  { id:10, icon:"💡", title:"Signal + Reward Stack", level:"Advanced", levelColor:"#f97316", desc:"Superpose des sources de signaux externes sur le reward farming. Gagne sur les deux tableaux : rewards ET P&L basé sur l'edge.", author:"Simmer", version:"v1.0.9", stars:9, installs:2140, link:"https://polymarket.com/rewards?id=competitiveness&desc=true", official:false, tag:"rewards" },
-  { id:11, icon:"🔁", title:"Earn + Hedge", level:"Advanced", levelColor:"#f97316", desc:"Gagne 4% APY tout en couvrant l'exposition directionnelle. Maintient une position delta-neutre avec une couche de revenu passif.", author:"Simmer", version:"v1.0.3", stars:3, installs:672, link:"https://polymarket.com/predictions/earn-4", official:false, tag:"earn" },
-  { id:12, icon:"🔥", title:"Hot Market Reward Seeker", level:"Beginner", levelColor:"#4ade80", desc:"Trouve les marchés avec les plus grands pools de récompenses et le moins de concurrence. Parfait pour les nouveaux traders.", author:"Simmer", version:"v1.1.2", stars:5, installs:987, link:"https://polymarket.com/rewards?id=competitiveness&desc=true", official:false, tag:"rewards" },
+  { id:4, icon:"🏆", title:"Daily Rewards Sniper", level:"Advanced", levelColor:"#f97316", desc:"Maximise les récompenses journalières en ciblant les marchés compétitifs avec les meilleurs multiplicateurs de rewards.", author:"Polymarket", version:"v3.0.1", stars:64, installs:18920, link:"https://polymarket.com/rewards?id=competitiveness&desc=true&q=&page=17", official:true, tag:"rewards" },
+  { id:5, icon:"🎯", title:"Competitiveness Tracker", level:"Beginner", levelColor:"#4ade80", desc:"Suis ton score de compétitivité quotidien et ton classement. Reçois des alertes quand les fenêtres à hautes récompenses s'ouvrent.", author:"Polymarket", version:"v1.6.0", stars:41, installs:9310, link:"https://polymarket.com/rewards?id=earnings&desc=false&q=&onlyPositions=false", official:true, tag:"rewards" },
 ];
 
 let currentFilter = 'all';
@@ -151,10 +226,7 @@ function makeCard(card, idx) {
       <div class="card-desc">${card.desc}</div>
       <div class="card-footer">
         <span class="card-author">by <span>${card.author}</span> <span style="color:#2e3650">${card.version}</span></span>
-        <div class="card-stats">
-          ${card.stars > 0 ? `<span>☆ ${card.stars}</span>` : ''}
-          <span>↓ ${card.installs.toLocaleString()}</span>
-        </div>
+
       </div>
     </a>`;
 }
@@ -169,7 +241,7 @@ function render() {
     return true;
   });
 
-  filtered.sort((a, b) => currentSort === 'stars' ? b.stars - a.stars : b.installs - a.installs);
+  filtered.sort((a, b) => currentSort === 'stars' ? b.stars - a.stars : 0);
 
   const official = filtered.filter(c => c.official);
   const community = filtered.filter(c => !c.official);
