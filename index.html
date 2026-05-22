@@ -2734,10 +2734,16 @@
 
     if (!OG151_LOADED) {
       try {
+        console.log('[151OG] Fetch:', OG151_URL);
         const res = await fetch(OG151_URL);
+        console.log('[151OG] Status:', res.status, res.ok);
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        const data = await res.json();
-        if (!data.success || !data.cards) throw new Error('Format invalide');
+        const text = await res.text();
+        console.log('[151OG] Raw response (200 chars):', text.substring(0, 200));
+        let data;
+        try { data = JSON.parse(text); } catch(pe) { throw new Error('JSON invalide : ' + text.substring(0,100)); }
+        console.log('[151OG] data.success:', data.success, '| cards count:', data.cards ? data.cards.length : 'N/A');
+        if (!data.success || !data.cards) throw new Error('Format invalide – success=' + data.success);
         OG151_CARDS = data.cards.map(c => ({
           name:          c['Nom'] || '',
           number:        c['Numéro'] || '',
@@ -2748,9 +2754,11 @@
           imageUrl:      c['URL Image'] || '',
           owned:         (c['Possédée'] || '').toUpperCase() === 'OUI'
         }));
+        console.log('[151OG] Cards loaded:', OG151_CARDS.length, '| first:', OG151_CARDS[0]);
         OG151_LOADED = true;
       } catch(e) {
-        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--coral)">❌ Erreur de chargement : ' + e.message + '</div>';
+        console.error('[151OG] Erreur:', e);
+        grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--coral)">❌ Erreur : ' + e.message + '<br><small style=\'font-size:11px;opacity:.7\'>Voir console (F12) pour détails</small></div>';
         return;
       }
     }
