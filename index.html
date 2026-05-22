@@ -1077,11 +1077,7 @@
   let VIEW_MODE = 'grid'; // 'grid' | 'list'
   let storedUrl = 'https://script.google.com/macros/s/AKfycbwxv_nOP_NTL8TCe5ppyGNeamPDUWwLxvl9jSDDnjBzjLaYfRAbbM0wsoPBKXodneII/exec';
 
-  // ── 151 OG Art Rare collection ──
-  const OG151_URL = 'https://script.google.com/macros/s/AKfycby3yfBe8oeYKU8e5iHofpSnDurYxS9TQTuOyansIwnwYnQYyRgzQobYMoq_vzvm0ek/exec';
-  let OG151_CARDS = [];        // toutes les cartes chargées depuis le Sheets
-  let OG151_LOADED = false;    // flag pour éviter rechargements inutiles
-  let OG151_FILTER = 'all';    // 'all' | 'owned' | 'missing'
+
 
   const $ = id => document.getElementById(id);
   const EUR = v => new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR'}).format(+v||0);
@@ -2721,7 +2717,20 @@
     lb.querySelector('.lightbox-content').addEventListener('click', function(e) {
       e.stopPropagation();
     });
-  // ═══════════════════════════════════════════════════════
+
+    })();
+
+  })();
+  </script>
+
+<script>
+  // ── 151 OG Art Rare — variables globales ──
+  var OG151_URL = 'https://script.google.com/macros/s/AKfycby3yfBe8oeYKU8e5iHofpSnDurYxS9TQTuOyansIwnwYnQYyRgzQobYMoq_vzvm0ek/exec';
+  var OG151_CARDS = [];
+  var OG151_LOADED = false;
+  var OG151_FILTER = 'all';
+
+// ═══════════════════════════════════════════════════════
   // 151 OG Art Rare — Chargement & Rendu
   // ═══════════════════════════════════════════════════════
 
@@ -2874,12 +2883,6 @@
     OG151_FILTER = f;
     render151OG();
   }
-
-
-
-  })();
-
-  })();
-  </script>
+</script>
 </body>
 </html>          
