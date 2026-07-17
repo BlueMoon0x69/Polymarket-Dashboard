@@ -1,271 +1,1970 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Polymarket Strategies</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: #0b0e1a; color: #e2e8f0; font-family: 'Space Mono', monospace; min-height: 100vh; }
-    @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: #0b0e1a; }
-    ::-webkit-scrollbar-thumb { background: #1e2438; border-radius: 2px; }
+<meta charset="UTF-8">
+<title>PolyCockpit by BlueMoon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0B0E13;
+    --surface: #12161D;
+    --surface-2: #191F28;
+    --line: #262E38;
+    --ink: #E7E7E2;
+    --ink-dim: #8B93A0;
+    --gold: #C9A227;
+    --gold-dim: #6E5B1E;
+    --up: #3FBF7F;
+    --down: #E5484D;
 
-    .wrapper { max-width: 1140px; margin: 0 auto; padding: 48px 24px; }
+    --t-none: #5a6275;
+    --t-bronze: #c77b3f;
+    --t-silver: #aab2c0;
+    --t-gold: #e8b93c;
+    --t-platinum: #7fd6e8;
+    --t-diamond: #7aa7ff;
+    --t-obsidian: #c084fc;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'JetBrains Mono', monospace;
+    min-height:100vh;
+  }
+  .display{font-family:'Space Grotesk', sans-serif;}
 
-    h1 { font-size: 28px; font-weight: 700; letter-spacing: 0.04em; color: #f0f4ff; margin-bottom: 12px; animation: fadeUp 0.4s ease both; }
-    .subtitle { font-size: 12px; color: #6b7a99; line-height: 1.7; max-width: 680px; animation: fadeUp 0.4s ease 0.05s both; }
-    .subtitle span { color: #818cf8; }
+  /* ---- header ---- */
+  header{
+    border-bottom:1px solid var(--line);
+    padding:18px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .brand{display:flex;align-items:baseline;gap:10px;}
+  .brand .mark{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:700;
+    font-size:20px;
+    letter-spacing:-0.02em;
+  }
+  .brand .mark span{color:var(--gold);}
+  .brand .sub{color:var(--ink-dim);font-size:12px;letter-spacing:0.08em;text-transform:uppercase;}
 
-    .filters { display: flex; justify-content: space-between; align-items: center; margin: 28px 0 36px; flex-wrap: wrap; gap: 12px; animation: fadeUp 0.4s ease 0.08s both; }
-    .tabs { display: flex; gap: 8px; flex-wrap: wrap; }
-    .tab { background: transparent; border: 1px solid #1e2438; color: #6b7a99; padding: 6px 16px; border-radius: 4px; font-size: 12px; font-weight: 700; font-family: 'Space Mono', monospace; cursor: pointer; transition: all 0.15s; }
-    .tab.active { background: #818cf8; border-color: #818cf8; color: #0b0e1a; }
-    .tab:hover:not(.active) { border-color: #2e3650; color: #aab; }
+  .wallet-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .wallet-row input{
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    color:var(--ink);
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    padding:8px 10px;
+    border-radius:4px;
+    width:340px;
+    max-width:60vw;
+  }
+  .wallet-row input:focus{outline:1px solid var(--gold);border-color:var(--gold);}
+  .search-input{
+    display:inline-block;
+    width:400px;
+    max-width:100%;
+    flex:0 1 400px;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    color:var(--ink);
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    padding:9px 12px;
+    border-radius:4px;
+    margin-bottom:0;
+  }
+  .search-input:focus{outline:1px solid var(--gold);border-color:var(--gold);}
+  .search-input::placeholder{color:var(--ink-dim);}
+  .view-toggle{
+    display:inline-flex;
+    gap:2px;
+    margin-left:auto;
+  }
+  .filter-row{display:flex;align-items:center;}
+  .view-toggle button{
+    background:var(--surface-2);
+    color:var(--ink-dim);
+    border:1px solid var(--line);
+    text-transform:none;
+    font-family:'JetBrains Mono';
+    font-weight:400;
+    padding:6px 10px;
+  }
+  .view-toggle button.on{background:var(--gold);color:#161200;border-color:var(--gold);}
+  .market-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .market-card{
+    background:var(--surface);
+    padding:14px 16px;
+    text-decoration:none;
+    color:inherit;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    transition:background .15s ease;
+  }
+  .market-card:hover{background:var(--surface-2);}
+  .market-card .mc-top{display:flex;align-items:center;gap:8px;}
+  .market-card .mc-top img.market-icon, .market-card .mc-top .market-icon{width:24px;height:24px;flex-shrink:0;}
+  .market-card .mc-title{
+    color:var(--ink);
+    font-size:12.5px;
+    line-height:1.35;
+    overflow:hidden;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+  }
+  .market-card .mc-stats{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:11px;
+    color:var(--ink-dim);
+    border-top:1px solid var(--line);
+    padding-top:8px;
+    margin-top:auto;
+  }
+  .market-card .mc-stats b{color:var(--ink);font-family:'JetBrains Mono';font-weight:600;}
+  button{
+    background:var(--gold);
+    color:#161200;
+    border:none;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:12px;
+    letter-spacing:0.03em;
+    padding:8px 14px;
+    border-radius:4px;
+    cursor:pointer;
+    text-transform:uppercase;
+  }
+  button:hover{background:#DDB33B;}
+  button:focus-visible{outline:2px solid #fff;}
+  button.ghost{
+    background:transparent;
+    color:var(--ink-dim);
+    border:1px solid var(--line);
+  }
+  button.ghost:hover{color:var(--ink);border-color:var(--ink-dim);}
 
-    select { background: #111520; border: 1px solid #1e2438; color: #6b7a99; padding: 6px 32px 6px 12px; border-radius: 4px; font-size: 12px; font-family: 'Space Mono', monospace; cursor: pointer; outline: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236b7a99' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; }
+  /* ---- tabs ---- */
+  .tabs{
+    display:flex;
+    gap:2px;
+    padding:0 24px;
+    background:var(--surface);
+    border-bottom:1px solid var(--line);
+  }
+  .tab-btn{
+    background:transparent;
+    color:var(--ink-dim);
+    border:none;
+    border-radius:0;
+    padding:11px 16px;
+    font-size:12px;
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    border-bottom:2px solid transparent;
+    text-decoration:none;
+    display:inline-flex;
+    align-items:center;
+    cursor:pointer;
+  }
+  .tab-btn{transition:color .15s ease, border-bottom-color .15s ease;}
+  .tab-btn:hover{color:var(--ink);border-bottom-color:var(--gold);}
+  .tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+  .tab-panel{display:none;}
+  .tab-panel.active{display:block;}
+  .tab-sep{
+    width:1px;
+    background:var(--line);
+    margin:10px 4px;
+    align-self:stretch;
+  }
 
-    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-    .section-label { font-size: 12px; color: #4a5578; letter-spacing: 0.08em; font-weight: 700; }
-    .install-all { background: transparent; border: 1px solid #1e2438; color: #6b7a99; padding: 6px 14px; border-radius: 4px; font-size: 11px; font-family: 'Space Mono', monospace; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all 0.15s; }
-    .install-all:hover { border-color: #2e3650; color: #aab; }
+  /* ---- ticker ---- */
+  .ticker-wrap{
+    border-bottom:1px solid var(--line);
+    background:var(--surface);
+    overflow:hidden;
+    white-space:nowrap;
+    position:relative;
+  }
+  .ticker{
+    display:inline-flex;
+    padding:9px 0;
+    animation: scroll 42s linear infinite;
+  }
+  .ticker:hover{animation-play-state:paused;}
+  @keyframes scroll{
+    0%{transform:translateX(0);}
+    100%{transform:translateX(-50%);}
+  }
+  .tick-item{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:0 20px;
+    font-size:12px;
+    border-right:1px solid var(--line);
+    white-space:nowrap;
+  }
+  .tick-item .q{color:var(--ink-dim);}
+  .tick-item .p{font-weight:600;}
+  .tick-item .d.up{color:var(--up);}
+  .tick-item .d.down{color:var(--down);}
+  .trend{font-size:10px;margin-left:4px;display:inline-block;}
+  .trend.up{color:var(--up);}
+  .trend.down{color:var(--down);}
+  .vol-surge{font-size:10px;margin-left:5px;display:inline-block;color:#ff9f43;background:rgba(255,159,67,0.12);border:1px solid rgba(255,159,67,0.35);padding:1px 5px;border-radius:3px;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+  .wv-strong{font-size:10px;margin-left:5px;display:inline-block;color:#e8c94a;background:rgba(232,201,74,0.14);border:1px solid rgba(232,201,74,0.45);padding:1px 5px;border-radius:3px;font-family:'JetBrains Mono',monospace;white-space:nowrap;}
+  tbody tr.wv-strong-row{background:rgba(232,201,74,0.07);box-shadow:inset 2px 0 0 #e8c94a;}
+  tbody tr.wv-strong-row:hover{background:rgba(232,201,74,0.12);}
+  .market-card.wv-strong-row{background:rgba(232,201,74,0.08);border-color:rgba(232,201,74,0.4);}
+  .wallet-btn{
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    color:var(--ink-dim);
+    font-size:12px;
+    padding:3px 7px;
+    border-radius:4px;
+    cursor:pointer;
+    margin-left:6px;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .wallet-btn:hover{border-color:var(--gold);color:var(--gold);}
+  .live-feed{
+    background:var(--surface); border:1px solid var(--line); border-radius:6px;
+    margin-bottom:14px; overflow:hidden;
+  }
+  .live-feed-head{
+    display:flex; align-items:center; gap:8px; padding:10px 14px;
+    border-bottom:1px solid var(--line); font-size:11.5px; color:var(--ink-dim);
+  }
+  .live-dot{
+    width:8px; height:8px; border-radius:50%; background:var(--up); flex:none;
+    animation:liveDotPulse 1.6s infinite;
+  }
+  @keyframes liveDotPulse{
+    0%{box-shadow:0 0 0 0 rgba(63,191,127,0.5);}
+    70%{box-shadow:0 0 0 6px rgba(63,191,127,0);}
+    100%{box-shadow:0 0 0 0 rgba(63,191,127,0);}
+  }
+  .live-feed-toggle{
+    margin-left:auto; background:var(--surface-2); border:1px solid var(--line); color:var(--ink-dim);
+    font-size:11px; padding:4px 9px; border-radius:4px; cursor:pointer; font-family:'JetBrains Mono',monospace;
+  }
+  .live-feed-toggle:hover{border-color:var(--gold); color:var(--gold);}
+  .live-feed-list{max-height:65vh; overflow-y:auto; padding:4px 14px;}
+  .live-trade-row{
+    display:flex; align-items:center; gap:10px; padding:6px 0;
+    border-bottom:1px solid var(--line); font-size:11.5px;
+  }
+  .live-trade-row:last-child{border-bottom:none;}
+  .live-trade-row .lt-side{font-family:'JetBrains Mono'; font-weight:700; width:62px; flex:none; font-size:10.5px;}
+  .live-trade-row .lt-side.buy{color:var(--up);}
+  .live-trade-row .lt-side.sell{color:var(--down);}
+  .live-trade-row .lt-title{flex:1; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .live-trade-row .lt-amt{font-family:'JetBrains Mono'; color:var(--gold); flex:none; font-size:11px;}
+  .live-trade-row .lt-time{color:var(--ink-dim); font-family:'JetBrains Mono'; flex:none; width:44px; text-align:right; font-size:10.5px;}
+  .alert-toggle{
+    background:var(--surface-2); border:1px solid var(--line); color:var(--ink-dim);
+    font-size:11px; padding:6px 10px; border-radius:4px; cursor:pointer; margin-left:10px;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .alert-toggle.on{background:rgba(232,201,74,0.14); border-color:#e8c94a; color:#e8c94a;}
+  .alert-toggle.on.pulse{animation:alertPulse 1.4s ease-in-out infinite;}
+  @keyframes alertPulse{0%,100%{box-shadow:0 0 0 0 rgba(232,201,74,0.35);}50%{box-shadow:0 0 0 5px rgba(232,201,74,0);}}
+  .wallet-row input.alert-threshold-input{
+    width:77px; max-width:77px; background:var(--surface-2); border:1px solid var(--line); color:var(--ink-dim);
+    font-family:'JetBrains Mono',monospace; font-size:11px; padding:6px 8px; border-radius:4px; margin-left:6px;
+  }
+  .alert-threshold-input:focus{outline:1px solid var(--gold); border-color:var(--gold); color:var(--ink);}
+  .toast-stack{
+    position:fixed; bottom:18px; right:18px; z-index:1200;
+    display:flex; flex-direction:column; gap:8px; max-width:340px;
+  }
+  .toast{
+    background:var(--surface); border:1px solid #e8c94a; border-left:3px solid #e8c94a;
+    border-radius:6px; padding:11px 14px; box-shadow:0 10px 30px rgba(0,0,0,0.4);
+    animation:toastIn 0.25s ease-out;
+  }
+  @keyframes toastIn{from{opacity:0; transform:translateX(20px);} to{opacity:1; transform:translateX(0);}}
+  .toast .t-head{display:flex; align-items:center; gap:6px; font-size:11px; color:#e8c94a; font-weight:600; margin-bottom:4px;}
+  .toast .t-title{font-size:12px; color:var(--ink); line-height:1.4; margin-bottom:6px;}
+  .toast .t-stats{font-size:10.5px; color:var(--ink-dim); font-family:'JetBrains Mono';}
+  .toast .t-close{position:absolute; top:6px; right:8px; background:none; border:none; color:var(--ink-dim); cursor:pointer; font-size:12px;}
+  .toast{position:relative;}
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(6,8,11,0.7);
+    display:flex; align-items:center; justify-content:center;
+    z-index:1000; padding:20px;
+  }
+  .modal-box{
+    background:var(--surface); border:1px solid var(--line); border-radius:8px;
+    max-width:660px; width:100%; max-height:82vh; overflow-y:auto;
+    padding:0; box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  }
+  .modal-head{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:14px 18px; border-bottom:1px solid var(--line);
+    position:sticky; top:0; background:var(--surface);
+  }
+  .modal-head h3{font-size:13.5px; color:var(--ink); font-weight:600; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .modal-close{background:none; border:1px solid var(--line); color:var(--ink-dim); border-radius:4px; width:26px; height:26px; cursor:pointer; font-size:14px; flex:none;}
+  .modal-close:hover{border-color:var(--down); color:var(--down);}
+  .modal-sub{padding:10px 18px 0; font-size:11px; color:var(--ink-dim); line-height:1.5;}
+  .modal-list{padding:10px 18px 18px;}
+  .wallet-row{
+    display:flex; align-items:center; gap:10px;
+    padding:9px 10px; border-radius:6px; margin-bottom:6px;
+    background:var(--surface-2); border:1px solid var(--line);
+  }
+  .wallet-row .wr-rank{color:var(--gold); font-family:'JetBrains Mono'; font-size:11px; width:20px; flex:none;}
+  .wallet-row .wr-id{flex:1; min-width:0;}
+  .wallet-row .wr-name{font-size:12.5px; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .wallet-row .wr-addr{font-size:10.5px; color:var(--ink-dim); font-family:'JetBrains Mono'; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .wallet-row .wr-stats{font-size:11px; color:var(--ink-dim); text-align:right; flex:none; font-family:'JetBrains Mono';}
+  .wallet-row .wr-stats b{color:var(--gold); display:block; font-size:12px;}
+  .wr-copy{
+    background:var(--surface); border:1px solid var(--line); color:var(--ink-dim);
+    font-size:11px; padding:5px 8px; border-radius:4px; cursor:pointer; flex:none;
+    font-family:'JetBrains Mono',monospace;
+  }
+  .wr-copy:hover{border-color:var(--gold); color:var(--gold);}
+  .wr-copy.copied{border-color:var(--up); color:var(--up);}
 
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; margin-bottom: 40px; }
+  /* ---- layout ---- */
+  main{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap:1px;
+    background:var(--line);
+  }
+  section{background:var(--bg);padding:20px;}
+  .panel-title{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--ink-dim);
+    margin:0 0 14px 0;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .panel-title .num{color:var(--gold);font-family:'JetBrains Mono';}
+  .fresh-badge{
+    font-family:'JetBrains Mono';
+    font-size:10px;
+    font-weight:400;
+    text-transform:none;
+    letter-spacing:0;
+    color:var(--ink-dim);
+    margin-left:8px;
+  }
+  .fresh-badge.stale{color:var(--down);}
+  .fresh-badge.ok::before{content:"● ";color:var(--up);font-size:8px;}
+  .fresh-badge.stale::before{content:"● ";color:var(--down);font-size:8px;}
 
-    .card { background: linear-gradient(135deg, #0f1e3a 0%, #1a1040 100%); border: 1px solid #6366f130; border-radius: 8px; padding: 18px 20px 16px; text-decoration: none; color: inherit; display: block; transition: all 0.25s ease; cursor: pointer; }
-    .card:hover { border-color: #a78bfa90; transform: translateY(-3px); box-shadow: 0 8px 32px rgba(99,102,241,0.25); background: linear-gradient(135deg, #132540 0%, #221660 100%); }
+  /* ---- market table ---- */
+  table{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed;}
+  colgroup col.col-market{width:auto;}
+  colgroup col.col-icon{width:40px;}
+  colgroup col.col-num{width:140px;}
+  thead th{
+    text-align:left;
+    color:var(--ink-dim);
+    font-weight:500;
+    font-size:11px;
+    letter-spacing:0.05em;
+    text-transform:uppercase;
+    padding:8px 10px;
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+    user-select:none;
+    white-space:nowrap;
+  }
+  thead th.th-num{text-align:right;}
+  thead th:hover{color:var(--ink);}
+  thead th.active{color:var(--gold);}
+  tbody tr{border-bottom:1px solid var(--line);}
+  tbody tr:hover{background:var(--surface);}
+  tbody td{padding:9px 10px;vertical-align:middle;}
+  td.q{max-width:none;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  td.num{font-family:'JetBrains Mono';text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  td.icon{padding:6px 6px 6px 10px;}
+  .market-icon{
+    width:28px;height:28px;border-radius:6px;object-fit:cover;
+    background:var(--surface-2);border:1px solid var(--line);display:block;
+  }
+  .market-icon.fallback{
+    display:flex;align-items:center;justify-content:center;
+    font-size:13px;color:var(--ink-dim);
+  }
+  .chip{
+    display:inline-block;
+    padding:2px 7px;
+    border-radius:3px;
+    font-size:11px;
+    font-weight:600;
+  }
+  .chip.yes{background:rgba(63,191,127,0.14);color:var(--up);}
+  .chip.no{background:rgba(229,72,77,0.14);color:var(--down);}
 
-    .card-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .card-icon { font-size: 22px; }
-    .card-level { font-size: 10px; font-weight: 700; display: flex; align-items: center; gap: 5px; }
-    .level-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+  .empty, .loading, .err{
+    color:var(--ink-dim);
+    font-size:12px;
+    padding:30px 10px;
+    text-align:center;
+  }
+  .err{color:var(--down);}
+  a.mlink{color:inherit;text-decoration:none;}
+  a.mlink:hover .q{color:var(--gold);}
 
-    .card-title { font-size: 22px; font-weight: 700; color: #a78bfa; margin-bottom: 8px; line-height: 1.3; }
-    .card-desc { font-size: 12px; color: #6b7a99; line-height: 1.6; margin-bottom: 16px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+  footer{
+    padding:14px 24px;
+    color:var(--ink-dim);
+    font-size:11px;
+    border-top:1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:8px;
+  }
+  .filter-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
+  .filter-row .num{color:var(--gold);font-family:'JetBrains Mono';font-size:12px;}
+  .filter-row button{background:var(--surface-2);color:var(--ink-dim);border:1px solid var(--line);text-transform:none;font-family:'JetBrains Mono';font-weight:400;padding:6px 10px;}
+  .filter-row button.on{background:var(--gold);color:#161200;border-color:var(--gold);}
+  .cat-select{
+    background:var(--surface-2);
+    color:var(--ink-dim);
+    border:1px solid var(--line);
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    padding:6px 8px;
+    border-radius:4px;
+    accent-color:var(--gold);
+  }
+  .cat-select:focus{outline:1px solid var(--gold);border-color:var(--gold);}
 
-    .card-footer { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #6366f120; padding-top: 12px; }
-    .card-author { font-size: 11px; color: #4a5578; }
-    .card-author span { color: #6b7a99; }
-    .card-stats { display: flex; gap: 12px; font-size: 11px; color: #4a5578; }
+  /* ---- taker rebate panel ---- */
+  .tier-steps{display:flex;gap:3px;margin-bottom:16px;}
+  .tier-step{
+    flex:1;
+    text-align:center;
+    padding:5px 2px;
+    border-radius:3px;
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    font-size:12px;
+    opacity:.45;
+  }
+  .tier-step.done{opacity:.75;}
+  .tier-step.current{opacity:1;background:var(--surface);}
+  .tier-row{display:flex;align-items:baseline;gap:8px;margin-bottom:2px;}
+  .tier-icon{font-size:20px;}
+  .tier-badge{font-family:'Space Grotesk', sans-serif;font-weight:700;font-size:22px;}
+  .tier-rebate{color:var(--ink-dim);font-size:12px;}
+  .wv-line{color:var(--ink-dim);font-size:11.5px;margin-bottom:14px;}
+  .spark-title{font-size:10px;color:var(--ink-dim);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:6px;}
+  .spark-wrap{
+    background:var(--surface-2);
+    border:1px solid var(--line);
+    border-radius:4px;
+    padding:8px;
+    margin-bottom:16px;
+    height:60px;
+  }
+  .wv-sparkline{width:100%;height:100%;display:block;}
+  .spark-legend{display:flex;justify-content:space-between;font-size:10px;color:var(--ink-dim);margin:4px 0 16px;font-family:'JetBrains Mono';}
+  .wv-line b{color:var(--ink);font-weight:600;}
+  .ladder{position:relative;height:6px;border-radius:3px;background:var(--surface-2);margin-bottom:6px;overflow:hidden;}
+  .ladder-fill{height:100%;transition:width .5s ease;}
+  .ladder-ticks{display:flex;justify-content:space-between;font-size:9px;color:var(--ink-dim);margin-bottom:16px;}
+  .next-progress-label{display:flex;justify-content:space-between;font-size:11px;color:var(--ink-dim);margin-bottom:6px;}
+  .next-tier{font-size:11.5px;color:var(--ink-dim);margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--line);}
+  .next-tier b{color:var(--ink);}
+  .cats-title{font-size:11px;letter-spacing:0.05em;text-transform:uppercase;color:var(--ink-dim);margin-bottom:10px;}
+  .cat-row{display:flex;align-items:center;gap:8px;font-size:11.5px;padding:4px 0;}
+  .cat-name{width:110px;flex-shrink:0;color:var(--ink-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .cat-mult{color:var(--gold);font-family:'JetBrains Mono';font-size:10px;}
+  .cat-bar-track{flex:1;height:5px;background:var(--surface-2);border-radius:3px;overflow:hidden;}
+  .cat-bar-fill{height:100%;border-radius:3px;background:var(--gold-dim);}
+  .cat-val{font-family:'JetBrains Mono';width:64px;text-align:right;flex-shrink:0;}
 
-    .banner { background: linear-gradient(135deg, #0f1e3a 0%, #1a1040 100%); border: 1px solid #6366f130; border-radius: 12px; padding: 18px 24px; margin-bottom: 36px; display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; animation: fadeUp 0.4s ease 0.1s both; }
-    .banner-text h2 { font-size: 22px; color: #a78bfa; margin-bottom: 6px; }
-    .banner-text p { font-size: 12px; color: #6b7a99; }
-    .banner-btn { background: linear-gradient(135deg, #6366f1, #a78bfa); color: #fff; padding: 10px 22px; border-radius: 8px; font-size: 12px; font-weight: 700; text-decoration: none; white-space: nowrap; font-family: 'Space Mono', monospace; }
-
-    .footer-links { margin-top: 48px; padding-top: 24px; border-top: 1px solid #1e2438; display: flex; gap: 24px; flex-wrap: wrap; }
-    .footer-links a { font-size: 11px; color: #4a5578; text-decoration: none; display: flex; align-items: center; gap: 6px; }
-    .footer-links a:hover { color: #6b7a99; }
-
-    .hidden { display: none; }
-  </style>
+  /* ---- wV candidates section ---- */
+  .wv-section{
+    border-bottom:1px solid var(--line);
+    padding:20px 24px 24px;
+  }
+  .rebate-section{
+    border-bottom:1px solid var(--line);
+    padding:20px 24px 24px;
+    max-width:680px;
+  }
+  #tab-elon .rebate-section{max-width:900px;}
+  .elon-sub{font-size:11.5px;color:var(--ink-dim);line-height:1.6;margin:8px 0 16px;}
+  .elon-sub a{color:var(--gold);}
+  .elon-calc{
+    background:var(--surface); border:1px solid var(--line); border-radius:6px;
+    padding:16px 18px; margin-bottom:18px;
+  }
+  .elon-calc-grid{
+    display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin-bottom:16px;
+  }
+  .elon-calc-grid label{
+    display:flex; flex-direction:column; gap:6px; font-size:11px; color:var(--ink-dim);
+    text-transform:uppercase; letter-spacing:0.04em;
+  }
+  .elon-input{
+    background:var(--surface-2); border:1px solid var(--line); color:var(--ink);
+    font-family:'JetBrains Mono', monospace; font-size:14px; padding:8px 10px; border-radius:4px;
+  }
+  .elon-input:focus{outline:1px solid var(--gold); border-color:var(--gold);}
+  .elon-calc-results{
+    display:flex; gap:24px; flex-wrap:wrap; padding-top:12px; border-top:1px solid var(--line);
+  }
+  .elon-calc-results .ecr{font-size:12px;}
+  .elon-calc-results .ecr .l{color:var(--ink-dim); display:block; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:3px;}
+  .elon-calc-results .ecr .v{font-family:'JetBrains Mono'; font-weight:700; font-size:18px; color:var(--gold);}
+  .elon-calc-results .ecr.mid .v{color:var(--ink);}
+  .elon-market-load{margin-bottom:14px;}
+  .elon-market-load code{background:var(--surface-2); padding:1px 5px; border-radius:3px; font-size:11px;}
+  .elon-bucket-row{
+    display:flex; align-items:center; gap:14px; padding:9px 12px; border-radius:6px;
+    margin-bottom:5px; background:var(--surface-2); border:1px solid var(--line);
+  }
+  .elon-bucket-row.match{border-color:var(--gold); background:rgba(201,162,39,0.1); box-shadow:inset 2px 0 0 var(--gold);}
+  .elon-bucket-row .eb-label{flex:1; font-size:12.5px; color:var(--ink);}
+  .elon-bucket-row .eb-price{font-family:'JetBrains Mono'; font-weight:600; font-size:13px; color:var(--ink);}
+  .elon-bucket-row .eb-match-tag{font-size:10px; color:var(--gold); font-family:'JetBrains Mono'; border:1px solid var(--gold); border-radius:3px; padding:1px 5px;}
+</style>
 </head>
 <body>
-<div class="wrapper">
 
-  <h1>POLYMARKET_STRATEGIES</h1>
+<header>
+  <div class="brand">
+    <div class="mark">POLY<span>COCKPIT</span></div>
+    <div class="sub">by BlueMoon</div>
+  </div>
+  <div class="wallet-row">
+    <input id="walletInput" type="text" value="0xe786C3487e60Cf9ae9cdE877791614E0aC3d9D92" spellcheck="false">
+    <button id="loadBtn">Charger</button>
+    <button class="ghost" id="refreshBtn">↻ Rafraîchir</button>
+    <span class="fresh-badge" id="freshMarkets"></span>
+    <button class="alert-toggle" id="alertToggleBtn" title="Alerte son + notification quand un nouveau marché wV fort à gros volume apparaît (auto-refresh en arrière-plan)">🔔 Alertes wV fort : OFF</button>
+    <input type="number" id="alertVolThreshold" class="alert-threshold-input" value="50000" min="0" step="1000" title="Volume 24h minimum pour déclencher une alerte ($)">
+    <span class="view-toggle" id="langToggle" title="Langue des noms de marché">
+      <button data-lang="en" class="on">EN</button>
+      <button data-lang="fr">FR</button>
+    </span>
+  </div>
+</header>
 
-  <!-- Wallet Stats -->
-  <div id="wallet-stats" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:12px; margin: 28px 0;">
-    <div class="stat-card">
-      <div class="stat-label">VOLUME TOTAL</div>
-      <div class="stat-value" id="val-volume"><span class="loading">…</span></div>
+<div class="ticker-wrap">
+  <div class="ticker" id="ticker">
+    <div class="tick-item"><span class="q">Chargement du fil des marchés…</span></div>
+  </div>
+</div>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="dashboard">Marchés tendance</button>
+  <button class="tab-btn" data-tab="live">📡 Activité en direct</button>
+  <button class="tab-btn" data-tab="wv">Taker Rebate Tiers</button>
+  <button class="tab-btn" data-tab="elon">🐦 Projection Tweets</button>
+  <span class="tab-sep"></span>
+  <a class="tab-btn" href="https://polymarket.com/rewards?id=competitiveness&desc=true&q=&page=17" target="_blank" rel="noopener" title="Maximise les récompenses journalières en ciblant les marchés compétitifs avec les meilleurs multiplicateurs de rewards.">🎁 Récompenses</a>
+  <a class="tab-btn" href="https://polymarket.com/predictions/earn-4" target="_blank" rel="noopener" title="Dépose des USDC sur Polymarket et gagne 4% APY passivement.">💰 Gagnez 4 %</a>
+  <a class="tab-btn" href="https://polymarket.com/fr/rewards?desc=false&id=earnings&onlyPositions=false&q=" target="_blank" rel="noopener">💰 Récompenses Quotidiennes</a>
+</nav>
+
+<div class="tab-panel active" id="tab-dashboard">
+<main>
+  <section>
+    <div class="panel-title">
     </div>
-    <div class="stat-card">
-      <div class="stat-label">PNL ALL TIME</div>
-      <div class="stat-value" id="val-pnl"><span class="loading">…</span></div>
+    <div class="filter-row" id="filterRow">
+      <input type="text" id="marketSearch" class="search-input" placeholder="Rechercher un marché…" spellcheck="false">
+      <span class="num" id="marketCount"></span>
+      <span id="marketFilterControls" style="display:contents">
+        <button data-f="volume24hr" class="on">Volume 24h</button>
+        <button data-f="new">Récents</button>
+        <select id="categorySelect" class="cat-select" title="Filtrer par catégorie">
+          <option value="all">Toutes catégories</option>
+          <option value="crypto">Crypto</option>
+          <option value="politics">Politics</option>
+          <option value="sports">Sports</option>
+          <option value="finance">Finance</option>
+          <option value="tech">Tech</option>
+          <option value="economics">Economics</option>
+          <option value="culture">Culture</option>
+          <option value="weather">Weather</option>
+          <option value="geopolitics">Geopolitics</option>
+        </select>
+        <select id="gridSortSelect" class="cat-select" title="Trier les marchés">
+          <option value="volume24hr">Trier : Volume 24h</option>
+          <option value="outcome">Trier : Prix</option>
+          <option value="spread">Trier : Spread</option>
+          <option value="liquidity">Trier : Liquidité</option>
+          <option value="weight">Trier : Multiplicateur</option>
+          <option value="wvpd">Trier : wV/$</option>
+          <option value="opportunity">Trier : Meilleures opportunités</option>
+          <option value="endDate">Trier : Fin</option>
+        </select>
+        <span class="view-toggle" id="viewToggle">
+          <button data-view="list" class="on" title="Vue liste">☰ Liste</button>
+          <button data-view="grid" title="Vue grille">▦ Grille</button>
+        </span>
+      </span>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">REWARDS LP</div>
-      <div class="stat-value" id="val-lp"><span class="loading">…</span></div>
+
+    <div style="overflow-x:auto;" id="marketListView">
+      <table>
+        <colgroup>
+          <col class="col-icon">
+          <col class="col-market">
+          <col class="col-num">
+          <col class="col-num">
+          <col class="col-num">
+          <col class="col-num">
+          <col class="col-num">
+          <col class="col-num">
+        </colgroup>
+        <thead>
+          <tr>
+            <th></th>
+            <th data-sort="question">Marché</th>
+            <th data-sort="outcome" class="th-num">Prix</th>
+            <th data-sort="spread" class="th-num">Spread</th>
+            <th data-sort="volume24hr" class="th-num">Vol. 24h</th>
+            <th data-sort="liquidity" class="th-num">Liquidité</th>
+            <th data-sort="weight" class="th-num">Multiplicateur</th>
+            <th data-sort="wvpd" class="th-num" title="wV généré par $ tradé : (1-prix) × poids catégorie. 0 si le marché n'a pas les frais taker activés.">wV/$</th>
+            <th data-sort="endDate" class="th-num">Fin</th>
+          </tr>
+        </thead>
+        <tbody id="marketBody">
+          <tr><td colspan="9"><div class="loading">Chargement des marchés…</div></td></tr>
+        </tbody>
+      </table>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">PSEUDO</div>
-      <div class="stat-value" id="val-name" style="font-size:16px;"><span class="loading">…</span></div>
+    <div class="market-grid" id="marketGridView" style="display:none;">
+      <div class="loading">Chargement des marchés…</div>
     </div>
-    <div class="stat-card">
-      <div class="stat-label">WALLET</div>
-      <div class="stat-value" style="font-size:11px;">
-        <a href="https://www.betmoar.fun/profile/0xe786c3487e60cf9ae9cde877791614e0ac3d9d92?tab=portfolio" target="_blank" style="color:#818cf8; text-decoration:none;">0xe786...D92 ↗</a>
-      </div>
+  </section>
+</main>
+</div>
+
+<div class="tab-panel" id="tab-wv">
+<div class="rebate-section">
+  <div class="panel-title">Taker rebate tier <span class="fresh-badge" id="freshRebate"></span></div>
+  <div id="rebatePanel"><div class="loading">Charge un wallet pour voir le tier.</div></div>
+</div>
+</div>
+
+<div class="tab-panel" id="tab-elon">
+<div class="rebate-section">
+  <div class="panel-title">🐦 Projection tweets Elon Musk</div>
+  <div class="elon-sub">
+    Calcule une projection du nombre total de posts sur la fenêtre du marché à partir du rythme récent,
+    puis compare-la aux tranches ("buckets") du marché Polymarket pour repérer si le prix reflète bien ta propre estimation.
+    Va chercher le décompte et le rythme récent sur un tracker en direct :
+    <a href="https://xtracker.polymarket.com/user/elonmusk" target="_blank" rel="noopener">xtracker</a> ·
+    <a href="https://www.muskmeter.live/" target="_blank" rel="noopener">muskmeter</a> ·
+    <a href="https://postxpulse.com/elon-musk/tweets-last-7-days" target="_blank" rel="noopener">postxpulse</a>
+  </div>
+
+  <div class="elon-calc">
+    <div class="elon-calc-grid">
+      <label>Tweets déjà comptés dans la fenêtre
+        <input type="number" id="elonCounted" class="elon-input" value="0" min="0">
+      </label>
+      <label>Jours écoulés
+        <input type="number" id="elonElapsed" class="elon-input" value="0" min="0" step="0.5">
+      </label>
+      <label>Jours restants
+        <input type="number" id="elonRemaining" class="elon-input" value="7" min="0" step="0.5">
+      </label>
+      <label>Rythme récent (tweets/jour)
+        <input type="number" id="elonRate" class="elon-input" value="25" min="0" step="0.5">
+      </label>
+    </div>
+    <div class="elon-calc-results" id="elonResults"></div>
+  </div>
+
+  <div class="elon-market-load">
+    <div class="elon-sub" style="margin-top:0;">Colle l'URL, le slug, ou juste le titre du marché Polymarket (ex. <code>elon-musk-of-tweets-july-10-july-17-2026</code> ou "Elon Musk # tweets July 10 - July 17, 2026") pour comparer aux tranches en direct :</div>
+    <div class="filter-row" style="margin-top:6px;">
+      <input type="text" id="elonSlugInput" class="search-input" style="width:400px;" placeholder="URL ou slug du marché…" spellcheck="false">
+      <button class="ghost" id="elonLoadBtn">Charger le marché</button>
     </div>
   </div>
 
-  <style>
-    .stat-card { background: linear-gradient(135deg, #0f1e3a 0%, #1a1040 100%); border: 1px solid #6366f130; border-radius: 8px; padding: 18px 20px; transition: all 0.25s ease; }
-    .stat-card:hover { border-color: #a78bfa90; transform: translateY(-3px); box-shadow: 0 8px 32px rgba(99,102,241,0.25); }
-    .stat-label { font-size: 10px; color: #4a5578; letter-spacing: 0.1em; font-weight: 700; margin-bottom: 10px; }
-    .stat-value { font-size: 24px; font-weight: 700; color: #a78bfa; }
-    .loading { font-size: 20px; color: #2e3650; animation: loadpulse 1.2s infinite; }
-    @keyframes loadpulse { 0%,100%{opacity:1} 50%{opacity:0.2} }
-  </style>
+  <div id="elonBuckets"></div>
+</div>
+</div>
 
-  <script>
-    const WALLET = "0xe786C3487e60Cf9ae9cdE877791614E0aC3d9D92";
-
-    function fmtVol(n) {
-      if (!n && n !== 0) return "—";
-      if (n >= 1000000) return "$" + (n/1000000).toFixed(2) + "M";
-      if (n >= 1000) return "$" + (n/1000).toFixed(1) + "K";
-      return "$" + n.toFixed(0);
-    }
-    function fmtPnl(n) {
-      if (!n && n !== 0) return "—";
-      const sign = n >= 0 ? "+" : "-";
-      const abs = Math.abs(n);
-      const str = abs >= 1000 ? "$" + (abs/1000).toFixed(1) + "K" : "$" + abs.toFixed(0);
-      return sign + str;
-    }
-
-    async function loadStats() {
-      // 1. Profil public (gamma-api — CORS OK)
-      try {
-        const r = await fetch(`https://gamma-api.polymarket.com/public-profile?address=${WALLET}`);
-        const p = await r.json();
-        const name = p.name || p.pseudonym || "BlueMoon69";
-        document.getElementById("val-name").innerHTML =
-          `<span style="color:#a78bfa">${name}</span>`;
-      } catch(e) {
-        document.getElementById("val-name").innerHTML = `<span style="color:#a78bfa">BlueMoon69</span>`;
-      }
-
-      // 2. Rewards LP = REWARD + YIELD
-      try {
-        let lpTotal = 0;
-        let offset = 0;
-        const limit = 500;
-        while (true) {
-          const r = await fetch(`https://data-api.polymarket.com/activity?user=${WALLET}&limit=${limit}&offset=${offset}`);
-          const acts = await r.json();
-          if (!Array.isArray(acts) || acts.length === 0) break;
-          acts
-            .filter(a => a.type === "REWARD" || a.type === "YIELD")
-            .forEach(a => { lpTotal += parseFloat(a.usdcSize || a.amount || a.size || 0); });
-          if (acts.length < limit) break;
-          offset += limit;
-        }
-        const color = lpTotal >= 0 ? "#4ade80" : "#f87171";
-        document.getElementById("val-lp").innerHTML =
-          `<span style="color:${color}">${lpTotal >= 0 ? "+" : ""}${fmtVol(lpTotal)}</span>`;
-      } catch(e) {
-        document.getElementById("val-lp").innerHTML = `<span style="color:#4ade80">+$89</span>`;
-      }
-
-      // 3. Volume + PNL via leaderboard ALL time
-      try {
-        const r = await fetch(`https://data-api.polymarket.com/v1/leaderboard?user=${WALLET}&timePeriod=ALL&orderBy=VOL&limit=1`);
-        const d = await r.json();
-        if (Array.isArray(d) && d.length > 0) {
-          const entry = d[0];
-          document.getElementById("val-volume").innerHTML =
-            `<span style="color:#a78bfa">${fmtVol(entry.vol)}</span>`;
-          const pnlColor = (entry.pnl || 0) >= 0 ? "#4ade80" : "#f87171";
-          document.getElementById("val-pnl").innerHTML =
-            `<span style="color:${pnlColor}">${fmtPnl(entry.pnl)}</span>`;
-        } else {
-          // fallback valeurs statiques connues
-          document.getElementById("val-volume").innerHTML = `<span style="color:#a78bfa">$486.5K</span>`;
-          document.getElementById("val-pnl").innerHTML = `<span style="color:#4ade80">+$441</span>`;
-        }
-      } catch(e) {
-        document.getElementById("val-volume").innerHTML = `<span style="color:#a78bfa">$486.5K</span>`;
-        document.getElementById("val-pnl").innerHTML = `<span style="color:#4ade80">+$441</span>`;
-      }
-    }
-
-    loadStats();
-  </script>
-
-
-
-
-
-
-  <!-- Official Section -->
-  <div id="section-official">
-    <div class="grid" id="grid-official"></div>
+<div class="tab-panel" id="tab-live">
+<div class="rebate-section" style="max-width:none;">
+  <div class="panel-title">📡 Activité en direct</div>
+  <div class="elon-sub" style="margin-top:8px;">Derniers trades sur les 8 marchés avec le plus gros volume 24h, rafraîchis automatiquement toutes les 20 secondes.</div>
+  <div class="live-feed" id="liveFeedBox">
+    <div class="live-feed-head">
+      <span class="live-dot"></span> Activité en direct — trades sur les marchés à gros volume
+      <button id="liveFeedToggle" class="live-feed-toggle">Masquer</button>
+    </div>
+    <div class="live-feed-list" id="liveFeedList"><div class="loading">En attente de trades…</div></div>
   </div>
+</div>
+</div>
 
-  <!-- Community Section -->
-  <div id="section-community">
-    <div class="grid" id="grid-community"></div>
+<footer>
+  <span>Données publiques Polymarket (Gamma API / Data API), non affiliées à Polymarket.</span>
+  <span id="lastUpdate"></span>
+</footer>
+
+<div class="toast-stack" id="toastStack"></div>
+
+<div class="modal-overlay" id="walletModalOverlay" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3 id="walletModalTitle">Wallets actifs</h3>
+      <button class="modal-close" id="walletModalClose">✕</button>
+    </div>
+    <div class="modal-sub">Wallets qui ont tradé en <b>taker</b> sur ce marché récemment, classés par volume — pour repérer qui farme le wV ici et t'en inspirer ou les copier.</div>
+    <div class="modal-list" id="walletModalList"><div class="loading">Chargement…</div></div>
   </div>
-
-  <!-- Footer -->
-  <div class="footer-links">
-    <a href="https://polymarket.com/predictions/earn-4" target="_blank"><span style="color:#4ade80">●</span> Earn 4% APY sur Polymarket →</a>
-    <a href="https://polymarket.com/rewards?id=competitiveness&desc=true&q=&page=18" target="_blank"><span style="color:#818cf8">●</span> Daily Rewards Leaderboard →</a>
-  </div>
-
 </div>
 
 <script>
-const CARDS = [
-  { id:1, icon:"💰", title:"Earn 4% APY", level:"Beginner", levelColor:"#4ade80", desc:"Dépose des USDC sur Polymarket et gagne 4% APY passivement. Aucun trading requis — tes fonds travaillent pour toi.", author:"Polymarket", version:"v2.1.0", stars:48, installs:12430, link:"https://polymarket.com/predictions/earn-4", official:true, tag:"earn" },
-  { id:4, icon:"🏆", title:"Daily Rewards Sniper", level:"Advanced", levelColor:"#f97316", desc:"Maximise les récompenses journalières en ciblant les marchés compétitifs avec les meilleurs multiplicateurs de rewards.", author:"Polymarket", version:"v3.0.1", stars:64, installs:18920, link:"https://polymarket.com/rewards?id=competitiveness&desc=true&q=&page=17", official:true, tag:"rewards" },
-  { id:5, icon:"🎯", title:"Competitiveness Tracker", level:"Beginner", levelColor:"#4ade80", desc:"Suis ton score de compétitivité quotidien et ton classement. Reçois des alertes quand les fenêtres à hautes récompenses s'ouvrent.", author:"Polymarket", version:"v1.6.0", stars:41, installs:9310, link:"https://polymarket.com/rewards?id=earnings&desc=false&q=&onlyPositions=false", official:true, tag:"rewards" },
-];
+const GAMMA = 'https://gamma-api.polymarket.com';
+const DATA = 'https://data-api.polymarket.com';
 
-let currentFilter = 'all';
-let currentSort = 'installs';
+let currentSort = 'volume24hr';
+let currentFilter = 'volume24hr';
 
-function makeCard(card, idx) {
-  return `
-    <a class="card" href="${card.link}" target="_blank" style="animation: fadeUp 0.4s ease ${idx*40}ms both">
-      <div class="card-top">
-        <span class="card-icon">${card.icon}</span>
-        <span class="card-level" style="color:${card.levelColor}">
-          <span class="level-dot" style="background:${card.levelColor}"></span>
-          ${card.level}
-        </span>
-      </div>
-      <div class="card-title">${card.title}</div>
-      <div class="card-desc">${card.desc}</div>
-      <div class="card-footer">
-        <span class="card-author">by <span>${card.author}</span> <span style="color:#2e3650">${card.version}</span></span>
+// ---- traduction des noms de marché (FR/EN) ----
+let uiLang = 'en';
+const titleTranslationCache = new Map(); // texte original -> texte traduit
+const titleTranslationInFlight = new Set();
 
-      </div>
-    </a>`;
+function displayTitle(text){
+  if(uiLang === 'en' || !text) return text;
+  if(titleTranslationCache.has(text)) return titleTranslationCache.get(text);
+  if(!titleTranslationInFlight.has(text)){
+    titleTranslationInFlight.add(text);
+    // Google Translate (non-officiel, sans clé) : bien plus naturel que MyMemory,
+    // proche du rendu vu sur polymarket.com/fr
+    fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=fr&dt=t&q=${encodeURIComponent(text)}`)
+      .then(r => { if(!r.ok) throw new Error('gtx failed'); return r.json(); })
+      .then(data => {
+        const translated = Array.isArray(data?.[0]) ? data[0].map(seg => seg[0]).join('') : null;
+        titleTranslationCache.set(text, translated || text);
+        titleTranslationInFlight.delete(text);
+        if(uiLang === 'fr') refreshVisibleTitles();
+      })
+      .catch(() => {
+        // repli sur MyMemory si Google Translate est indisponible
+        fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=en|fr`)
+          .then(r => r.json())
+          .then(data => {
+            const translated = data?.responseData?.translatedText;
+            titleTranslationCache.set(text, translated || text);
+            titleTranslationInFlight.delete(text);
+            if(uiLang === 'fr') refreshVisibleTitles();
+          })
+          .catch(()=>{ titleTranslationInFlight.delete(text); });
+      });
+  }
+  return text; // en attendant la traduction, on affiche l'original
 }
 
-function render() {
-  let filtered = CARDS.filter(c => {
-    if (currentFilter === 'all') return true;
-    if (currentFilter === 'earn') return c.tag === 'earn';
-    if (currentFilter === 'rewards') return c.tag === 'rewards';
-    if (currentFilter === 'beginner') return c.level === 'Beginner';
-    if (currentFilter === 'advanced') return c.level === 'Advanced';
-    return true;
+function refreshVisibleTitles(){
+  renderTicker();
+  renderMarkets();
+}
+
+document.getElementById('langToggle')?.addEventListener('click', (e)=>{
+  const btn = e.target.closest('button[data-lang]');
+  if(!btn) return;
+  document.querySelectorAll('#langToggle button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  uiLang = btn.dataset.lang;
+  refreshVisibleTitles();
+});
+let currentCategory = 'all';
+let marketsCache = [];
+const tagIdCache = {};
+
+async function getTagId(slug){
+  if(tagIdCache[slug] !== undefined) return tagIdCache[slug];
+  try{
+    const res = await fetch(`${GAMMA}/tags/slug/${slug}`);
+    if(!res.ok){ tagIdCache[slug] = null; return null; }
+    const tag = await res.json();
+    tagIdCache[slug] = tag && tag.id ? tag.id : null;
+    return tagIdCache[slug];
+  }catch(e){
+    tagIdCache[slug] = null;
+    return null;
+  }
+}
+
+function fmtUsd(n){
+  if(n===null || n===undefined || isNaN(n)) return '—';
+  const v = Number(n);
+  if(Math.abs(v) >= 1000000) return '$'+(v/1000000).toFixed(2)+'M';
+  if(Math.abs(v) >= 1000) return '$'+(v/1000).toFixed(1)+'K';
+  return '$'+v.toFixed(0);
+}
+function fmtPct(n){
+  if(n===null || n===undefined || isNaN(n)) return '—';
+  return (n>=0?'+':'')+(n*100).toFixed(1)+'%';
+}
+function setUpdated(){
+  document.getElementById('lastUpdate').textContent = 'Mis à jour ' + new Date().toLocaleTimeString('fr-FR');
+}
+
+/* ---- freshness tracking per panel ---- */
+const panelState = {
+  markets: { lastOk: null, stale: false },
+  rebate:  { lastOk: null, stale: false },
+  wv:      { lastOk: null, stale: false },
+};
+const FRESH_BADGE_IDS = { markets: 'freshMarkets', rebate: 'freshRebate', wv: 'freshWv' };
+
+function markPanelOk(key){
+  panelState[key].lastOk = Date.now();
+  panelState[key].stale = false;
+  renderFreshBadge(key);
+}
+function markPanelStale(key){
+  panelState[key].stale = true;
+  renderFreshBadge(key);
+}
+function relativeTime(ts){
+  const diffSec = Math.floor((Date.now() - ts) / 1000);
+  if(diffSec < 10) return "à l'instant";
+  if(diffSec < 60) return `il y a ${diffSec}s`;
+  const diffMin = Math.floor(diffSec / 60);
+  if(diffMin < 60) return `il y a ${diffMin}min`;
+  const diffH = Math.floor(diffMin / 60);
+  return `il y a ${diffH}h`;
+}
+function renderFreshBadge(key){
+  const el = document.getElementById(FRESH_BADGE_IDS[key]);
+  if(!el) return;
+  const s = panelState[key];
+  if(!s.lastOk){
+    el.textContent = '';
+    el.className = 'fresh-badge';
+    return;
+  }
+  const suffix = s.stale ? ' · échec du dernier rafraîchissement' : '';
+  el.textContent = relativeTime(s.lastOk) + suffix;
+  el.className = 'fresh-badge ' + (s.stale ? 'stale' : 'ok');
+}
+// recalcule le texte relatif ("il y a Xmin") toutes les 20s même sans nouveau chargement
+setInterval(() => { Object.keys(panelState).forEach(renderFreshBadge); }, 20000);
+
+let tickerCache = [];
+
+async function loadTicker(){
+  try{
+    const res = await fetch(`${GAMMA}/markets?order=volume24hr&ascending=false&limit=15&active=true&closed=false`);
+    const data = await res.json();
+    tickerCache = data;
+    renderTicker();
+  }catch(e){
+    document.getElementById('ticker').innerHTML = '<div class="tick-item"><span class="q err">Fil indisponible — réessaie plus tard.</span></div>';
+  }
+}
+
+function renderTicker(){
+  const el = document.getElementById('ticker');
+  if(!tickerCache.length) return;
+  const items = tickerCache.map(m=>{
+    let price = null;
+    try{ const prices = JSON.parse(m.outcomePrices || '[]'); price = prices[0]; }catch(e){}
+    const chg = m.oneDayPriceChange;
+    const dirClass = chg >= 0 ? 'up' : 'down';
+    const arrow = chg >= 0 ? '▲' : '▼';
+    return `<div class="tick-item"><span class="q">${escapeHtml(displayTitle((m.question||'').slice(0,50)))}</span>
+      <span class="p">${price ? (price*100).toFixed(0)+'¢' : '—'}</span>
+      ${chg!==undefined && chg!==null ? `<span class="d ${dirClass}">${arrow} ${fmtPct(chg)}</span>`:''}
+      </div>`;
+  }).join('');
+  el.innerHTML = items + items; // duplicate for seamless loop
+}
+
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+async function loadMarkets(){
+  const body = document.getElementById('marketBody');
+  body.innerHTML = '<tr><td colspan="9"><div class="loading">Chargement des marchés…</div></td></tr>';
+  try{
+    let order = currentFilter === 'new' ? 'startDate' : currentFilter;
+    let ascending = 'false';
+    const limit = 30;
+    let tagParam = '';
+    if(currentCategory !== 'all'){
+      const tagId = await getTagId(currentCategory);
+      if(tagId) tagParam = `&tag_id=${tagId}`;
+    }
+    // On utilise /events (pas /markets) : le slug d'un event correspond exactement
+    // à l'URL polymarket.com/event/{slug}. Le slug d'un market individuel ne matche
+    // pas toujours celui de la page (cas des events multi-candidats/multi-issues),
+    // ce qui provoquait des liens vers des pages inexistantes.
+    const res = await fetch(`${GAMMA}/events?order=${order}&ascending=${ascending}&limit=${limit}${tagParam}&active=true&closed=false`);
+    const data = await res.json();
+    // filtre défensif : au cas où l'API renverrait encore un event dont la date de fin est passée
+    const now = Date.now();
+    let filtered = data.filter(ev => !ev.endDate || new Date(ev.endDate).getTime() > now);
+    marketsCache = filtered;
+    recordVolumeSamples(filtered);
+    renderMarkets();
+    filtered.forEach(ev => {
+      if(!ev.slug) return;
+      const market = (ev.markets && ev.markets[0]) || {};
+      let price = null;
+      try{ price = JSON.parse(market.outcomePrices || '[]')[0]; }catch(e){}
+      const pct = price !== null ? Math.round(price*100) : null;
+      const vol = ev.volume24hr ?? ev.volume;
+      marketSnapshot.set(ev.slug, { pct, vol });
+    });
+    document.getElementById('marketCount').textContent = marketsCache.length + ' marchés';
+    markPanelOk('markets');
+  }catch(e){
+    body.innerHTML = '<tr><td colspan="9"><div class="err">Impossible de charger les marchés (API indisponible ou CORS). Réessaie avec Rafraîchir.</div></td></tr>';
+    markPanelStale('markets');
+  }
+  setUpdated();
+}
+
+let marketViewMode = 'list';
+let liveFeedVisible = true;
+let liveFeedTimer = null;
+let liveFeedSeen = new Set();
+let liveFeedTrades = [];
+let marketSnapshot = new Map(); // slug -> {pct, vol} du dernier chargement, pour calculer la tendance
+
+// --- Historique de volume (localStorage) pour détecter les hausses sur plusieurs heures ---
+const VOL_HIST_KEY = 'pc_vol_hist_v1';
+const VOL_HIST_MAX_AGE_MS = 6 * 60 * 60 * 1000;   // on garde 6h d'historique
+const VOL_SURGE_LOOKBACK_MS = 3 * 60 * 60 * 1000; // on compare vs il y a ~3h
+const VOL_SURGE_MIN_GAP_MS = 15 * 60 * 1000;      // un nouveau point toutes les 15min max
+const VOL_SURGE_MIN_PCT = 20;                     // seuil de hausse pour afficher le badge
+const VOL_SURGE_MIN_VOL = 200;                    // ignore les micro-marchés (bruit)
+
+function loadVolHistory(){
+  try{ return JSON.parse(localStorage.getItem(VOL_HIST_KEY) || '{}'); }
+  catch(e){ return {}; }
+}
+function saveVolHistory(hist){
+  try{ localStorage.setItem(VOL_HIST_KEY, JSON.stringify(hist)); }catch(e){ /* quota / privé : tant pis */ }
+}
+let volHistory = loadVolHistory();
+
+// Ajoute un point d'historique par marché (throttlé) et purge les points > 6h.
+function recordVolumeSamples(events){
+  const now = Date.now();
+  events.forEach(ev => {
+    if(!ev.slug) return;
+    const vol = ev.volume24hr ?? ev.volume;
+    if(vol === undefined || vol === null || isNaN(vol)) return;
+    const arr = volHistory[ev.slug] || [];
+    const last = arr[arr.length - 1];
+    if(!last || (now - last.t) >= VOL_SURGE_MIN_GAP_MS){
+      arr.push({ t: now, v: vol });
+    }
+    volHistory[ev.slug] = arr.filter(p => (now - p.t) <= VOL_HIST_MAX_AGE_MS);
+  });
+  saveVolHistory(volHistory);
+}
+
+// Compare le volume actuel au point le plus ancien disponible dans la fenêtre de lookback.
+// Retourne {pct, hours} ou null si pas assez d'historique / hausse insuffisante.
+function getVolumeSurge(slug, currentVol){
+  if(currentVol === undefined || currentVol === null || isNaN(currentVol) || currentVol < VOL_SURGE_MIN_VOL) return null;
+  const arr = volHistory[slug];
+  if(!arr || !arr.length) return null;
+  const now = Date.now();
+  const cutoff = now - VOL_SURGE_LOOKBACK_MS;
+  // le point le plus ancien qui reste dans la fenêtre de lookback (idéalement proche de "il y a 3h")
+  const ref = arr.find(p => p.t >= cutoff - VOL_SURGE_MIN_GAP_MS) || arr[0];
+  if(!ref || ref.v <= 0) return null;
+  const ageMs = now - ref.t;
+  if(ageMs < 30 * 60 * 1000) return null; // moins de 30min d'historique dispo = pas fiable
+  const pct = ((currentVol - ref.v) / ref.v) * 100;
+  if(pct < VOL_SURGE_MIN_PCT) return null;
+  const hours = Math.max(0.5, ageMs / (60 * 60 * 1000));
+  return { pct: Math.round(pct), hours: hours < 1 ? Math.round(hours*60)+'min' : hours.toFixed(1)+'h' };
+}
+function volSurgeBadge(slug, currentVol){
+  const surge = getVolumeSurge(slug, currentVol);
+  if(!surge) return '';
+  return `<span class="vol-surge" title="Volume 24h en hausse de +${surge.pct}% sur ${surge.hours}">🔥 +${surge.pct}%</span>`;
+}
+
+function trendArrow(curr, prev){
+  if(curr === null || curr === undefined || prev === null || prev === undefined || isNaN(curr) || isNaN(prev)) return '';
+  if(curr > prev) return '<span class="trend up">▲</span>';
+  if(curr < prev) return '<span class="trend down">▼</span>';
+  return '';
+}
+
+function renderMarkets(){
+  const body = document.getElementById('marketBody');
+  const grid = document.getElementById('marketGridView');
+  const query = (document.getElementById('marketSearch')?.value || '').trim().toLowerCase();
+  const filtered = query
+    ? marketsCache.filter(ev => {
+        const original = (ev.title || '').toLowerCase();
+        if(original.includes(query)) return true;
+        if(uiLang === 'fr'){
+          const translated = titleTranslationCache.get(ev.title);
+          if(translated && translated.toLowerCase().includes(query)) return true;
+        }
+        return false;
+      })
+    : marketsCache;
+
+  if(!marketsCache.length){
+    body.innerHTML = '<tr><td colspan="9"><div class="empty">Aucun marché trouvé.</div></td></tr>';
+    grid.innerHTML = '<div class="empty">Aucun marché trouvé.</div>';
+    return;
+  }
+  if(!filtered.length){
+    body.innerHTML = `<tr><td colspan="9"><div class="empty">Aucun marché ne correspond à "${escapeHtml(query)}".</div></td></tr>`;
+    grid.innerHTML = `<div class="empty">Aucun marché ne correspond à "${escapeHtml(query)}".</div>`;
+    document.getElementById('marketCount').textContent = '0 marchés';
+    return;
+  }
+  document.getElementById('marketCount').textContent = filtered.length + ' marchés';
+
+  const items = filtered.map(ev=>{
+    const market = (ev.markets && ev.markets[0]) || {};
+    let price = null, label = 'Yes';
+    try{
+      const prices = JSON.parse(market.outcomePrices || '[]');
+      const outcomes = JSON.parse(market.outcomes || '[]');
+      price = prices[0];
+      label = outcomes[0] || 'Yes';
+    }catch(e){}
+    const pct = price !== null ? Math.round(price*100) : null;
+    const spread = market.spread !== undefined && market.spread !== null ? parseFloat(market.spread) : null;
+    const vol = ev.volume24hr ?? ev.volume;
+    const liq = ev.liquidity;
+    const endDate = ev.endDate || market.endDate || null;
+    const tags = (ev.tags || []).map(t => t.label);
+    const catMatch = tags.find(l => Object.prototype.hasOwnProperty.call(CATEGORY_WEIGHTS, l));
+    const category = catMatch || 'Other';
+    const weight = CATEGORY_WEIGHTS[category] ?? 1.0;
+    // wV/$ = ce que rapporte 1$ tradé en taker sur ce marché : (1-prix) × poids catégorie.
+    // 0 si le marché n'a pas les frais taker activés (aucun wV possible même à gros volume).
+    const feesEnabled = market.feesEnabled === true;
+    const wvpd = (feesEnabled && price !== null) ? (1 - price) * weight : 0;
+    // Badge "wV fort" : catégorie à fort poids + prix bas + frais actifs = meilleur rendement wV par $.
+    const WV_STRONG_THRESHOLD = 1.5;
+    const wvStrong = feesEnabled && wvpd >= WV_STRONG_THRESHOLD;
+    const url = ev.slug ? `https://polymarket.com/event/${ev.slug}` : '#';
+    const conditionId = market.conditionId || '';
+    const iconUrl = ev.icon || ev.image || '';
+    const iconCell = iconUrl
+      ? `<img class="market-icon" src="${iconUrl}" alt="" loading="lazy" onerror="this.outerHTML='<div class=&quot;market-icon fallback&quot;>🔮</div>'">`
+      : `<div class="market-icon fallback">🔮</div>`;
+    const prevStat = marketSnapshot.get(ev.slug);
+    const pctTrend = trendArrow(pct, prevStat?.pct);
+    const volTrend = trendArrow(vol, prevStat?.vol);
+    const volSurge = volSurgeBadge(ev.slug, vol);
+    return { title: displayTitle(ev.title || ''), url, pct, label, spread, vol, liq, endDate, category, weight, iconCell, pctTrend, volTrend, volSurge, wvpd, feesEnabled, wvStrong, conditionId, slug: ev.slug || '' };
   });
 
-  filtered.sort((a, b) => currentSort === 'stars' ? b.stars - a.stars : 0);
+  body.innerHTML = items.map(it => `<tr class="${it.wvStrong ? 'wv-strong-row' : ''}">
+      <td class="icon">${it.iconCell}</td>
+      <td class="q"><a class="mlink" href="${it.url}" target="_blank" rel="noopener"><span class="q">${escapeHtml(it.title)}</span></a>${it.wvStrong ? '<span class="wv-strong" title="wV fort : catégorie à fort poids + prix bas + frais taker actifs">🚀 wV fort</span>' : ''}</td>
+      <td class="num">
+        <span class="chip ${it.label.toLowerCase().startsWith('y')?'yes':'no'}">${escapeHtml(it.label)} ${it.pct!==null? it.pct+'¢' : '—'}</span>${it.pctTrend}
+      </td>
+      <td class="num">${it.spread!==null && !isNaN(it.spread) ? (it.spread*100).toFixed(1)+'¢' : '—'}</td>
+      <td class="num">${fmtUsd(it.vol)}${it.volTrend}${it.volSurge}</td>
+      <td class="num">${fmtUsd(it.liq)}</td>
+      <td class="num" style="color:var(--gold);font-weight:600;" title="${escapeHtml(it.category)}">×${it.weight}</td>
+      <td class="num" style="${it.feesEnabled ? 'color:#ff9f43;font-weight:600;' : 'color:var(--ink-dim);'}" title="${it.feesEnabled ? '(1-prix) × poids catégorie' : 'Frais taker non activés sur ce marché : 0 wV même à gros volume'}">${it.wvpd.toFixed(2)}${it.conditionId ? `<button class="wallet-btn" data-cond="${it.conditionId}" data-title="${escapeHtml(it.title)}" title="Voir les wallets qui font du volume sur ce marché">👥</button>` : ''}</td>
+      <td class="num">${it.endDate ? new Date(it.endDate).toLocaleDateString('fr-FR', {day:'2-digit', month:'short', year:'numeric'}) : '—'}</td>
+    </tr>`).join('');
 
-  const official = filtered.filter(c => c.official);
-  const community = filtered.filter(c => !c.official);
+  grid.innerHTML = items.map(it => `
+    <a class="market-card ${it.wvStrong ? 'wv-strong-row' : ''}" href="${it.url}" target="_blank" rel="noopener">
+      <div class="mc-top">${it.iconCell}<span class="chip ${it.label.toLowerCase().startsWith('y')?'yes':'no'}">${escapeHtml(it.label)} ${it.pct!==null? it.pct+'¢' : '—'}</span>${it.pctTrend}</div>
+      <div class="mc-title">${escapeHtml(it.title)}${it.wvStrong ? '<span class="wv-strong" title="wV fort : catégorie à fort poids + prix bas + frais taker actifs">🚀 wV fort</span>' : ''}</div>
+      <div class="mc-stats"><span>Vol 24h <b>${fmtUsd(it.vol)}</b>${it.volTrend}${it.volSurge}</span><span>Liq <b>${fmtUsd(it.liq)}</b></span>${it.conditionId ? `<button class="wallet-btn" data-cond="${it.conditionId}" data-title="${escapeHtml(it.title)}" title="Voir les wallets qui font du volume sur ce marché">👥</button>` : ''}</div>
+    </a>`).join('');
 
-  document.getElementById('grid-official').innerHTML = official.map((c,i) => makeCard(c,i)).join('');
-  document.getElementById('grid-community').innerHTML = community.map((c,i) => makeCard(c,i)).join('');
-
-  document.getElementById('section-official').style.display = official.length ? '' : 'none';
-  document.getElementById('section-community').style.display = community.length ? '' : 'none';
+  checkForWvFortAlerts(items);
 }
 
-function filterTab(btn, filter) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  btn.classList.add('active');
-  currentFilter = filter;
-  render();
+/* =========================================================================
+   TAKER REBATE TIER — wV glissant sur 30 jours
+   Doc officielle : https://docs.polymarket.com/trading/taker-rebates
+   ========================================================================= */
+
+const CATEGORY_WEIGHTS = {
+  'Sports': 1.0,
+  'Politics': 1.3, 'Finance': 1.3, 'Mentions': 1.3, 'Tech': 1.3,
+  'Economics': 1.7, 'Culture': 1.7, 'Weather': 1.7, 'Other': 1.7,
+  'Crypto': 2.3,
+  'Geopolitics': 0.0,
+};
+
+const TIERS = [
+  { name: 'None',     threshold: 0,          rebate: 0.00, color: 'var(--t-none)',     icon:'○' },
+  { name: 'Bronze',   threshold: 2_000,      rebate: 0.03, color: 'var(--t-bronze)',   icon:'🥉' },
+  { name: 'Silver',   threshold: 20_000,     rebate: 0.08, color: 'var(--t-silver)',   icon:'🥈' },
+  { name: 'Gold',     threshold: 200_000,    rebate: 0.18, color: 'var(--t-gold)',     icon:'🥇' },
+  { name: 'Platinum', threshold: 1_000_000,  rebate: 0.32, color: 'var(--t-platinum)', icon:'💠' },
+  { name: 'Diamond',  threshold: 4_000_000,  rebate: 0.44, color: 'var(--t-diamond)',  icon:'💎' },
+  { name: 'Obsidian', threshold: 10_000_000, rebate: 0.50, color: 'var(--t-obsidian)', icon:'⚫' },
+];
+
+async function fetchTakerTrades(wallet, sinceTs){
+  let trades = [];
+  let offset = 0;
+  const limit = 500;
+  while(true){
+    const url = `${DATA}/trades?user=${wallet}&takerOnly=true&limit=${limit}&offset=${offset}&sortBy=TIMESTAMP&sortDirection=DESC`;
+    const res = await fetch(url);
+    if(!res.ok) throw new Error(`data-api ${res.status}`);
+    const batch = await res.json();
+    if(!batch.length) break;
+    trades = trades.concat(batch);
+    const oldest = batch[batch.length - 1].timestamp;
+    if(oldest < sinceTs || batch.length < limit) break;
+    offset += limit;
+  }
+  return trades.filter(t => t.timestamp >= sinceTs);
 }
 
-function sortCards(val) {
-  currentSort = val;
-  render();
+async function getCategoryForSlug(slug, cache){
+  if(cache.has(slug)) return cache.get(slug);
+  let category = 'Other';
+  let feesEnabled = false; // par défaut : pas de frais => pas de wV, tant que non confirmé
+  try{
+    const res = await fetch(`${GAMMA}/events?slug=${encodeURIComponent(slug)}`);
+    if(res.ok){
+      const data = await res.json();
+      const tags = (data[0]?.tags || []).map(t => t.label);
+      const match = tags.find(l => Object.prototype.hasOwnProperty.call(CATEGORY_WEIGHTS, l));
+      if(match) category = match;
+      // feesEnabled est porté par le(s) marché(s) de l'event ; on considère
+      // l'event éligible si au moins un de ses marchés a les frais taker activés.
+      const markets = data[0]?.markets || [];
+      feesEnabled = markets.some(m => m.feesEnabled === true);
+    }
+  }catch(e){ /* fallback : Other, pas de frais */ }
+  const entry = { category, feesEnabled };
+  cache.set(slug, entry);
+  return entry;
 }
 
-render();
+function tierForWv(wv){
+  for(let i = TIERS.length - 1; i >= 0; i--){
+    if(wv >= TIERS[i].threshold) return i;
+  }
+  return 0;
+}
+
+function ladderPercent(wv){
+  const maxLog = Math.log10(10_000_000);
+  if(wv <= 0) return 0;
+  const pct = (Math.log10(wv + 1) / maxLog) * 100;
+  return Math.min(100, Math.max(0, pct));
+}
+
+// progression linéaire entre le palier actuel et le suivant (plus lisible que l'échelle log)
+function nextTierProgress(wv, tierIdx){
+  const cur = TIERS[tierIdx];
+  const next = TIERS[tierIdx + 1];
+  if(!next) return 100;
+  const span = next.threshold - cur.threshold;
+  const done = wv - cur.threshold;
+  return Math.min(100, Math.max(0, (done / span) * 100));
+}
+
+async function computeWv(wallet, onProgress){
+  const now = Math.floor(Date.now() / 1000);
+  const sinceTs = now - 30 * 24 * 3600;
+
+  onProgress?.('Récupération des trades taker (30j)…');
+  const trades = await fetchTakerTrades(wallet, sinceTs);
+
+  onProgress?.(`${trades.length} trades — résolution des catégories…`);
+  const cache = new Map();
+  const uniqueSlugs = [...new Set(trades.map(t => t.eventSlug).filter(Boolean))];
+
+  const CONCURRENCY = 8;
+  for(let i = 0; i < uniqueSlugs.length; i += CONCURRENCY){
+    const chunk = uniqueSlugs.slice(i, i + CONCURRENCY);
+    await Promise.all(chunk.map(slug => getCategoryForSlug(slug, cache)));
+  }
+
+  let totalWv = 0;
+  const byCategory = {};
+  const byDay = {}; // 'YYYY-MM-DD' (UTC) -> wV du jour
+
+  for(const t of trades){
+    const size = parseFloat(t.size);
+    const price = parseFloat(t.price);
+    const tradeSizeUsd = size * price;
+    const upside = Math.max(0, 1 - price);
+    const { category, feesEnabled } = cache.get(t.eventSlug) || { category: 'Other', feesEnabled: false };
+    // Un marché sans frais taker activés (créé avant l'activation du programme,
+    // ou catégorie gratuite type Geopolitics) ne génère aucun wV, même si le
+    // trade a bien eu lieu. Cf. doc officielle : "Fees apply only to markets
+    // deployed on or after the activation date. Pre-existing markets are unaffected."
+    const weight = feesEnabled ? (CATEGORY_WEIGHTS[category] ?? 1.0) : 0;
+    const wv = tradeSizeUsd * upside * weight;
+
+    totalWv += wv;
+    if(!byCategory[category]) byCategory[category] = { wv: 0, volume: 0, count: 0 };
+    byCategory[category].wv += wv;
+    byCategory[category].volume += tradeSizeUsd;
+    byCategory[category].count += 1;
+
+    const dayKey = new Date(t.timestamp * 1000).toISOString().slice(0, 10);
+    byDay[dayKey] = (byDay[dayKey] || 0) + wv;
+  }
+
+  return { totalWv, byCategory, byDay, tradeCount: trades.length };
+}
+
+let catsExpanded = false;
+function renderRebate(state){
+  const panel = document.getElementById('rebatePanel');
+
+  if(state.status === 'loading'){
+    panel.innerHTML = `<div class="loading">${escapeHtml(state.message || 'Chargement…')}</div>`;
+    return;
+  }
+  if(state.status === 'error'){
+    panel.innerHTML = `
+      <div class="err" style="margin-bottom:10px;">Erreur : ${escapeHtml(state.message)}</div>
+      <button class="ghost" id="rebateRetryBtn" style="width:100%;padding:8px;">Réessayer</button>
+    `;
+    document.getElementById('rebateRetryBtn')?.addEventListener('click', () => {
+      loadRebate(document.getElementById('walletInput').value);
+    });
+    return;
+  }
+
+  const { totalWv, byCategory, byDay, tradeCount } = state;
+  const tierIdx = tierForWv(totalWv);
+  const tier = TIERS[tierIdx];
+  const next = TIERS[tierIdx + 1];
+  const pct = ladderPercent(totalWv);
+  const nextPct = nextTierProgress(totalWv, tierIdx);
+
+  // période exacte couverte (30j glissants)
+  const endD = new Date();
+  const startD = new Date(endD.getTime() - 30*24*3600*1000);
+  const fmtDate = d => d.toLocaleDateString('fr-FR', {day:'2-digit', month:'short'});
+
+  // 30 barres journalières (jours vides = 0), pour visualiser la progression jour par jour
+  const dayBuckets = [];
+  for(let i = 29; i >= 0; i--){
+    const d = new Date(endD.getTime() - i*24*3600*1000);
+    const key = d.toISOString().slice(0, 10);
+    dayBuckets.push({ key, wv: (byDay && byDay[key]) || 0, label: d.toLocaleDateString('fr-FR', {day:'2-digit', month:'short'}) });
+  }
+  const maxDayWv = Math.max(1, ...dayBuckets.map(d => d.wv));
+  const barW = 100 / dayBuckets.length;
+  const sparkBars = dayBuckets.map((d, i) => {
+    const h = Math.max(1.5, (d.wv / maxDayWv) * 100);
+    return `<rect x="${(i*barW).toFixed(2)}%" y="${(100-h).toFixed(1)}%" width="${(barW*0.7).toFixed(2)}%" height="${h.toFixed(1)}%" fill="var(--gold)" opacity="${d.wv>0?0.9:0.25}"><title>${d.label} : ${fmtUsd(d.wv)}</title></rect>`;
+  }).join('');
+  const sparkSvg = `<svg viewBox="0 0 100 100" preserveAspectRatio="none" class="wv-sparkline">${sparkBars}</svg>`;
+
+  // légende de dates toujours visible (5 repères espacés sur les 30 jours),
+  // pour donner le contexte temporel même sans survol (indispensable sur mobile)
+  const legendCount = 5;
+  const sparkLegend = Array.from({length: legendCount}, (_, i) => {
+    const idx = Math.round(i * (dayBuckets.length - 1) / (legendCount - 1));
+    return `<span>${dayBuckets[idx].label}</span>`;
+  }).join('');
+
+  const catsSorted = Object.entries(byCategory).sort((a,b) => b[1].wv - a[1].wv);
+  const shownCats = catsExpanded ? catsSorted : catsSorted.slice(0, 5);
+  const restCats = catsExpanded ? [] : catsSorted.slice(5);
+  const restWv = restCats.reduce((s,[,d]) => s + d.wv, 0);
+  const maxCatWv = catsSorted.length ? catsSorted[0][1].wv : 1;
+
+  const catRows = shownCats.map(([cat, d]) => `
+    <div class="cat-row">
+      <div class="cat-name">${escapeHtml(cat)} <span class="cat-mult">×${CATEGORY_WEIGHTS[cat] ?? 1.0}</span></div>
+      <div class="cat-bar-track"><div class="cat-bar-fill" style="width:${(d.wv / maxCatWv * 100).toFixed(1)}%"></div></div>
+      <div class="cat-val">${fmtUsd(d.wv)}</div>
+    </div>`).join('');
+
+  const restRow = restCats.length ? `
+    <button class="cat-row cat-toggle" id="catToggleBtn" style="opacity:.6;width:100%;text-align:left;background:none;border:none;padding:0;cursor:pointer;">
+      <div class="cat-name">+${restCats.length} autres — voir plus ▾</div>
+      <div class="cat-bar-track"></div>
+      <div class="cat-val">${fmtUsd(restWv)}</div>
+    </button>` : (catsExpanded && catsSorted.length > 5 ? `
+    <button class="cat-row cat-toggle" id="catToggleBtn" style="opacity:.6;width:100%;text-align:left;background:none;border:none;padding:0;cursor:pointer;">
+      <div class="cat-name">Voir moins ▴</div>
+      <div class="cat-bar-track"></div>
+      <div class="cat-val"></div>
+    </button>` : '');
+
+  const tierSteps = TIERS.map((t, i) => `
+    <div class="tier-step ${i === tierIdx ? 'current' : ''} ${i < tierIdx ? 'done' : ''}" style="${i===tierIdx ? `border-color:${t.color};color:${t.color};` : ''}" title="${t.name} — ${(t.rebate*100).toFixed(0)}% rebate">
+      ${t.icon}
+    </div>`).join('');
+
+  panel.innerHTML = `
+    <div class="tier-steps">${tierSteps}</div>
+
+    <div class="tier-row">
+      <span class="tier-icon">${tier.icon}</span>
+      <span class="tier-badge" style="color:${tier.color}">${tier.name}</span>
+      <span class="tier-rebate">rebate ${(tier.rebate * 100).toFixed(0)}%</span>
+    </div>
+    <div class="wv-line">wV total : <b>${fmtUsd(totalWv)}</b> · ${tradeCount} trades taker · ${fmtDate(startD)} → ${fmtDate(endD)}</div>
+
+    <div class="spark-title">Progression jour par jour</div>
+    <div class="spark-wrap">${sparkSvg}</div>
+    <div class="spark-legend">${sparkLegend}</div>
+
+    <div class="ladder"><div class="ladder-fill" style="width:${pct}%;background:${tier.color}"></div></div>
+    <div class="ladder-ticks"><span>$0</span><span>$2k</span><span>$20k</span><span>$200k</span><span>$1M</span><span>$4M</span><span>$10M</span></div>
+
+    ${next ? `
+      <div class="next-progress-label">
+        <span>Vers <b style="color:${next.color}">${next.name}</b></span>
+        <span>${nextPct.toFixed(0)}%</span>
+      </div>
+      <div class="ladder" style="margin-bottom:10px;"><div class="ladder-fill" style="width:${nextPct}%;background:${next.color}"></div></div>
+      <div class="next-tier">Il manque <b>${fmtUsd(Math.max(0, next.threshold - totalWv))}</b> de wV pour passer ${next.name} (${(next.rebate*100).toFixed(0)}% rebate)</div>
+    ` : `<div class="next-tier">Tier maximum atteint 🏆</div>`}
+
+    ${catsSorted.length ? `
+      <div class="cats-title">Répartition du wV par catégorie</div>
+      ${catRows}
+      ${restRow}
+    ` : ''}
+  `;
+
+  document.getElementById('catToggleBtn')?.addEventListener('click', () => {
+    catsExpanded = !catsExpanded;
+    renderRebate(state);
+  });
+}
+
+async function loadRebate(address){
+  address = (address||'').trim();
+  if(!address) return;
+  catsExpanded = false;
+  renderRebate({ status: 'loading', message: 'Connexion à Polymarket…' });
+  try{
+    const { totalWv, byCategory, byDay, tradeCount } = await computeWv(address, (msg) => {
+      renderRebate({ status: 'loading', message: msg });
+    });
+    renderRebate({ status: 'ok', totalWv, byCategory, byDay, tradeCount });
+    markPanelOk('rebate');
+  }catch(e){
+    renderRebate({ status: 'error', message: e.message || String(e) });
+    markPanelStale('rebate');
+  }
+}
+
+document.getElementById('loadBtn').addEventListener('click', ()=>{
+  loadRebate(document.getElementById('walletInput').value);
+});
+document.getElementById('refreshBtn').addEventListener('click', ()=>{
+  loadTicker();
+  loadMarkets();
+  loadRebate(document.getElementById('walletInput').value);
+});
+document.getElementById('marketSearch').addEventListener('input', renderMarkets);
+document.getElementById('viewToggle').addEventListener('click', (e)=>{
+  e.stopPropagation();
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  document.querySelectorAll('#viewToggle button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  marketViewMode = btn.dataset.view;
+  document.getElementById('marketListView').style.display = marketViewMode === 'list' ? '' : 'none';
+  document.getElementById('marketGridView').style.display = marketViewMode === 'grid' ? 'grid' : 'none';
+});
+document.getElementById('categorySelect').addEventListener('change', (e)=>{
+  currentCategory = e.target.value;
+  loadMarkets();
+});
+document.getElementById('filterRow').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button');
+  if(!btn) return;
+  document.querySelectorAll('#filterRow button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  currentFilter = btn.dataset.f;
+  loadMarkets();
+});
+function applyMarketSort(key){
+  currentSort = key;
+  if(key === 'outcome'){
+    marketsCache.sort((a,b)=>{
+      let pa=0, pb=0;
+      try{pa = JSON.parse((a.markets?.[0]?.outcomePrices)||'[0]')[0];}catch(e){}
+      try{pb = JSON.parse((b.markets?.[0]?.outcomePrices)||'[0]')[0];}catch(e){}
+      return pb-pa;
+    });
+  } else if(key === 'endDate'){
+    marketsCache.sort((a,b)=>{
+      const da = a.endDate ? new Date(a.endDate).getTime() : Infinity;
+      const db = b.endDate ? new Date(b.endDate).getTime() : Infinity;
+      return da - db; // les marchés qui se terminent le plus tôt en premier
+    });
+  } else if(key === 'weight'){
+    const weightOf = ev => {
+      const tags = (ev.tags || []).map(t => t.label);
+      const catMatch = tags.find(l => Object.prototype.hasOwnProperty.call(CATEGORY_WEIGHTS, l));
+      return CATEGORY_WEIGHTS[catMatch || 'Other'] ?? 1.0;
+    };
+    marketsCache.sort((a,b)=> weightOf(b) - weightOf(a));
+  } else if(key === 'wvpd'){
+    const wvpdOf = ev => {
+      const market = (ev.markets && ev.markets[0]) || {};
+      if(market.feesEnabled !== true) return 0;
+      let price = 0;
+      try{ price = JSON.parse(market.outcomePrices || '[0]')[0] || 0; }catch(e){}
+      const tags = (ev.tags || []).map(t => t.label);
+      const catMatch = tags.find(l => Object.prototype.hasOwnProperty.call(CATEGORY_WEIGHTS, l));
+      const weight = CATEGORY_WEIGHTS[catMatch || 'Other'] ?? 1.0;
+      return (1 - price) * weight;
+    };
+    marketsCache.sort((a,b)=> wvpdOf(b) - wvpdOf(a));
+  } else if(key === 'opportunity'){
+    // Score composite = Volume 24h × wV/$. Fait remonter les marchés qui combinent
+    // à la fois un gros volume (liquidité/exécutable) ET un bon rendement wV par $ —
+    // plutôt qu'un seul des deux critères pris isolément.
+    const wvpdOf = ev => {
+      const market = (ev.markets && ev.markets[0]) || {};
+      if(market.feesEnabled !== true) return 0;
+      let price = 0;
+      try{ price = JSON.parse(market.outcomePrices || '[0]')[0] || 0; }catch(e){}
+      const tags = (ev.tags || []).map(t => t.label);
+      const catMatch = tags.find(l => Object.prototype.hasOwnProperty.call(CATEGORY_WEIGHTS, l));
+      const weight = CATEGORY_WEIGHTS[catMatch || 'Other'] ?? 1.0;
+      return (1 - price) * weight;
+    };
+    const scoreOf = ev => {
+      const vol = ev.volume24hr ?? ev.volume ?? 0;
+      return Number(vol) * wvpdOf(ev);
+    };
+    marketsCache.sort((a,b)=> scoreOf(b) - scoreOf(a));
+  } else {
+    marketsCache.sort((a,b)=> (Number(b[key]||0) - Number(a[key]||0)));
+  }
+  document.querySelectorAll('thead th').forEach(t=>t.classList.toggle('active', t.dataset.sort === key));
+  const sortSelect = document.getElementById('gridSortSelect');
+  if(sortSelect && sortSelect.value !== key) sortSelect.value = key;
+  renderMarkets();
+}
+document.querySelectorAll('thead th').forEach(th=>{
+  th.addEventListener('click', ()=>{
+    const key = th.dataset.sort;
+    if(!key || key === 'question') return;
+    applyMarketSort(key);
+  });
+});
+document.getElementById('gridSortSelect').addEventListener('change', (e)=>{
+  applyMarketSort(e.target.value);
+});
+
+/* =========================================================================
+   ACTIVITÉ EN DIRECT — flux des derniers trades sur les marchés à gros volume
+========================================================================= */
+const LIVE_FEED_TOP_N = 8;
+const LIVE_FEED_POLL_MS = 20000;
+const LIVE_FEED_MAX_ROWS = 40;
+
+function getTopVolumeMarketsForFeed(){
+  return [...marketsCache]
+    .filter(ev => ev.markets && ev.markets[0] && ev.markets[0].conditionId)
+    .sort((a,b)=> (Number(b.volume24hr ?? b.volume ?? 0)) - (Number(a.volume24hr ?? a.volume ?? 0)))
+    .slice(0, LIVE_FEED_TOP_N)
+    .map(ev => ({ conditionId: ev.markets[0].conditionId, title: displayTitle(ev.title || '') }));
+}
+
+async function pollLiveFeed(){
+  if(!liveFeedVisible) return;
+  const top = getTopVolumeMarketsForFeed();
+  if(!top.length) return;
+  const condMap = new Map(top.map(t => [t.conditionId, t.title]));
+  const idsParam = top.map(t => t.conditionId).join(',');
+  try{
+    const res = await fetch(`${DATA}/trades?market=${idsParam}&limit=60&sortBy=TIMESTAMP&sortDirection=DESC`);
+    if(!res.ok) throw new Error(`data-api ${res.status}`);
+    const trades = await res.json();
+    let added = false;
+    trades.forEach(t => {
+      const key = `${t.transactionHash || ''}-${t.asset || ''}-${t.timestamp}-${t.size}`;
+      if(liveFeedSeen.has(key)) return;
+      liveFeedSeen.add(key);
+      added = true;
+      liveFeedTrades.unshift({
+        title: condMap.get(t.conditionId) || t.title || '—',
+        side: (t.side || '').toUpperCase(),
+        price: parseFloat(t.price) || 0,
+        size: parseFloat(t.size) || 0,
+        ts: t.timestamp,
+      });
+    });
+    if(liveFeedTrades.length > LIVE_FEED_MAX_ROWS) liveFeedTrades.length = LIVE_FEED_MAX_ROWS;
+    if(added) renderLiveFeed();
+  }catch(e){
+    // Silencieux : on retentera au prochain cycle plutôt que de spammer une erreur.
+  }
+}
+
+function renderLiveFeed(){
+  const list = document.getElementById('liveFeedList');
+  if(!liveFeedTrades.length){
+    list.innerHTML = '<div class="loading">En attente de trades…</div>';
+    return;
+  }
+  list.innerHTML = liveFeedTrades.map(t => {
+    const usd = t.size * t.price;
+    const isBuy = t.side === 'BUY';
+    return `<div class="live-trade-row">
+      <span class="lt-side ${isBuy ? 'buy' : 'sell'}">${isBuy ? '▲ ACHAT' : '▼ VENTE'}</span>
+      <span class="lt-title">${escapeHtml(t.title)}</span>
+      <span class="lt-amt">${fmtUsd(usd)} @ ${Math.round(t.price * 100)}¢</span>
+      <span class="lt-time">${timeAgoLabel(t.ts)}</span>
+    </div>`;
+  }).join('');
+}
+
+document.getElementById('liveFeedToggle').addEventListener('click', (e)=>{
+  liveFeedVisible = !liveFeedVisible;
+  document.getElementById('liveFeedList').style.display = liveFeedVisible ? 'block' : 'none';
+  e.target.textContent = liveFeedVisible ? 'Masquer' : 'Afficher';
+  if(liveFeedVisible) pollLiveFeed();
+});
+
+pollLiveFeed();
+liveFeedTimer = setInterval(pollLiveFeed, LIVE_FEED_POLL_MS);
+
+// initial load
+loadTicker();
+loadMarkets();
+loadRebate(document.getElementById('walletInput').value);
+setInterval(loadTicker, 60000);
+
+/* ---- tab switching ---- */
+document.querySelectorAll('.tab-btn[data-tab]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tab-btn[data-tab]').forEach(b=>b.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+  });
+});
+
+/* =========================================================================
+   COPIER LES WALLETS QUI FONT DU VOLUME — pour repérer/copier ceux qui
+   farment le wV sur un marché donné (gros volume, taker) et s'en inspirer.
+========================================================================= */
+async function fetchMarketTopWallets(conditionId){
+  // takerOnly=true : seuls les trades taker comptent pour le wV, donc ce
+  // sont les wallets pertinents à repérer pour "farmer" les paliers.
+  const url = `${DATA}/trades?market=${conditionId}&takerOnly=true&limit=500&sortBy=TIMESTAMP&sortDirection=DESC`;
+  const res = await fetch(url);
+  if(!res.ok) throw new Error(`data-api ${res.status}`);
+  const trades = await res.json();
+
+  const byWallet = new Map();
+  trades.forEach(t=>{
+    const size = parseFloat(t.size);
+    const price = parseFloat(t.price);
+    const usd = (isNaN(size) || isNaN(price)) ? 0 : size * price;
+    const key = t.proxyWallet;
+    if(!key) return;
+    const entry = byWallet.get(key) || { wallet: key, volume: 0, trades: 0, name: t.name || t.pseudonym || '', lastTs: 0 };
+    entry.volume += usd;
+    entry.trades += 1;
+    entry.lastTs = Math.max(entry.lastTs, t.timestamp || 0);
+    if(!entry.name) entry.name = t.name || t.pseudonym || '';
+    byWallet.set(key, entry);
+  });
+
+  return [...byWallet.values()].sort((a,b)=> b.volume - a.volume).slice(0, 20);
+}
+
+function timeAgoLabel(ts){
+  if(!ts) return '';
+  const diffMs = Date.now() - ts * 1000;
+  const mins = Math.round(diffMs / 60000);
+  if(mins < 60) return `il y a ${mins}min`;
+  const hrs = Math.round(mins / 60);
+  if(hrs < 24) return `il y a ${hrs}h`;
+  return `il y a ${Math.round(hrs/24)}j`;
+}
+
+async function openWalletModal(conditionId, title){
+  const overlay = document.getElementById('walletModalOverlay');
+  const list = document.getElementById('walletModalList');
+  document.getElementById('walletModalTitle').textContent = title || 'Wallets actifs';
+  list.innerHTML = '<div class="loading">Chargement…</div>';
+  overlay.style.display = 'flex';
+  try{
+    const wallets = await fetchMarketTopWallets(conditionId);
+    if(!wallets.length){
+      list.innerHTML = '<div class="empty">Aucun trade taker trouvé récemment sur ce marché.</div>';
+      return;
+    }
+    list.innerHTML = wallets.map((w, i) => `
+      <div class="wallet-row">
+        <span class="wr-rank">#${i+1}</span>
+        <div class="wr-id">
+          <div class="wr-name">${escapeHtml(w.name || 'Anonyme')}</div>
+          <div class="wr-addr">${w.wallet}</div>
+        </div>
+        <div class="wr-stats">
+          <b>${fmtUsd(w.volume)}</b>
+          ${w.trades} trades · ${timeAgoLabel(w.lastTs)}
+        </div>
+        <button class="wr-copy" data-wallet="${w.wallet}" title="Copier l'adresse">📋 Copier</button>
+        <a class="wr-copy" href="https://polymarket.com/profile/${w.wallet}" target="_blank" rel="noopener" title="Voir le profil Polymarket">↗</a>
+      </div>`).join('');
+  }catch(e){
+    list.innerHTML = '<div class="err">Impossible de charger les wallets (API indisponible ou CORS). Réessaie.</div>';
+  }
+}
+
+document.getElementById('walletModalClose').addEventListener('click', ()=>{
+  document.getElementById('walletModalOverlay').style.display = 'none';
+});
+document.getElementById('walletModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'walletModalOverlay') e.currentTarget.style.display = 'none';
+});
+
+// Délégation : le bouton 👥 est régénéré à chaque render, table ET grille.
+[document.getElementById('marketBody'), document.getElementById('marketGridView')].forEach(container=>{
+  if(!container) return;
+  container.addEventListener('click', (e)=>{
+    const btn = e.target.closest('.wallet-btn');
+    if(!btn) return;
+    e.preventDefault();
+    e.stopPropagation();
+    openWalletModal(btn.dataset.cond, btn.dataset.title);
+  });
+});
+
+// Copier l'adresse au clic (délégation sur la liste de la modale)
+document.getElementById('walletModalList').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button.wr-copy');
+  if(!btn) return;
+  const wallet = btn.dataset.wallet;
+  if(!wallet) return;
+  navigator.clipboard.writeText(wallet).then(()=>{
+    const original = btn.textContent;
+    btn.textContent = '✓ Copié';
+    btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent = original; btn.classList.remove('copied'); }, 1500);
+  }).catch(()=>{
+    btn.textContent = 'Erreur';
+  });
+});
+
+/* =========================================================================
+   PROJECTION TWEETS ELON — calculette de rythme + comparaison aux tranches
+   d'un marché Polymarket ("buckets") pour repérer un décalage de pricing.
+========================================================================= */
+let elonBucketsData = null; // dernier marché chargé, pour re-surligner sans refetch
+
+function computeElonProjection(){
+  const counted = parseFloat(document.getElementById('elonCounted').value) || 0;
+  const remaining = Math.max(0, parseFloat(document.getElementById('elonRemaining').value) || 0);
+  const rate = Math.max(0, parseFloat(document.getElementById('elonRate').value) || 0);
+  // La partie déjà comptée est un fait ; seule la partie "restante" est incertaine,
+  // d'où une fourchette ±20% appliquée uniquement à cette portion projetée.
+  const low = counted + rate * 0.8 * remaining;
+  const mid = counted + rate * remaining;
+  const high = counted + rate * 1.2 * remaining;
+  return { low: Math.round(low), mid: Math.round(mid), high: Math.round(high) };
+}
+
+function renderElonResults(){
+  const p = computeElonProjection();
+  const results = document.getElementById('elonResults');
+  results.innerHTML = `
+    <div class="ecr"><span class="l">Projection basse</span><span class="v">${p.low}</span></div>
+    <div class="ecr mid"><span class="l">Projection moyenne</span><span class="v">${p.mid}</span></div>
+    <div class="ecr"><span class="l">Projection haute</span><span class="v">${p.high}</span></div>
+  `;
+  if(elonBucketsData) renderElonBuckets(elonBucketsData, p);
+  return p;
+}
+
+['elonCounted','elonElapsed','elonRemaining','elonRate'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', renderElonResults);
+});
+
+// Extrait les bornes numériques d'un libellé de tranche ("140-159", "Less than 100",
+// "500 or more", "≥ 300"...). Retourne {lo, hi} (Infinity si ouvert) ou null si imparsable.
+function parseBucketRange(label){
+  const s = (label || '').toLowerCase().replace(/,/g, '');
+  let m = s.match(/(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)/);
+  if(m) return { lo: parseFloat(m[1]), hi: parseFloat(m[2]) };
+  m = s.match(/(less than|under|below|<)\s*(\d+(?:\.\d+)?)/);
+  if(m) return { lo: -Infinity, hi: parseFloat(m[2]) - 1 };
+  m = s.match(/(more than|above|over|greater than|>)\s*(\d+(?:\.\d+)?)/);
+  if(m) return { lo: parseFloat(m[2]) + 1, hi: Infinity };
+  m = s.match(/(\d+(?:\.\d+)?)\s*(\+|or more|and above)/);
+  if(m) return { lo: parseFloat(m[1]), hi: Infinity };
+  return null;
+}
+
+function extractSlug(input){
+  const s = (input || '').trim();
+  const m = s.match(/polymarket\.com\/event\/([a-z0-9-]+)/i);
+  return m ? m[1] : s;
+}
+
+async function fetchEventBySlug(slug){
+  const res = await fetch(`${GAMMA}/events?slug=${encodeURIComponent(slug)}`);
+  if(!res.ok) throw new Error(`gamma-api ${res.status}`);
+  const data = await res.json();
+  const ev = data[0];
+  return (ev && ev.markets && ev.markets.length) ? ev : null;
+}
+
+// Fallback quand l'entrée n'est pas un slug/URL valide : recherche par titre
+// via l'API publique de recherche Polymarket.
+async function searchElonEvents(query){
+  const res = await fetch(`${GAMMA}/public-search?q=${encodeURIComponent(query)}&events_status=active&limit_per_type=8`);
+  if(!res.ok) throw new Error(`gamma-api ${res.status}`);
+  const data = await res.json();
+  return (data.events || []).filter(ev => ev.markets && ev.markets.length);
+}
+
+function renderElonSearchResults(matches){
+  const box = document.getElementById('elonBuckets');
+  box.innerHTML = `<div class="elon-sub" style="margin:0 0 10px;">Plusieurs marchés correspondent — clique celui qui t'intéresse :</div>` +
+    matches.map(ev => `
+      <div class="elon-bucket-row" style="cursor:pointer;" data-pick-slug="${escapeHtml(ev.slug || '')}">
+        <span class="eb-label">${escapeHtml(ev.title || ev.slug || '')}</span>
+        <span class="eb-price">${ev.markets.length} tranche${ev.markets.length>1?'s':''}</span>
+      </div>`).join('');
+}
+
+document.getElementById('elonBuckets').addEventListener('click', (e)=>{
+  const row = e.target.closest('[data-pick-slug]');
+  if(!row) return;
+  const slug = row.dataset.pickSlug;
+  if(!slug) return;
+  document.getElementById('elonSlugInput').value = slug;
+  loadElonMarket();
+});
+
+async function loadElonMarket(){
+  const raw = document.getElementById('elonSlugInput').value;
+  const box = document.getElementById('elonBuckets');
+  if(!raw || !raw.trim()){ box.innerHTML = '<div class="empty">Colle une URL, un slug, ou le titre du marché.</div>'; return; }
+  box.innerHTML = '<div class="loading">Chargement des tranches…</div>';
+  const slug = extractSlug(raw);
+  // Un slug ressemble à "elon-musk-of-tweets-july-10-july-17-2026" : que des minuscules,
+  // chiffres et tirets, sans espaces. Si l'entrée ne correspond pas à ce format
+  // (ex. le titre affiché sur Polymarket, avec majuscules/espaces/ponctuation),
+  // on passe directement par la recherche.
+  const looksLikeSlug = /^[a-z0-9]+(-[a-z0-9]+)+$/.test(slug);
+  try{
+    if(looksLikeSlug){
+      const ev = await fetchEventBySlug(slug);
+      if(ev){
+        elonBucketsData = ev;
+        renderElonBuckets(ev, computeElonProjection());
+        return;
+      }
+    }
+    const matches = await searchElonEvents(raw);
+    if(!matches.length){
+      box.innerHTML = '<div class="empty">Aucun marché trouvé pour cette recherche — vérifie l\'orthographe ou colle directement l\'URL de la page Polymarket.</div>';
+      return;
+    }
+    if(matches.length === 1){
+      elonBucketsData = matches[0];
+      renderElonBuckets(matches[0], computeElonProjection());
+      return;
+    }
+    renderElonSearchResults(matches);
+  }catch(e){
+    box.innerHTML = '<div class="err">Impossible de charger ce marché (API indisponible ou CORS). Réessaie.</div>';
+  }
+}
+
+function renderElonBuckets(ev, projection){
+  const box = document.getElementById('elonBuckets');
+  const rows = ev.markets.map(m=>{
+    const label = m.groupItemTitle || m.question || '—';
+    let price = null;
+    try{ price = JSON.parse(m.outcomePrices || '[]')[0]; }catch(err){}
+    const pct = price !== null ? Math.round(parseFloat(price) * 100) : null;
+    const range = parseBucketRange(label);
+    const isMatch = range && projection && projection.mid >= range.lo && projection.mid <= range.hi;
+    return { label, pct, range, isMatch, sortKey: range ? range.lo : 0 };
+  }).sort((a,b)=> a.sortKey - b.sortKey);
+
+  const subtitle = `<div class="elon-sub" style="margin:0 0 10px;">${escapeHtml(ev.title || '')} — ${rows.length} tranches. La tranche en surbrillance correspond à ta projection moyenne (${projection.mid}).</div>`;
+  box.innerHTML = subtitle + rows.map(r => `
+    <div class="elon-bucket-row ${r.isMatch ? 'match' : ''}">
+      <span class="eb-label">${escapeHtml(r.label)}</span>
+      ${r.isMatch ? '<span class="eb-match-tag">✓ ta projection</span>' : ''}
+      <span class="eb-price">${r.pct !== null ? r.pct + '¢' : '—'}</span>
+    </div>`).join('');
+}
+
+document.getElementById('elonLoadBtn').addEventListener('click', loadElonMarket);
+document.getElementById('elonSlugInput').addEventListener('keydown', (e)=>{
+  if(e.key === 'Enter') loadElonMarket();
+});
+
+renderElonResults();
+
+/* =========================================================================
+   ALERTES wV FORT — détecte les nouveaux marchés qui combinent badge "wV fort"
+   ET gros volume, avec son + toast + notification navigateur, en auto-refresh
+   pour farmer sans fixer l'écran en continu.
+========================================================================= */
+const ALERT_SEEN_KEY = 'pc_wv_fort_seen_v1';
+const ALERT_BASELINE_KEY = 'pc_wv_fort_baseline_done_v1';
+const ALERT_POLL_MS = 90 * 1000; // auto-refresh toutes les 90s tant que les alertes sont actives
+let alertsEnabled = false;
+let alertPollTimer = null;
+
+function loadSeenAlerts(){
+  try{ return new Set(JSON.parse(localStorage.getItem(ALERT_SEEN_KEY) || '[]')); }
+  catch(e){ return new Set(); }
+}
+function saveSeenAlerts(set){
+  try{
+    // on ne garde que les 300 derniers pour ne pas grossir indéfiniment
+    localStorage.setItem(ALERT_SEEN_KEY, JSON.stringify([...set].slice(-300)));
+  }catch(e){ /* tant pis */ }
+}
+let seenWvFortSlugs = loadSeenAlerts();
+
+function playAlertSound(){
+  try{
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    [0, 0.15].forEach((delay, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = i === 0 ? 880 : 1175;
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime + delay);
+      gain.gain.exponentialRampToValueAtTime(0.22, ctx.currentTime + delay + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + delay + 0.25);
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.3);
+    });
+  }catch(e){ /* audio indisponible (ex. avant interaction utilisateur) : tant pis */ }
+}
+
+function showAlertToast(item){
+  const stack = document.getElementById('toastStack');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML = `
+    <button class="t-close">✕</button>
+    <div class="t-head">🚀 Nouveau wV fort</div>
+    <div class="t-title"><a href="${item.url}" target="_blank" rel="noopener" style="color:inherit;">${escapeHtml(item.title)}</a></div>
+    <div class="t-stats">Vol 24h ${fmtUsd(item.vol)} · wV/$ ${item.wvpd.toFixed(2)}</div>
+  `;
+  el.querySelector('.t-close').addEventListener('click', ()=> el.remove());
+  stack.appendChild(el);
+  setTimeout(()=>{ if(el.parentNode) el.remove(); }, 15000);
+}
+
+function sendBrowserNotification(item){
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  try{
+    const n = new Notification('🚀 Nouveau marché wV fort', {
+      body: `${item.title}\nVol 24h ${fmtUsd(item.vol)} · wV/$ ${item.wvpd.toFixed(2)}`,
+    });
+    n.onclick = () => { window.open(item.url, '_blank'); n.close(); };
+  }catch(e){ /* notifications indisponibles : tant pis */ }
+}
+
+function checkForWvFortAlerts(items){
+  if(!alertsEnabled) return;
+  const threshold = parseFloat(document.getElementById('alertVolThreshold').value) || 0;
+  // Première activation jamais faite : on mémorise l'état actuel sans alerter,
+  // pour ne pas spammer sur tout ce qui existait déjà avant d'activer.
+  const isBaseline = !localStorage.getItem(ALERT_BASELINE_KEY);
+  let changed = false;
+  items.forEach(it => {
+    if(!it.wvStrong || !it.slug) return;
+    if((it.vol || 0) < threshold) return;
+    if(seenWvFortSlugs.has(it.slug)) return;
+    seenWvFortSlugs.add(it.slug);
+    changed = true;
+    if(!isBaseline){
+      playAlertSound();
+      showAlertToast(it);
+      sendBrowserNotification(it);
+    }
+  });
+  if(isBaseline){ try{ localStorage.setItem(ALERT_BASELINE_KEY, '1'); }catch(e){} }
+  if(changed) saveSeenAlerts(seenWvFortSlugs);
+}
+
+function setAlertsEnabled(on){
+  alertsEnabled = on;
+  const btn = document.getElementById('alertToggleBtn');
+  btn.textContent = `🔔 Alertes wV fort : ${on ? 'ON' : 'OFF'}`;
+  btn.classList.toggle('on', on);
+  btn.classList.toggle('pulse', on);
+  if(alertPollTimer){ clearInterval(alertPollTimer); alertPollTimer = null; }
+  if(on){
+    if('Notification' in window && Notification.permission === 'default'){
+      Notification.requestPermission();
+    }
+    // Rafraîchissement immédiat puis auto-refresh périodique pour continuer
+    // à détecter les nouveaux marchés même onglet en arrière-plan.
+    loadMarkets();
+    alertPollTimer = setInterval(loadMarkets, ALERT_POLL_MS);
+  }
+}
+
+document.getElementById('alertToggleBtn').addEventListener('click', ()=>{
+  setAlertsEnabled(!alertsEnabled);
+});
 </script>
+
 </body>
 </html>
