@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>PolyCockpit by BlueMoon</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='bg' cx='50%25' cy='42%25' r='75%25'%3E%3Cstop offset='0%25' stop-color='%23181F2B'/%3E%3Cstop offset='100%25' stop-color='%230B0E13'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect x='2' y='2' width='60' height='60' rx='14' fill='url(%23bg)' stroke='%23C9A227' stroke-width='2'/%3E%3Cg stroke='%236E5B1E' stroke-width='1.6' stroke-linecap='round'%3E%3Cline x1='32' y1='10' x2='32' y2='14'/%3E%3Cline x1='18.3' y1='15.3' x2='21' y2='17.8'/%3E%3Cline x1='46.7' y1='15.3' x2='44' y2='17.8'/%3E%3Cline x1='12.5' y1='28' x2='16.5' y2='28.6'/%3E%3Cline x1='51.5' y1='28' x2='47.5' y2='28.6'/%3E%3Cline x1='15' y1='43' x2='18.3' y2='40.8'/%3E%3Cline x1='49' y1='43' x2='45.7' y2='40.8'/%3E%3C/g%3E%3Ccircle cx='32' cy='30' r='16' fill='none' stroke='%23C9A227' stroke-width='2.4'/%3E%3Cg transform='rotate(35 32 30)'%3E%3Cline x1='32' y1='30' x2='32' y2='18' stroke='%233FBF7F' stroke-width='3' stroke-linecap='round'/%3E%3C/g%3E%3Ccircle cx='32' cy='30' r='3.6' fill='%23E7E7E2' stroke='%230B0E13' stroke-width='1'/%3E%3Cg stroke-linecap='round'%3E%3Cline x1='20' y1='49' x2='20' y2='57' stroke='%23E5484D' stroke-width='2.6'/%3E%3Cline x1='32' y1='45' x2='32' y2='57' stroke='%233FBF7F' stroke-width='2.6'/%3E%3Cline x1='44' y1='51' x2='44' y2='57' stroke='%23E5484D' stroke-width='2.6'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -251,40 +252,12 @@
     font-family:'JetBrains Mono',monospace;
   }
   .wallet-btn:hover{border-color:var(--gold);color:var(--gold);}
-  .live-feed{
-    background:var(--surface); border:1px solid var(--line); border-radius:6px;
-    margin-bottom:14px; overflow:hidden;
-  }
-  .live-feed-head{
-    display:flex; align-items:center; gap:8px; padding:10px 14px;
-    border-bottom:1px solid var(--line); font-size:11.5px; color:var(--ink-dim);
-  }
-  .live-dot{
-    width:8px; height:8px; border-radius:50%; background:var(--up); flex:none;
-    animation:liveDotPulse 1.6s infinite;
-  }
-  @keyframes liveDotPulse{
-    0%{box-shadow:0 0 0 0 rgba(63,191,127,0.5);}
-    70%{box-shadow:0 0 0 6px rgba(63,191,127,0);}
-    100%{box-shadow:0 0 0 0 rgba(63,191,127,0);}
-  }
   .live-feed-toggle{
     margin-left:auto; background:var(--surface-2); border:1px solid var(--line); color:var(--ink-dim);
     font-size:11px; padding:4px 9px; border-radius:4px; cursor:pointer; font-family:'JetBrains Mono',monospace;
   }
   .live-feed-toggle:hover{border-color:var(--gold); color:var(--gold);}
-  .live-feed-list{max-height:65vh; overflow-y:auto; padding:4px 14px;}
-  .live-trade-row{
-    display:flex; align-items:center; gap:10px; padding:6px 0;
-    border-bottom:1px solid var(--line); font-size:11.5px;
-  }
-  .live-trade-row:last-child{border-bottom:none;}
-  .live-trade-row .lt-side{font-family:'JetBrains Mono'; font-weight:700; width:62px; flex:none; font-size:10.5px;}
-  .live-trade-row .lt-side.buy{color:var(--up);}
-  .live-trade-row .lt-side.sell{color:var(--down);}
-  .live-trade-row .lt-title{flex:1; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
-  .live-trade-row .lt-amt{font-family:'JetBrains Mono'; color:var(--gold); flex:none; font-size:11px;}
-  .live-trade-row .lt-time{color:var(--ink-dim); font-family:'JetBrains Mono'; flex:none; width:44px; text-align:right; font-size:10.5px;}
+  .live-feed-toggle.active{border-color:var(--gold); color:var(--gold); background:rgba(200,164,90,0.12);}
   .alert-toggle{
     background:var(--surface-2); border:1px solid var(--line); color:var(--ink-dim);
     font-size:11px; padding:6px 10px; border-radius:4px; cursor:pointer; margin-left:10px;
@@ -589,7 +562,6 @@
 
 <nav class="tabs">
   <button class="tab-btn active" data-tab="dashboard">Marchés tendance</button>
-  <button class="tab-btn" data-tab="live">📡 Activité en direct</button>
   <button class="tab-btn" data-tab="wv">Taker Rebate Tiers</button>
   <button class="tab-btn" data-tab="elon">🐦 Projection Tweets</button>
   <span class="tab-sep"></span>
@@ -724,20 +696,6 @@
 </div>
 </div>
 
-<div class="tab-panel" id="tab-live">
-<div class="rebate-section" style="max-width:none;">
-  <div class="panel-title">📡 Activité en direct</div>
-  <div class="elon-sub" style="margin-top:8px;">Derniers trades sur les 8 marchés avec le plus gros volume 24h, rafraîchis automatiquement toutes les 20 secondes.</div>
-  <div class="live-feed" id="liveFeedBox">
-    <div class="live-feed-head">
-      <span class="live-dot"></span> Activité en direct — trades sur les marchés à gros volume
-      <button id="liveFeedToggle" class="live-feed-toggle">Masquer</button>
-    </div>
-    <div class="live-feed-list" id="liveFeedList"><div class="loading">En attente de trades…</div></div>
-  </div>
-</div>
-</div>
-
 <footer>
   <span>Données publiques Polymarket (Gamma API / Data API), non affiliées à Polymarket.</span>
   <span id="lastUpdate"></span>
@@ -751,7 +709,15 @@
       <h3 id="walletModalTitle">Wallets actifs</h3>
       <button class="modal-close" id="walletModalClose">✕</button>
     </div>
-    <div class="modal-sub">Wallets qui ont tradé en <b>taker</b> sur ce marché récemment, classés par volume — pour repérer qui farme le wV ici et t'en inspirer ou les copier.</div>
+    <div class="modal-sub" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+      <span>Wallets qui ont tradé en <b>taker</b> sur ce marché récemment — pour repérer qui farme le wV ici et t'en inspirer ou les copier.</span>
+      <div style="display:flex;gap:6px;flex:none;">
+        <span style="font-size:10.5px;color:var(--ink-dim);align-self:center;">Trier :</span>
+        <button class="live-feed-toggle active" data-sort="volume" style="margin-left:0;">Montant</button>
+        <button class="live-feed-toggle" data-sort="recent" style="margin-left:0;">Plus récent</button>
+        <button class="live-feed-toggle" data-sort="trades" style="margin-left:0;">Nb trades</button>
+      </div>
+    </div>
     <div class="modal-list" id="walletModalList"><div class="loading">Chargement…</div></div>
   </div>
 </div>
@@ -964,10 +930,6 @@ async function loadMarkets(){
 }
 
 let marketViewMode = 'list';
-let liveFeedVisible = true;
-let liveFeedTimer = null;
-let liveFeedSeen = new Set();
-let liveFeedTrades = [];
 let marketSnapshot = new Map(); // slug -> {pct, vol} du dernier chargement, pour calculer la tendance
 
 // --- Historique de volume (localStorage) pour détecter les hausses sur plusieurs heures ---
@@ -1503,80 +1465,6 @@ document.getElementById('gridSortSelect').addEventListener('change', (e)=>{
   applyMarketSort(e.target.value);
 });
 
-/* =========================================================================
-   ACTIVITÉ EN DIRECT — flux des derniers trades sur les marchés à gros volume
-========================================================================= */
-const LIVE_FEED_TOP_N = 8;
-const LIVE_FEED_POLL_MS = 20000;
-const LIVE_FEED_MAX_ROWS = 40;
-
-function getTopVolumeMarketsForFeed(){
-  return [...marketsCache]
-    .filter(ev => ev.markets && ev.markets[0] && ev.markets[0].conditionId)
-    .sort((a,b)=> (Number(b.volume24hr ?? b.volume ?? 0)) - (Number(a.volume24hr ?? a.volume ?? 0)))
-    .slice(0, LIVE_FEED_TOP_N)
-    .map(ev => ({ conditionId: ev.markets[0].conditionId, title: displayTitle(ev.title || '') }));
-}
-
-async function pollLiveFeed(){
-  if(!liveFeedVisible) return;
-  const top = getTopVolumeMarketsForFeed();
-  if(!top.length) return;
-  const condMap = new Map(top.map(t => [t.conditionId, t.title]));
-  const idsParam = top.map(t => t.conditionId).join(',');
-  try{
-    const res = await fetch(`${DATA}/trades?market=${idsParam}&limit=60&sortBy=TIMESTAMP&sortDirection=DESC`);
-    if(!res.ok) throw new Error(`data-api ${res.status}`);
-    const trades = await res.json();
-    let added = false;
-    trades.forEach(t => {
-      const key = `${t.transactionHash || ''}-${t.asset || ''}-${t.timestamp}-${t.size}`;
-      if(liveFeedSeen.has(key)) return;
-      liveFeedSeen.add(key);
-      added = true;
-      liveFeedTrades.unshift({
-        title: condMap.get(t.conditionId) || t.title || '—',
-        side: (t.side || '').toUpperCase(),
-        price: parseFloat(t.price) || 0,
-        size: parseFloat(t.size) || 0,
-        ts: t.timestamp,
-      });
-    });
-    if(liveFeedTrades.length > LIVE_FEED_MAX_ROWS) liveFeedTrades.length = LIVE_FEED_MAX_ROWS;
-    if(added) renderLiveFeed();
-  }catch(e){
-    // Silencieux : on retentera au prochain cycle plutôt que de spammer une erreur.
-  }
-}
-
-function renderLiveFeed(){
-  const list = document.getElementById('liveFeedList');
-  if(!liveFeedTrades.length){
-    list.innerHTML = '<div class="loading">En attente de trades…</div>';
-    return;
-  }
-  list.innerHTML = liveFeedTrades.map(t => {
-    const usd = t.size * t.price;
-    const isBuy = t.side === 'BUY';
-    return `<div class="live-trade-row">
-      <span class="lt-side ${isBuy ? 'buy' : 'sell'}">${isBuy ? '▲ ACHAT' : '▼ VENTE'}</span>
-      <span class="lt-title">${escapeHtml(t.title)}</span>
-      <span class="lt-amt">${fmtUsd(usd)} @ ${Math.round(t.price * 100)}¢</span>
-      <span class="lt-time">${timeAgoLabel(t.ts)}</span>
-    </div>`;
-  }).join('');
-}
-
-document.getElementById('liveFeedToggle').addEventListener('click', (e)=>{
-  liveFeedVisible = !liveFeedVisible;
-  document.getElementById('liveFeedList').style.display = liveFeedVisible ? 'block' : 'none';
-  e.target.textContent = liveFeedVisible ? 'Masquer' : 'Afficher';
-  if(liveFeedVisible) pollLiveFeed();
-});
-
-pollLiveFeed();
-liveFeedTimer = setInterval(pollLiveFeed, LIVE_FEED_POLL_MS);
-
 // initial load
 loadTicker();
 loadMarkets();
@@ -1612,15 +1500,20 @@ async function fetchMarketTopWallets(conditionId){
     const usd = (isNaN(size) || isNaN(price)) ? 0 : size * price;
     const key = t.proxyWallet;
     if(!key) return;
-    const entry = byWallet.get(key) || { wallet: key, volume: 0, trades: 0, name: t.name || t.pseudonym || '', lastTs: 0 };
+    // Les trades arrivent triés du plus récent au plus ancien : la première
+    // rencontre d'un wallet correspond donc à son dernier trade.
+    const isFirstSeen = !byWallet.has(key);
+    const entry = byWallet.get(key) || { wallet: key, volume: 0, trades: 0, shares: 0, name: t.name || t.pseudonym || '', lastTs: 0, lastOutcome: '', lastPrice: 0 };
     entry.volume += usd;
     entry.trades += 1;
+    entry.shares += isNaN(size) ? 0 : size;
     entry.lastTs = Math.max(entry.lastTs, t.timestamp || 0);
     if(!entry.name) entry.name = t.name || t.pseudonym || '';
+    if(isFirstSeen){ entry.lastOutcome = t.outcome || ''; entry.lastPrice = isNaN(price) ? 0 : price; }
     byWallet.set(key, entry);
   });
 
-  return [...byWallet.values()].sort((a,b)=> b.volume - a.volume).slice(0, 20);
+  return [...byWallet.values()].slice(0, 200);
 }
 
 function timeAgoLabel(ts){
@@ -1633,6 +1526,47 @@ function timeAgoLabel(ts){
   return `il y a ${Math.round(hrs/24)}j`;
 }
 
+let walletModalCache = [];
+let walletSortMode = 'volume';
+
+function sortWallets(wallets, mode){
+  const sorted = [...wallets];
+  if(mode === 'recent') sorted.sort((a,b)=> b.lastTs - a.lastTs);
+  else if(mode === 'trades') sorted.sort((a,b)=> b.trades - a.trades);
+  else sorted.sort((a,b)=> b.volume - a.volume);
+  return sorted.slice(0, 20);
+}
+
+function renderWalletModal(){
+  const list = document.getElementById('walletModalList');
+  const wallets = sortWallets(walletModalCache, walletSortMode);
+  if(!wallets.length){
+    list.innerHTML = '<div class="empty">Aucun trade taker trouvé récemment sur ce marché.</div>';
+    return;
+  }
+  list.innerHTML = wallets.map((w, i) => {
+    const isYes = (w.lastOutcome || '').toLowerCase().startsWith('y');
+    const priceLabel = w.lastPrice ? ` ${(w.lastPrice * 100).toFixed(1)}¢` : '';
+    const outcomeChip = w.lastOutcome ? `<span class="chip ${isYes ? 'yes' : 'no'}">${escapeHtml(w.lastOutcome)}${priceLabel}</span>` : '';
+    const sharesLabel = w.shares.toLocaleString('fr-FR', {maximumFractionDigits: 2});
+    return `
+      <div class="wallet-row">
+        <span class="wr-rank">#${i+1}</span>
+        <div class="wr-id">
+          <div class="wr-name">${escapeHtml(w.name || 'Anonyme')}</div>
+          <div class="wr-addr">${w.wallet}</div>
+        </div>
+        ${outcomeChip}
+        <div class="wr-stats">
+          <b>${fmtUsd(w.volume)}</b>
+          ${sharesLabel} parts · ${w.trades} trades · ${timeAgoLabel(w.lastTs)}
+        </div>
+        <button class="wr-copy" data-wallet="${w.wallet}" title="Copier l'adresse">📋 Copier</button>
+        <a class="wr-copy" href="https://polymarket.com/profile/${w.wallet}" target="_blank" rel="noopener" title="Voir le profil Polymarket">↗</a>
+      </div>`;
+  }).join('');
+}
+
 async function openWalletModal(conditionId, title){
   const overlay = document.getElementById('walletModalOverlay');
   const list = document.getElementById('walletModalList');
@@ -1640,29 +1574,20 @@ async function openWalletModal(conditionId, title){
   list.innerHTML = '<div class="loading">Chargement…</div>';
   overlay.style.display = 'flex';
   try{
-    const wallets = await fetchMarketTopWallets(conditionId);
-    if(!wallets.length){
-      list.innerHTML = '<div class="empty">Aucun trade taker trouvé récemment sur ce marché.</div>';
-      return;
-    }
-    list.innerHTML = wallets.map((w, i) => `
-      <div class="wallet-row">
-        <span class="wr-rank">#${i+1}</span>
-        <div class="wr-id">
-          <div class="wr-name">${escapeHtml(w.name || 'Anonyme')}</div>
-          <div class="wr-addr">${w.wallet}</div>
-        </div>
-        <div class="wr-stats">
-          <b>${fmtUsd(w.volume)}</b>
-          ${w.trades} trades · ${timeAgoLabel(w.lastTs)}
-        </div>
-        <button class="wr-copy" data-wallet="${w.wallet}" title="Copier l'adresse">📋 Copier</button>
-        <a class="wr-copy" href="https://polymarket.com/profile/${w.wallet}" target="_blank" rel="noopener" title="Voir le profil Polymarket">↗</a>
-      </div>`).join('');
+    walletModalCache = await fetchMarketTopWallets(conditionId);
+    renderWalletModal();
   }catch(e){
     list.innerHTML = '<div class="err">Impossible de charger les wallets (API indisponible ou CORS). Réessaie.</div>';
   }
 }
+
+document.querySelectorAll('.modal-sub [data-sort]').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    walletSortMode = btn.dataset.sort;
+    document.querySelectorAll('.modal-sub [data-sort]').forEach(b=>b.classList.toggle('active', b === btn));
+    renderWalletModal();
+  });
+});
 
 document.getElementById('walletModalClose').addEventListener('click', ()=>{
   document.getElementById('walletModalOverlay').style.display = 'none';
