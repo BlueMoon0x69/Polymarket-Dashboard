@@ -271,6 +271,15 @@
     font-family:'JetBrains Mono',monospace; font-size:11px; padding:6px 8px; border-radius:4px; margin-left:6px;
   }
   .alert-threshold-input:focus{outline:1px solid var(--gold); border-color:var(--gold); color:var(--ink);}
+  .api-health{
+    font-size:10.5px; margin-left:10px; padding:5px 9px; border-radius:4px;
+    font-family:'JetBrains Mono',monospace; border:1px solid var(--line);
+    color:var(--ink-dim); white-space:nowrap; cursor:default;
+  }
+  .api-health.api-unknown{color:var(--ink-dim);}
+  .api-health.api-ok{color:var(--up); border-color:rgba(72,199,116,0.4); background:rgba(72,199,116,0.08);}
+  .api-health.api-degraded{color:#ffb020; border-color:rgba(255,176,32,0.4); background:rgba(255,176,32,0.08);}
+  .api-health.api-down{color:var(--down); border-color:rgba(255,80,80,0.45); background:rgba(255,80,80,0.1);}
   .toast-stack{
     position:fixed; bottom:18px; right:18px; z-index:1200;
     display:flex; flex-direction:column; gap:8px; max-width:340px;
@@ -293,7 +302,7 @@
   }
   .modal-box{
     background:var(--surface); border:1px solid var(--line); border-radius:8px;
-    max-width:660px; width:100%; max-height:82vh; overflow-y:auto;
+    max-width:920px; width:100%; max-height:82vh; overflow-y:auto;
     padding:0; box-shadow:0 20px 60px rgba(0,0,0,0.5);
   }
   .modal-head{
@@ -324,6 +333,78 @@
   }
   .wr-copy:hover{border-color:var(--gold); color:var(--gold);}
   .wr-copy.copied{border-color:var(--up); color:var(--up);}
+  .wr-star{
+    background:transparent; border:1px solid var(--line); color:var(--ink-dim);
+    border-radius:5px; padding:4px 8px; cursor:pointer; font-size:13px; line-height:1;
+  }
+  .wr-star:hover{border-color:#ffd600; color:#ffd600;}
+  .wr-star.on{border-color:#ffd600; color:#ffd600; background:rgba(255,214,0,0.1);}
+  .watch-tag{
+    font-size:9.5px;margin-left:6px;display:inline-block;color:#ffd600;
+    border:1px solid rgba(255,214,0,0.5);padding:1px 5px;border-radius:3px;
+    font-family:'JetBrains Mono',monospace;white-space:nowrap;
+  }
+
+  .watchlist-bar{
+    background:var(--panel); border-bottom:1px solid var(--line);
+    padding:8px 20px; display:flex; flex-direction:column; gap:6px;
+  }
+  .watchlist-head{
+    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;
+  }
+  .watchlist-title{font-size:12.5px; font-weight:600; color:var(--ink);}
+  .watchlist-controls{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .watchlist-interval{font-size:11px; color:var(--ink-dim); display:flex; align-items:center; gap:5px;}
+  .watchlist-interval input{
+    width:44px; background:var(--bg); border:1px solid var(--line); color:var(--ink);
+    border-radius:4px; padding:2px 4px; font-family:'JetBrains Mono',monospace; font-size:11px;
+  }
+  .watchlist-list{display:flex; flex-wrap:wrap; gap:6px;}
+  .watchlist-empty{font-size:11px; color:var(--ink-dim); font-style:italic;}
+  .watch-chip{
+    display:inline-flex; align-items:center; gap:6px; background:var(--bg);
+    border:1px solid var(--line); border-radius:14px; padding:3px 6px 3px 10px; font-size:11.5px;
+  }
+  .watch-chip a{color:var(--ink); text-decoration:none; font-family:'JetBrains Mono',monospace;}
+  .watch-chip a:hover{color:var(--gold);}
+  .watch-unpin{
+    background:transparent; border:none; color:var(--ink-dim); cursor:pointer;
+    font-size:11px; padding:2px 4px; border-radius:50%; line-height:1;
+  }
+  .watch-unpin:hover{color:var(--down); background:rgba(255,80,80,0.1);}
+  .wallet-row.profit-highlight{
+    background:rgba(255,214,0,0.14);
+    border-color:rgba(255,214,0,0.55);
+    box-shadow:inset 2px 0 0 #ffd600;
+  }
+  .wallet-row.profit-maybe{
+    background:rgba(255,214,0,0.05);
+    border-color:rgba(255,214,0,0.28);
+    box-shadow:inset 2px 0 0 rgba(255,214,0,0.4);
+  }
+  .profit-badge{
+    font-size:9.5px;margin-left:6px;display:inline-block;color:#181206;
+    background:#ffd600;border:1px solid #d4b100;padding:1px 5px;border-radius:3px;
+    font-family:'JetBrains Mono',monospace;white-space:nowrap;font-weight:700;
+  }
+  .profit-badge.maybe{opacity:0.75;}
+  .copy-opp-badge{
+    font-size:10px;margin-left:6px;display:inline-block;color:#052226;
+    background:#22d3ee;border:1px solid #0891a8;padding:1px 6px;border-radius:3px;
+    font-family:'JetBrains Mono',monospace;white-space:nowrap;font-weight:700;
+    cursor:pointer;
+  }
+  .copy-opp-badge.confirmed{background:#22e6a0;border-color:#0d9c6b;}
+  .copy-opp-badge:hover{filter:brightness(1.1);}
+  .wr-pnl{display:block;font-size:10.5px;margin-top:2px;font-family:'JetBrains Mono';}
+  .wr-pnl.up{color:var(--up);}
+  .wr-pnl.down{color:var(--down);}
+  .wr-pnl.loading{color:var(--ink-dim);}
+  .wr-pnl.na{color:var(--ink-dim);font-style:italic;}
+  .wr-quality{display:block;font-size:10.5px;margin-top:2px;font-family:'JetBrains Mono';font-weight:600;}
+  .wr-quality.q-good{color:#22e6a0;}
+  .wr-quality.q-mid{color:#ffb020;}
+  .wr-quality.q-low{color:var(--down);}
 
   /* ---- layout ---- */
   main{
@@ -547,12 +628,29 @@
     <span class="fresh-badge" id="freshMarkets"></span>
     <button class="alert-toggle" id="alertToggleBtn" title="Alerte son + notification quand un nouveau marché wV fort à gros volume apparaît (auto-refresh en arrière-plan)">🔔 Alertes wV fort : OFF</button>
     <input type="number" id="alertVolThreshold" class="alert-threshold-input" value="50000" min="0" step="1000" title="Volume 24h minimum pour déclencher une alerte ($)">
+    <button class="alert-toggle" id="copyOppToggleBtn" title="Scanne en arrière-plan les marchés 🚀 wV fort affichés pour repérer ceux où un wallet est aussi en gros profit — tes meilleures opportunités de copie. Consomme des appels API supplémentaires.">🎯 Détection copie : OFF</button>
+    <span class="api-health api-unknown" id="apiHealthIndicator" title="État des API Polymarket (Gamma + Data) utilisées par ce dashboard">● API : —</span>
     <span class="view-toggle" id="langToggle" title="Langue des noms de marché">
       <button data-lang="en" class="on">EN</button>
       <button data-lang="fr">FR</button>
     </span>
   </div>
 </header>
+
+<div class="watchlist-bar" id="watchlistBar">
+  <div class="watchlist-head">
+    <span class="watchlist-title">⭐ Wallets suivis <span id="watchlistCount">(0)</span></span>
+    <div class="watchlist-controls">
+      <label class="watchlist-interval">Vérif toutes les
+        <input type="number" id="watchAlertIntervalInput" min="1" step="1" value="2" title="Intervalle de vérification des nouveaux trades des wallets suivis (minutes)"> min
+      </label>
+      <button class="alert-toggle" id="watchAlertToggleBtn" title="Poll les trades taker des wallets suivis et notifie (son + toast + notif navigateur) dès qu'ils prennent une nouvelle position, pour copier en quasi temps réel.">🔔 Alertes copie : OFF</button>
+    </div>
+  </div>
+  <div class="watchlist-list" id="watchlistList">
+    <span class="watchlist-empty">Épingle des wallets ⭐ depuis la liste des wallets d'un marché (bouton 👥) pour les suivre ici et être alerté de leurs nouveaux trades.</span>
+  </div>
+</div>
 
 <div class="ticker-wrap">
   <div class="ticker" id="ticker">
@@ -710,7 +808,7 @@
       <button class="modal-close" id="walletModalClose">✕</button>
     </div>
     <div class="modal-sub" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-      <span>Wallets qui ont tradé en <b>taker</b> sur ce marché récemment — pour repérer qui farme le wV ici et t'en inspirer ou les copier.</span>
+      <span>Wallets qui ont tradé en <b>taker</b> sur ce marché récemment — pour repérer qui farme le wV ici et t'en inspirer ou les copier. <span style="color:#ffd600;">🟡 Surlignés</span> = en gros profit ici, globalement gagnants sur 30j, <b>et</b> score de qualité correct/solide (surlignage plus léger = vérif en cours, ou profit réel mais échantillon trop faible pour être sûr).</span>
       <div style="display:flex;gap:6px;flex:none;">
         <span style="font-size:10.5px;color:var(--ink-dim);align-self:center;">Trier :</span>
         <button class="live-feed-toggle active" data-sort="volume" style="margin-left:0;">Montant</button>
@@ -725,6 +823,86 @@
 <script>
 const GAMMA = 'https://gamma-api.polymarket.com';
 const DATA = 'https://data-api.polymarket.com';
+
+/* =========================================================================
+   INDICATEUR DE SANTÉ API — évite de confondre "aucune opportunité trouvée /
+   aucun wallet" avec "l'API Polymarket a juste échoué silencieusement".
+   On intercepte fetch() de façon transparente (aucun appel existant à
+   modifier) pour suivre le succès/échec des requêtes vers Gamma et Data API.
+========================================================================= */
+const apiHealth = {
+  data:  { lastSuccessTs: null, lastErrorTs: null, consecutiveErrors: 0 },
+  gamma: { lastSuccessTs: null, lastErrorTs: null, consecutiveErrors: 0 },
+};
+
+(function(){
+  const nativeFetch = window.fetch.bind(window);
+  window.fetch = function(input, init){
+    const url = typeof input === 'string' ? input : ((input && input.url) || '');
+    const bucket = url.includes('data-api.polymarket.com') ? 'data'
+      : (url.includes('gamma-api.polymarket.com') ? 'gamma' : null);
+    const promise = nativeFetch(input, init);
+    if(bucket){
+      // Chaîne d'observation séparée : ne modifie pas la promesse renvoyée
+      // à l'appelant, se contente d'enregistrer le résultat au passage.
+      promise.then(res => recordApiResult(bucket, res.ok))
+             .catch(() => recordApiResult(bucket, false));
+    }
+    return promise;
+  };
+})();
+
+function recordApiResult(bucket, ok){
+  const b = apiHealth[bucket];
+  if(!b) return;
+  if(ok){
+    b.lastSuccessTs = Date.now();
+    b.consecutiveErrors = 0;
+  }else{
+    b.lastErrorTs = Date.now();
+    b.consecutiveErrors += 1;
+  }
+  renderApiHealthIndicator();
+}
+
+function timeAgoShort(ts){
+  if(!ts) return null;
+  const mins = Math.floor((Date.now() - ts) / 60000);
+  if(mins < 1) return "à l'instant";
+  if(mins < 60) return `il y a ${mins}min`;
+  return `il y a ${Math.floor(mins / 60)}h`;
+}
+
+function renderApiHealthIndicator(){
+  const el = document.getElementById('apiHealthIndicator');
+  if(!el) return;
+  const buckets = [apiHealth.data, apiHealth.gamma];
+  const worstConsecutive = Math.max(...buckets.map(b => b.consecutiveErrors));
+  const lastSuccessTs = buckets.reduce((max, b) => Math.max(max, b.lastSuccessTs || 0), 0) || null;
+  const lastErrorTs = buckets.reduce((max, b) => Math.max(max, b.lastErrorTs || 0), 0) || null;
+
+  let cls, label;
+  if(worstConsecutive >= 3){
+    cls = 'api-down';
+    label = `API : en échec${lastSuccessTs ? ` (dernier succès ${timeAgoShort(lastSuccessTs)})` : ' (aucun succès récent)'}`;
+  } else if(worstConsecutive >= 1 || (lastErrorTs && (!lastSuccessTs || lastErrorTs > lastSuccessTs))){
+    cls = 'api-degraded';
+    label = `API : dégradée${lastSuccessTs ? ` (dernier succès ${timeAgoShort(lastSuccessTs)})` : ''}`;
+  } else if(lastSuccessTs){
+    cls = 'api-ok';
+    label = `API : OK (${timeAgoShort(lastSuccessTs)})`;
+  } else {
+    cls = 'api-unknown';
+    label = 'API : —';
+  }
+  el.className = `api-health ${cls}`;
+  el.textContent = `● ${label}`;
+  el.title = `Gamma API : ${apiHealth.gamma.lastSuccessTs ? 'dernier succès ' + timeAgoShort(apiHealth.gamma.lastSuccessTs) : 'aucun succès récent'}${apiHealth.gamma.consecutiveErrors ? `, ${apiHealth.gamma.consecutiveErrors} échec(s) d'affilée` : ''}\nData API : ${apiHealth.data.lastSuccessTs ? 'dernier succès ' + timeAgoShort(apiHealth.data.lastSuccessTs) : 'aucun succès récent'}${apiHealth.data.consecutiveErrors ? `, ${apiHealth.data.consecutiveErrors} échec(s) d'affilée` : ''}`;
+}
+
+// Le texte ("il y a Xmin") doit se rafraîchir même sans nouvel appel API.
+setInterval(renderApiHealthIndicator, 30000);
+renderApiHealthIndicator();
 
 let currentSort = 'volume24hr';
 let currentFilter = 'volume24hr';
@@ -1061,12 +1239,26 @@ function renderMarkets(){
     const pctTrend = trendArrow(pct, prevStat?.pct);
     const volTrend = trendArrow(vol, prevStat?.vol);
     const volSurge = volSurgeBadge(ev.slug, vol);
-    return { title: displayTitle(ev.title || ''), url, pct, label, spread, vol, liq, endDate, category, weight, iconCell, pctTrend, volTrend, volSurge, wvpd, feesEnabled, wvStrong, conditionId, slug: ev.slug || '' };
+
+    // Croisement wV fort × wallet en gros profit : repère automatiquement les
+    // marchés où au moins un gros trader taker est confirmé gagnant ici, sans
+    // avoir à ouvrir la modale marché par marché.
+    const copyOpp = conditionId ? copyOpportunityCache.get(conditionId) : null;
+    let copyBadgeHtml = '';
+    if(copyOpp && copyOpp.status === 'yes' && copyOpp.wallet){
+      const w = copyOpp.wallet;
+      const sign = w.cashPnl >= 0 ? '+' : '';
+      const label = w.confirmed
+        ? `Confirmé : ${escapeHtml(w.name || 'un wallet')} est en gros profit ici (${sign}${fmtUsd(w.cashPnl)}, ${sign}${w.percentPnl.toFixed(0)}%), globalement gagnant sur 30j, et score de qualité ${w.qualityScore ?? '?'}/100 (${w.qualityLabel || '?'}). Clique pour voir les wallets.`
+        : `${escapeHtml(w.name || 'Un wallet')} est en gros profit ici (${sign}${fmtUsd(w.cashPnl)}, ${sign}${w.percentPnl.toFixed(0)}%), mais pas encore confirmé (profil global ou score de qualité insuffisant). Clique pour voir les wallets.`;
+      copyBadgeHtml = `<span class="copy-opp-badge ${w.confirmed ? 'confirmed' : ''}" data-cond="${conditionId}" data-title="${escapeHtml(displayTitle(ev.title || ''))}" title="${label}">🎯 Copie${w.confirmed ? ' ✓' : ''}</span>`;
+    }
+    return { title: displayTitle(ev.title || ''), url, pct, label, spread, vol, liq, endDate, category, weight, iconCell, pctTrend, volTrend, volSurge, wvpd, feesEnabled, wvStrong, conditionId, slug: ev.slug || '', copyBadgeHtml };
   });
 
   body.innerHTML = items.map(it => `<tr class="${it.wvStrong ? 'wv-strong-row' : ''}">
       <td class="icon">${it.iconCell}</td>
-      <td class="q"><a class="mlink" href="${it.url}" target="_blank" rel="noopener"><span class="q">${escapeHtml(it.title)}</span></a>${it.wvStrong ? '<span class="wv-strong" title="wV fort : catégorie à fort poids + prix bas + frais taker actifs">🚀 wV fort</span>' : ''}</td>
+      <td class="q"><a class="mlink" href="${it.url}" target="_blank" rel="noopener"><span class="q">${escapeHtml(it.title)}</span></a>${it.wvStrong ? '<span class="wv-strong" title="wV fort : catégorie à fort poids + prix bas + frais taker actifs">🚀 wV fort</span>' : ''}${it.copyBadgeHtml}</td>
       <td class="num">
         <span class="chip ${it.label.toLowerCase().startsWith('y')?'yes':'no'}">${escapeHtml(it.label)} ${it.pct!==null? it.pct+'¢' : '—'}</span>${it.pctTrend}
       </td>
@@ -1081,11 +1273,12 @@ function renderMarkets(){
   grid.innerHTML = items.map(it => `
     <a class="market-card ${it.wvStrong ? 'wv-strong-row' : ''}" href="${it.url}" target="_blank" rel="noopener">
       <div class="mc-top">${it.iconCell}<span class="chip ${it.label.toLowerCase().startsWith('y')?'yes':'no'}">${escapeHtml(it.label)} ${it.pct!==null? it.pct+'¢' : '—'}</span>${it.pctTrend}</div>
-      <div class="mc-title">${escapeHtml(it.title)}${it.wvStrong ? '<span class="wv-strong" title="wV fort : catégorie à fort poids + prix bas + frais taker actifs">🚀 wV fort</span>' : ''}</div>
+      <div class="mc-title">${escapeHtml(it.title)}${it.wvStrong ? '<span class="wv-strong" title="wV fort : catégorie à fort poids + prix bas + frais taker actifs">🚀 wV fort</span>' : ''}${it.copyBadgeHtml}</div>
       <div class="mc-stats"><span>Vol 24h <b>${fmtUsd(it.vol)}</b>${it.volTrend}${it.volSurge}</span><span>Liq <b>${fmtUsd(it.liq)}</b></span>${it.conditionId ? `<button class="wallet-btn" data-cond="${it.conditionId}" data-title="${escapeHtml(it.title)}" title="Voir les wallets qui font du volume sur ce marché">👥</button>` : ''}</div>
     </a>`).join('');
 
   checkForWvFortAlerts(items);
+  queueCopyOpportunityScans(items);
 }
 
 /* =========================================================================
@@ -1528,6 +1721,216 @@ function timeAgoLabel(ts){
 
 let walletModalCache = [];
 let walletSortMode = 'volume';
+let walletModalCondition = null;
+
+/* --- Cache persistant localStorage (survit aux rechargements de page) --- */
+const PNL_CACHE_TTL_MS = 4 * 60 * 60 * 1000; // 4h : au-delà on re-fetch
+const PNL_LS_MARKET_KEY = 'pc_pnl_market_v1';
+const PNL_LS_GLOBAL_KEY = 'pc_pnl_global_v1';
+const GLOBAL_PNL_WINDOW_DAYS = 30;
+
+function lsGetJson(key){
+  try{ return JSON.parse(localStorage.getItem(key) || '{}'); }catch(e){ return {}; }
+}
+function lsSetJson(key, obj){
+  try{ localStorage.setItem(key, JSON.stringify(obj)); }catch(e){ /* quota / storage bloqué : tant pis */ }
+}
+let pnlMarketLS = lsGetJson(PNL_LS_MARKET_KEY);
+let pnlGlobalLS = lsGetJson(PNL_LS_GLOBAL_KEY);
+
+function getCachedMarketPnl(wallet, conditionId){
+  const hit = pnlMarketLS[`${wallet}|${conditionId}`];
+  return (hit && (Date.now() - hit.ts) < PNL_CACHE_TTL_MS) ? hit : null;
+}
+function setCachedMarketPnl(wallet, conditionId, data){
+  pnlMarketLS[`${wallet}|${conditionId}`] = { ...data, ts: Date.now() };
+  lsSetJson(PNL_LS_MARKET_KEY, pnlMarketLS);
+}
+function getCachedGlobalPnl(wallet){
+  const hit = pnlGlobalLS[wallet];
+  return (hit && (Date.now() - hit.ts) < PNL_CACHE_TTL_MS) ? hit : null;
+}
+function setCachedGlobalPnl(wallet, data){
+  pnlGlobalLS[wallet] = { ...data, ts: Date.now() };
+  lsSetJson(PNL_LS_GLOBAL_KEY, pnlGlobalLS);
+}
+
+// PnL sur le marché affiché dans la modale : "wallet|conditionId" -> entry
+const pnlCache = new Map();
+// PnL global (approx 30j, toutes positions) : wallet -> entry
+const globalPnlCache = new Map();
+
+const PROFIT_HIGHLIGHT_PCT = 20;      // % de gain mini sur la position pour surligner
+const PROFIT_HIGHLIGHT_MIN_USD = 25;  // gain $ mini pour éviter de surligner des broutilles
+
+// PnL sur CE marché : combine positions ouvertes (cashPnl non réalisé) et
+// positions déjà soldées (realizedPnl) — un wallet qui a vendu en profit et
+// n'a plus de position ouverte doit quand même remonter comme "en profit".
+async function fetchWalletMarketPnl(wallet, conditionId){
+  const key = `${wallet}|${conditionId}`;
+  const cached = getCachedMarketPnl(wallet, conditionId);
+  if(cached){
+    const entry = { loading: false, error: false, ...cached };
+    pnlCache.set(key, entry);
+    return entry;
+  }
+  pnlCache.set(key, { loading: true });
+  try{
+    const [openRes, closedRes] = await Promise.all([
+      fetch(`${DATA}/positions?user=${wallet}&market=${conditionId}&sizeThreshold=0&limit=10`),
+      fetch(`${DATA}/closed-positions?user=${wallet}&market=${conditionId}&limit=50&sortBy=TIMESTAMP&sortDirection=DESC`)
+    ]);
+    const openRows = openRes.ok ? await openRes.json() : [];
+    const closedRows = closedRes.ok ? await closedRes.json() : [];
+
+    let cashPnl = 0, costBasis = 0;
+    (openRows || []).forEach(r=>{
+      cashPnl += Number(r.cashPnl) || 0;
+      costBasis += Number(r.initialValue) || 0;
+    });
+    (closedRows || []).forEach(r=>{
+      cashPnl += Number(r.realizedPnl) || 0;
+      costBasis += (Number(r.avgPrice) || 0) * (Number(r.totalBought) || 0);
+    });
+
+    const percentPnl = costBasis > 0 ? (cashPnl / costBasis) * 100 : 0;
+    const data = {
+      cashPnl, percentPnl,
+      hasPosition: (openRows||[]).length > 0 || (closedRows||[]).length > 0,
+      hasOpen: (openRows||[]).length > 0,
+      hasClosed: (closedRows||[]).length > 0
+    };
+    setCachedMarketPnl(wallet, conditionId, data);
+    const entry = { loading: false, error: false, ...data };
+    pnlCache.set(key, entry);
+    return entry;
+  }catch(e){
+    const entry = { loading: false, error: true, hasPosition: false, cashPnl: 0, percentPnl: 0 };
+    pnlCache.set(key, entry);
+    return entry;
+  }
+}
+
+// Score de qualité composite (0-100) : au-delà du simple cashPnl, on regarde
+// si le wallet gagne aussi souvent qu'il perd (win rate), s'il met de vraies
+// sommes en jeu (taille moyenne), s'il trade régulièrement sur plusieurs jours
+// (pas un seul coup isolé) et depuis combien de temps il est actif. Objectif :
+// éviter de copier un wallet qui a eu un seul trade à +200% par chance sur un
+// montant ridicule.
+const QUALITY_MIN_SCORE = 35; // score mini pour valider un surlignage "gros profit"
+
+function computeQualityScore({ winRate, totalClosed, avgPositionUsd, distinctTradingDays, ageDays }){
+  // Win rate (0-40 pts), pondéré par la taille d'échantillon : peu de
+  // positions soldées = score peu fiable, donc on le rabaisse (confiance).
+  let winPts = 0;
+  if(winRate !== null){
+    const confidence = Math.min(1, totalClosed / 10); // ~10 positions soldées pour un score plein
+    winPts = winRate * 40 * confidence;
+  }
+  // Taille moyenne de position (0-20 pts) : une vraie conviction en $ compte
+  // plus qu'un micro-trade qui ne veut rien dire.
+  let sizePts = 0;
+  if(avgPositionUsd !== null){
+    if(avgPositionUsd >= 500) sizePts = 20;
+    else if(avgPositionUsd >= 100) sizePts = 13;
+    else if(avgPositionUsd >= 25) sizePts = 7;
+    else sizePts = 2;
+  }
+  // Régularité (0-20 pts) : actif sur plusieurs jours distincts récemment,
+  // pas juste un seul coup isolé qu'on ne reverra jamais.
+  let regPts = 0;
+  if(distinctTradingDays >= 15) regPts = 20;
+  else if(distinctTradingDays >= 7) regPts = 14;
+  else if(distinctTradingDays >= 3) regPts = 8;
+  else if(distinctTradingDays >= 1) regPts = 3;
+  // Ancienneté du wallet (0-20 pts), depuis son tout premier trade connu.
+  let agePts = 0;
+  if(ageDays >= 180) agePts = 20;
+  else if(ageDays >= 90) agePts = 14;
+  else if(ageDays >= 30) agePts = 8;
+  else if(ageDays >= 7) agePts = 3;
+
+  const score = Math.round(winPts + sizePts + regPts + agePts);
+  let label, cls;
+  if(score >= 70){ label = 'Solide'; cls = 'good'; }
+  else if(score >= QUALITY_MIN_SCORE){ label = 'Correct'; cls = 'mid'; }
+  else { label = 'Fragile'; cls = 'low'; }
+  return { score, label, cls };
+}
+
+// PnL global approx sur ~30j + score de qualité du wallet : PnL latent de
+// toutes les positions ouvertes (jusqu'à 500) + PnL réalisé des positions
+// soldées dans les 30 derniers jours (jusqu'à 50 lignes) pour le PnL, et
+// win rate / taille moyenne / régularité / ancienneté (via l'historique de
+// trades) pour le score de qualité. Sert à vérifier qu'un wallet en profit
+// sur CE marché n'est pas juste "chanceux" — un bon copy-trade doit aussi
+// être solide sur l'ensemble de ses positions récentes.
+async function fetchWalletGlobalPnl(wallet){
+  const cached = getCachedGlobalPnl(wallet);
+  if(cached){
+    const entry = { loading: false, error: false, ...cached };
+    globalPnlCache.set(wallet, entry);
+    return entry;
+  }
+  globalPnlCache.set(wallet, { loading: true });
+  try{
+    const [openRes, closedRes, recentTradesRes, firstTradeRes] = await Promise.all([
+      fetch(`${DATA}/positions?user=${wallet}&sizeThreshold=0&limit=500&sortBy=CASHPNL&sortDirection=DESC`),
+      fetch(`${DATA}/closed-positions?user=${wallet}&limit=50&sortBy=TIMESTAMP&sortDirection=DESC`),
+      fetch(`${DATA}/trades?user=${wallet}&limit=100&sortBy=TIMESTAMP&sortDirection=DESC`),
+      fetch(`${DATA}/trades?user=${wallet}&limit=1&sortBy=TIMESTAMP&sortDirection=ASC`)
+    ]);
+    const openRows = openRes.ok ? await openRes.json() : [];
+    const closedRowsAll = closedRes.ok ? await closedRes.json() : [];
+    const recentTrades = recentTradesRes.ok ? await recentTradesRes.json() : [];
+    const firstTradeRows = firstTradeRes.ok ? await firstTradeRes.json() : [];
+
+    const cutoff = Date.now()/1000 - GLOBAL_PNL_WINDOW_DAYS*24*3600;
+    const closedRows = (closedRowsAll || []).filter(r => (r.timestamp || 0) >= cutoff);
+
+    let unrealizedAll = 0;
+    (openRows || []).forEach(r=>{ unrealizedAll += Number(r.cashPnl) || 0; });
+    let realized30d = 0;
+    closedRows.forEach(r=>{ realized30d += Number(r.realizedPnl) || 0; });
+
+    // Win rate + taille moyenne : sur l'ensemble des positions soldées
+    // récupérées (jusqu'à 50), pas seulement celles des 30 derniers jours,
+    // pour un échantillon un peu plus large.
+    const totalClosed = (closedRowsAll || []).length;
+    const winCount = (closedRowsAll || []).filter(r => (Number(r.realizedPnl) || 0) > 0).length;
+    const winRate = totalClosed > 0 ? winCount / totalClosed : null;
+    const costBases = (closedRowsAll || []).map(r => (Number(r.avgPrice) || 0) * (Number(r.totalBought) || 0)).filter(v => v > 0);
+    const avgPositionUsd = costBases.length ? costBases.reduce((a,b)=>a+b, 0) / costBases.length : null;
+
+    // Régularité : nombre de jours distincts sur les 100 derniers trades.
+    const distinctTradingDays = new Set((recentTrades || []).map(t => Math.floor((t.timestamp || 0) / 86400))).size;
+
+    // Ancienneté : premier trade jamais enregistré pour ce wallet.
+    const firstTs = (firstTradeRows && firstTradeRows[0] && firstTradeRows[0].timestamp) || null;
+    const ageDays = firstTs ? (Date.now()/1000 - firstTs) / 86400 : 0;
+
+    const quality = computeQualityScore({ winRate, totalClosed, avgPositionUsd, distinctTradingDays, ageDays });
+
+    const data = {
+      total30d: unrealizedAll + realized30d,
+      unrealizedAll, realized30d,
+      openCount: (openRows||[]).length,
+      closedCount: closedRows.length,
+      // la fenêtre 30j peut être sous-estimée si le wallet a soldé >50 positions récemment
+      truncated: (closedRowsAll||[]).length >= 50,
+      winRate, totalClosed, avgPositionUsd, distinctTradingDays, ageDays,
+      qualityScore: quality.score, qualityLabel: quality.label, qualityClass: quality.cls
+    };
+    setCachedGlobalPnl(wallet, data);
+    const entry = { loading: false, error: false, ...data };
+    globalPnlCache.set(wallet, entry);
+    return entry;
+  }catch(e){
+    const entry = { loading: false, error: true, total30d: 0, unrealizedAll: 0, realized30d: 0, openCount: 0, closedCount: 0, truncated: false, qualityScore: null, qualityLabel: '', qualityClass: '' };
+    globalPnlCache.set(wallet, entry);
+    return entry;
+  }
+}
 
 function sortWallets(wallets, mode){
   const sorted = [...wallets];
@@ -1537,6 +1940,59 @@ function sortWallets(wallets, mode){
   return sorted.slice(0, 20);
 }
 
+/* --- Watchlist "wallets à copier" : persiste dans localStorage, visible
+   en permanence dans la barre sous le header, sur tous les onglets. --- */
+const WATCHLIST_KEY = 'pc_watchlist_v1';
+function loadWatchlist(){
+  try{ return JSON.parse(localStorage.getItem(WATCHLIST_KEY) || '{}'); }
+  catch(e){ return {}; }
+}
+function saveWatchlistData(obj){
+  try{ localStorage.setItem(WATCHLIST_KEY, JSON.stringify(obj)); }catch(e){ /* tant pis */ }
+}
+let watchlist = loadWatchlist(); // { [wallet]: { wallet, name, pinnedAt } }
+
+function isWatched(wallet){ return !!watchlist[wallet]; }
+
+function togglePinWallet(wallet, name){
+  if(watchlist[wallet]){
+    delete watchlist[wallet];
+  }else{
+    watchlist[wallet] = { wallet, name: name || '', pinnedAt: Date.now() };
+  }
+  saveWatchlistData(watchlist);
+  renderWatchlistBar();
+  // Si la modale est ouverte, on la ré-affiche pour mettre à jour le badge ⭐.
+  const overlay = document.getElementById('walletModalOverlay');
+  if(overlay && overlay.style.display !== 'none') renderWalletModal();
+}
+
+function shortAddr(a){ return a ? `${a.slice(0,6)}…${a.slice(-4)}` : ''; }
+
+function renderWatchlistBar(){
+  const list = document.getElementById('watchlistList');
+  const count = document.getElementById('watchlistCount');
+  const entries = Object.values(watchlist).sort((a,b)=> b.pinnedAt - a.pinnedAt);
+  count.textContent = `(${entries.length})`;
+  if(!entries.length){
+    list.innerHTML = '<span class="watchlist-empty">Épingle des wallets ⭐ depuis la liste des wallets d\'un marché (bouton 👥) pour les suivre ici et être alerté de leurs nouveaux trades.</span>';
+    return;
+  }
+  list.innerHTML = entries.map(w => `
+    <span class="watch-chip">
+      <a href="https://polymarket.com/profile/${w.wallet}" target="_blank" rel="noopener" title="${w.wallet}">${escapeHtml(w.name || shortAddr(w.wallet))}</a>
+      <button class="watch-unpin" data-wallet="${w.wallet}" title="Retirer de la watchlist">✕</button>
+    </span>`).join('');
+}
+
+document.getElementById('watchlistList').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.watch-unpin');
+  if(!btn) return;
+  togglePinWallet(btn.dataset.wallet);
+});
+
+renderWatchlistBar();
+
 function renderWalletModal(){
   const list = document.getElementById('walletModalList');
   const wallets = sortWallets(walletModalCache, walletSortMode);
@@ -1544,27 +2000,115 @@ function renderWalletModal(){
     list.innerHTML = '<div class="empty">Aucun trade taker trouvé récemment sur ce marché.</div>';
     return;
   }
+  const conditionId = walletModalCondition;
   list.innerHTML = wallets.map((w, i) => {
     const isYes = (w.lastOutcome || '').toLowerCase().startsWith('y');
     const priceLabel = w.lastPrice ? ` ${(w.lastPrice * 100).toFixed(1)}¢` : '';
     const outcomeChip = w.lastOutcome ? `<span class="chip ${isYes ? 'yes' : 'no'}">${escapeHtml(w.lastOutcome)}${priceLabel}</span>` : '';
     const sharesLabel = w.shares.toLocaleString('fr-FR', {maximumFractionDigits: 2});
+
+    // PnL sur ce marché précis (positions ouvertes + soldées)
+    const pnl = pnlCache.get(`${w.wallet}|${conditionId}`);
+    let pnlCell = '<span class="wr-pnl loading">PnL…</span>';
+    let localGood = false;
+    if(pnl && !pnl.loading){
+      if(pnl.error){
+        pnlCell = '<span class="wr-pnl na">PnL indisponible</span>';
+      } else if(!pnl.hasPosition){
+        pnlCell = '<span class="wr-pnl na">Aucune position sur ce marché</span>';
+      } else {
+        const sign = pnl.cashPnl >= 0 ? '+' : '';
+        const cls = pnl.cashPnl >= 0 ? 'up' : 'down';
+        const soldTag = (!pnl.hasOpen && pnl.hasClosed) ? ' (soldé)' : '';
+        pnlCell = `<span class="wr-pnl ${cls}">Ce marché : ${sign}${fmtUsd(pnl.cashPnl)} (${sign}${pnl.percentPnl.toFixed(1)}%)${soldTag}</span>`;
+        localGood = pnl.cashPnl >= PROFIT_HIGHLIGHT_MIN_USD && pnl.percentPnl >= PROFIT_HIGHLIGHT_PCT;
+      }
+    }
+
+    // PnL global ~30j + score de qualité (win rate, taille moyenne,
+    // régularité, ancienneté), pour vérifier que ce n'est pas juste un coup
+    // de chance sur ce marché précis.
+    const gpnl = globalPnlCache.get(w.wallet);
+    let globalCell = '<span class="wr-pnl loading">Global 30j…</span>';
+    let qualityCell = '';
+    let globalStatus = 'unknown'; // 'unknown' | 'good' | 'bad'
+    let qualityOk = null; // null (pas encore su) | true | false
+    if(gpnl && !gpnl.loading){
+      if(gpnl.error){
+        globalCell = '<span class="wr-pnl na">Global 30j indisponible</span>';
+      } else {
+        const sign = gpnl.total30d >= 0 ? '+' : '';
+        const cls = gpnl.total30d >= 0 ? 'up' : 'down';
+        const approxPrefix = gpnl.truncated ? '≥ ' : '';
+        globalCell = `<span class="wr-pnl ${cls}">Global 30j : ${approxPrefix}${sign}${fmtUsd(gpnl.total30d)}</span>`;
+        globalStatus = gpnl.total30d > 0 ? 'good' : 'bad';
+
+        if(gpnl.qualityScore !== null && gpnl.qualityScore !== undefined){
+          qualityOk = gpnl.qualityScore >= QUALITY_MIN_SCORE;
+          const winRateLabel = gpnl.winRate !== null ? `${Math.round(gpnl.winRate*100)}% win rate (${gpnl.totalClosed} soldées)` : 'win rate inconnu (aucune position soldée)';
+          const sizeLabel = gpnl.avgPositionUsd !== null ? `taille moy. ${fmtUsd(gpnl.avgPositionUsd)}` : 'taille moy. inconnue';
+          const ageLabel = gpnl.ageDays >= 1 ? `actif depuis ${Math.round(gpnl.ageDays)}j` : 'wallet très récent';
+          const qTitle = `${winRateLabel} · ${sizeLabel} · ${gpnl.distinctTradingDays} jours de trading distincts · ${ageLabel}`;
+          qualityCell = `<span class="wr-quality q-${gpnl.qualityClass}" title="${qTitle}">Qualité : ${gpnl.qualityScore}/100 (${gpnl.qualityLabel})</span>`;
+        }
+      }
+    }
+
+    let rowClass = '';
+    let badge = '';
+    if(localGood && globalStatus === 'good' && qualityOk === true){
+      rowClass = 'profit-highlight';
+      badge = '<span class="profit-badge" title="Très en profit sur ce marché, globalement gagnant sur 30j, et score de qualité solide (win rate, taille, régularité, ancienneté) : bon candidat à copier en priorité">💰 Gros profit</span>';
+    } else if(localGood && globalStatus === 'good' && qualityOk === false){
+      rowClass = 'profit-maybe';
+      badge = '<span class="profit-badge maybe" title="En profit ici et globalement, mais score de qualité faible (échantillon limité, wallet récent, ou peu régulier) : prudence avant de copier">💰 Profit (échantillon faible)</span>';
+    } else if(localGood && (globalStatus === 'unknown' || qualityOk === null)){
+      rowClass = 'profit-maybe';
+      badge = '<span class="profit-badge maybe" title="En profit sur ce marché — vérification du profil global et du score de qualité en cours…">💰 Profit (vérif…)</span>';
+    }
+    // Si localGood mais globalStatus === 'bad' : pas de surlignage, ce
+    // wallet est perdant sur l'ensemble malgré ce coup gagnant ici.
+
+    const watched = isWatched(w.wallet);
+    const watchTag = watched ? '<span class="watch-tag" title="Dans ta watchlist">⭐ Suivi</span>' : '';
+
     return `
-      <div class="wallet-row">
+      <div class="wallet-row ${rowClass}">
         <span class="wr-rank">#${i+1}</span>
         <div class="wr-id">
-          <div class="wr-name">${escapeHtml(w.name || 'Anonyme')}</div>
+          <div class="wr-name">${escapeHtml(w.name || 'Anonyme')}${watchTag}${badge}</div>
           <div class="wr-addr">${w.wallet}</div>
         </div>
         ${outcomeChip}
         <div class="wr-stats">
           <b>${fmtUsd(w.volume)}</b>
           ${sharesLabel} parts · ${w.trades} trades · ${timeAgoLabel(w.lastTs)}
+          ${pnlCell}
+          ${globalCell}
+          ${qualityCell}
         </div>
+        <button class="wr-star ${watched ? 'on' : ''}" data-wallet="${w.wallet}" data-name="${escapeHtml(w.name||'')}" title="${watched ? 'Retirer de la watchlist' : "Épingler pour suivre ce wallet et être alerté de ses trades"}">${watched ? '⭐' : '☆'}</button>
         <button class="wr-copy" data-wallet="${w.wallet}" title="Copier l'adresse">📋 Copier</button>
         <a class="wr-copy" href="https://polymarket.com/profile/${w.wallet}" target="_blank" rel="noopener" title="Voir le profil Polymarket">↗</a>
       </div>`;
   }).join('');
+
+  // Charge le PnL (marché + global) des wallets affichés qui ne sont pas
+  // encore en cache (mémoire ou localStorage), puis ré-affiche pour
+  // appliquer le surlignage dès que les données arrivent.
+  wallets.forEach(w=>{
+    const localKey = `${w.wallet}|${conditionId}`;
+    if(!pnlCache.has(localKey)){
+      fetchWalletMarketPnl(w.wallet, conditionId).then(()=>{
+        if(walletModalCondition === conditionId) renderWalletModal();
+      });
+    }
+    if(!globalPnlCache.has(w.wallet)){
+      fetchWalletGlobalPnl(w.wallet).then(()=>{
+        if(walletModalCondition === conditionId) renderWalletModal();
+      });
+    }
+  });
 }
 
 async function openWalletModal(conditionId, title){
@@ -1573,11 +2117,12 @@ async function openWalletModal(conditionId, title){
   document.getElementById('walletModalTitle').textContent = title || 'Wallets actifs';
   list.innerHTML = '<div class="loading">Chargement…</div>';
   overlay.style.display = 'flex';
+  walletModalCondition = conditionId;
   try{
     walletModalCache = await fetchMarketTopWallets(conditionId);
-    renderWalletModal();
+    if(walletModalCondition === conditionId) renderWalletModal();
   }catch(e){
-    list.innerHTML = '<div class="err">Impossible de charger les wallets (API indisponible ou CORS). Réessaie.</div>';
+    if(walletModalCondition === conditionId) list.innerHTML = '<div class="err">Impossible de charger les wallets (API indisponible ou CORS). Réessaie.</div>';
   }
 }
 
@@ -1596,11 +2141,11 @@ document.getElementById('walletModalOverlay').addEventListener('click', (e)=>{
   if(e.target.id === 'walletModalOverlay') e.currentTarget.style.display = 'none';
 });
 
-// Délégation : le bouton 👥 est régénéré à chaque render, table ET grille.
+// Délégation : le bouton 👥 et le badge 🎯 sont régénérés à chaque render, table ET grille.
 [document.getElementById('marketBody'), document.getElementById('marketGridView')].forEach(container=>{
   if(!container) return;
   container.addEventListener('click', (e)=>{
-    const btn = e.target.closest('.wallet-btn');
+    const btn = e.target.closest('.wallet-btn, .copy-opp-badge');
     if(!btn) return;
     e.preventDefault();
     e.stopPropagation();
@@ -1608,8 +2153,13 @@ document.getElementById('walletModalOverlay').addEventListener('click', (e)=>{
   });
 });
 
-// Copier l'adresse au clic (délégation sur la liste de la modale)
+// Épingler / retirer de la watchlist au clic (délégation sur la liste de la modale)
 document.getElementById('walletModalList').addEventListener('click', (e)=>{
+  const starBtn = e.target.closest('button.wr-star');
+  if(starBtn){
+    togglePinWallet(starBtn.dataset.wallet, starBtn.dataset.name);
+    return;
+  }
   const btn = e.target.closest('button.wr-copy');
   if(!btn) return;
   const wallet = btn.dataset.wallet;
@@ -1888,6 +2438,209 @@ function setAlertsEnabled(on){
 
 document.getElementById('alertToggleBtn').addEventListener('click', ()=>{
   setAlertsEnabled(!alertsEnabled);
+});
+
+/* =========================================================================
+   DÉTECTION D'OPPORTUNITÉS DE COPIE — croise le badge "🚀 wV fort" avec la
+   présence d'un wallet en gros profit sur ce même marché (voir pnlCache /
+   fetchWalletMarketPnl plus haut), pour faire ressortir automatiquement les
+   marchés à la fois farmables ET où quelqu'un de solide a déjà pris position,
+   sans avoir à ouvrir la modale marché par marché.
+========================================================================= */
+const COPY_OPP_TTL_MS = 10 * 60 * 1000; // 10 min avant de re-scanner un marché
+const COPY_OPP_TOP_WALLETS = 5;         // nb de wallets (par volume) vérifiés par marché
+let copyDetectEnabled = false;
+// conditionId -> { status:'checking'|'yes'|'no'|'error', ts, wallet? }
+const copyOpportunityCache = new Map();
+let copyScanQueue = [];
+let copyScanRunning = false;
+
+function queueCopyOpportunityScans(items){
+  if(!copyDetectEnabled) return;
+  items.forEach(it=>{
+    if(!it.wvStrong || !it.conditionId) return;
+    const cached = copyOpportunityCache.get(it.conditionId);
+    if(cached && cached.status === 'checking') return;
+    if(cached && (Date.now() - cached.ts) < COPY_OPP_TTL_MS) return;
+    copyOpportunityCache.set(it.conditionId, { status: 'checking', ts: Date.now() });
+    copyScanQueue.push({ conditionId: it.conditionId });
+  });
+  processCopyScanQueue();
+}
+
+async function processCopyScanQueue(){
+  if(copyScanRunning) return;
+  copyScanRunning = true;
+  while(copyScanQueue.length){
+    const job = copyScanQueue.shift();
+    await scanMarketForCopyOpportunity(job.conditionId);
+    // Petite pause entre chaque marché pour ne pas spammer l'API en rafale.
+    await new Promise(r => setTimeout(r, 400));
+  }
+  copyScanRunning = false;
+}
+
+async function scanMarketForCopyOpportunity(conditionId){
+  try{
+    const wallets = await fetchMarketTopWallets(conditionId);
+    const topByVolume = [...wallets].sort((a,b)=> b.volume - a.volume).slice(0, COPY_OPP_TOP_WALLETS);
+    let found = null;
+    for(const w of topByVolume){
+      const pnl = await fetchWalletMarketPnl(w.wallet, conditionId);
+      if(pnl && !pnl.error && pnl.hasPosition && pnl.cashPnl >= PROFIT_HIGHLIGHT_MIN_USD && pnl.percentPnl >= PROFIT_HIGHLIGHT_PCT){
+        found = { wallet: w.wallet, name: w.name, cashPnl: pnl.cashPnl, percentPnl: pnl.percentPnl, confirmed: false };
+        break;
+      }
+    }
+    if(found){
+      // Un seul appel de plus pour confirmer via le PnL global 30j ET le score
+      // de qualité de CE wallet, pour éviter de mettre en avant un simple coup
+      // de chance sur ce marché (petit échantillon, wallet tout récent, etc.).
+      const gpnl = await fetchWalletGlobalPnl(found.wallet);
+      const globalGood = !!(gpnl && !gpnl.error && gpnl.total30d > 0);
+      const qualityGood = !!(gpnl && !gpnl.error && gpnl.qualityScore !== null && gpnl.qualityScore >= QUALITY_MIN_SCORE);
+      found.confirmed = globalGood && qualityGood;
+      found.qualityScore = (gpnl && !gpnl.error) ? gpnl.qualityScore : null;
+      found.qualityLabel = (gpnl && !gpnl.error) ? gpnl.qualityLabel : '';
+    }
+    copyOpportunityCache.set(conditionId, { status: found ? 'yes' : 'no', ts: Date.now(), wallet: found });
+  }catch(e){
+    copyOpportunityCache.set(conditionId, { status: 'error', ts: Date.now() });
+  }
+  // Ré-affiche pour montrer le badge 🎯 dès que le résultat de ce marché arrive.
+  renderMarkets();
+}
+
+function setCopyDetectEnabled(on){
+  copyDetectEnabled = on;
+  const btn = document.getElementById('copyOppToggleBtn');
+  btn.textContent = `🎯 Détection copie : ${on ? 'ON' : 'OFF'}`;
+  btn.classList.toggle('on', on);
+  btn.classList.toggle('pulse', on);
+  // Re-render déclenche queueCopyOpportunityScans() en interne (maintenant activé),
+  // ce qui lance le scan sur les marchés wV fort actuellement affichés.
+  if(on && marketsCache.length) renderMarkets();
+}
+
+document.getElementById('copyOppToggleBtn').addEventListener('click', ()=>{
+  setCopyDetectEnabled(!copyDetectEnabled);
+});
+
+/* =========================================================================
+   ALERTES WATCHLIST — pour les wallets épinglés ⭐, poll leurs trades taker
+   et notifie (son + toast + notif navigateur) dès qu'ils prennent une
+   nouvelle position, pour pouvoir les copier en quasi temps réel.
+========================================================================= */
+const WATCH_SEEN_KEY = 'pc_watch_last_seen_v1';
+let watchAlertsEnabled = false;
+let watchAlertTimer = null;
+let watchCheckInFlight = false;
+
+function loadWatchSeen(){
+  try{ return JSON.parse(localStorage.getItem(WATCH_SEEN_KEY) || '{}'); }
+  catch(e){ return {}; }
+}
+function saveWatchSeen(obj){
+  try{ localStorage.setItem(WATCH_SEEN_KEY, JSON.stringify(obj)); }catch(e){ /* tant pis */ }
+}
+let watchSeen = loadWatchSeen(); // { [wallet]: dernierTimestampVu }
+
+function showWatchTradeToast(wallet, label, trade, extraCount){
+  const stack = document.getElementById('toastStack');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  const isYes = (trade.outcome || '').toLowerCase().startsWith('y');
+  const priceLabel = trade.price ? ` @ ${(parseFloat(trade.price) * 100).toFixed(1)}¢` : '';
+  const usd = (parseFloat(trade.size) || 0) * (parseFloat(trade.price) || 0);
+  const marketUrl = trade.eventSlug ? `https://polymarket.com/event/${trade.eventSlug}` : (trade.slug ? `https://polymarket.com/event/${trade.slug}` : `https://polymarket.com/profile/${wallet}`);
+  el.innerHTML = `
+    <button class="t-close">✕</button>
+    <div class="t-head">⭐ ${escapeHtml(label)} a tradé</div>
+    <div class="t-title"><a href="${marketUrl}" target="_blank" rel="noopener" style="color:inherit;">${escapeHtml(trade.title || 'Marché Polymarket')}</a></div>
+    <div class="t-stats">${trade.outcome ? `<span class="chip ${isYes ? 'yes' : 'no'}" style="margin-right:6px;">${escapeHtml(trade.outcome)}${priceLabel}</span>` : ''}${fmtUsd(usd)}${extraCount > 0 ? ` · +${extraCount} autre(s) trade(s) récent(s)` : ''}</div>
+  `;
+  el.querySelector('.t-close').addEventListener('click', ()=> el.remove());
+  stack.appendChild(el);
+  setTimeout(()=>{ if(el.parentNode) el.remove(); }, 15000);
+}
+
+function sendWatchBrowserNotification(label, trade){
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  try{
+    const n = new Notification(`⭐ ${label} a tradé`, {
+      body: `${trade.title || 'Marché Polymarket'}${trade.outcome ? ` — ${trade.outcome}` : ''}`,
+    });
+    n.onclick = () => {
+      window.open(trade.eventSlug ? `https://polymarket.com/event/${trade.eventSlug}` : `https://polymarket.com/profile`, '_blank');
+      n.close();
+    };
+  }catch(e){ /* notifications indisponibles : tant pis */ }
+}
+
+async function checkWatchlistTrades(){
+  if(!watchAlertsEnabled || watchCheckInFlight) return;
+  const wallets = Object.values(watchlist);
+  if(!wallets.length) return;
+  watchCheckInFlight = true;
+  try{
+    await Promise.all(wallets.map(async w=>{
+      try{
+        const url = `${DATA}/trades?user=${w.wallet}&takerOnly=true&limit=5&sortBy=TIMESTAMP&sortDirection=DESC`;
+        const res = await fetch(url);
+        if(!res.ok) return;
+        const trades = await res.json();
+        if(!trades || !trades.length) return;
+
+        const lastSeen = watchSeen[w.wallet];
+        const isBaseline = lastSeen === undefined;
+        const newest = trades[0].timestamp || 0;
+
+        if(!isBaseline){
+          const freshTrades = trades.filter(t => (t.timestamp || 0) > lastSeen);
+          if(freshTrades.length){
+            const label = w.name || shortAddr(w.wallet);
+            playAlertSound();
+            showWatchTradeToast(w.wallet, label, freshTrades[0], freshTrades.length - 1);
+            sendWatchBrowserNotification(label, freshTrades[0]);
+          }
+        }
+        // Baseline (première activation pour ce wallet) : on mémorise sans
+        // alerter, pour ne pas spammer sur tout l'historique existant.
+        watchSeen[w.wallet] = Math.max(newest, lastSeen || 0);
+      }catch(e){ /* wallet en erreur : on continue les autres */ }
+    }));
+    saveWatchSeen(watchSeen);
+  }finally{
+    watchCheckInFlight = false;
+  }
+}
+
+function getWatchIntervalMs(){
+  const mins = Math.max(1, parseFloat(document.getElementById('watchAlertIntervalInput').value) || 2);
+  return mins * 60 * 1000;
+}
+
+function setWatchAlertsEnabled(on){
+  watchAlertsEnabled = on;
+  const btn = document.getElementById('watchAlertToggleBtn');
+  btn.textContent = `🔔 Alertes copie : ${on ? 'ON' : 'OFF'}`;
+  btn.classList.toggle('on', on);
+  btn.classList.toggle('pulse', on);
+  if(watchAlertTimer){ clearInterval(watchAlertTimer); watchAlertTimer = null; }
+  if(on){
+    if('Notification' in window && Notification.permission === 'default'){
+      Notification.requestPermission();
+    }
+    checkWatchlistTrades();
+    watchAlertTimer = setInterval(checkWatchlistTrades, getWatchIntervalMs());
+  }
+}
+
+document.getElementById('watchAlertToggleBtn').addEventListener('click', ()=>{
+  setWatchAlertsEnabled(!watchAlertsEnabled);
+});
+document.getElementById('watchAlertIntervalInput').addEventListener('change', ()=>{
+  if(watchAlertsEnabled) setWatchAlertsEnabled(true); // relance le timer avec le nouvel intervalle
 });
 </script>
 
