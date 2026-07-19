@@ -354,6 +354,21 @@
   }
   .watchlist-title{font-size:12.5px; font-weight:600; color:var(--ink);}
   .watchlist-controls{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .watchlist-add-form{display:flex; align-items:center; gap:6px;}
+  .watchlist-add-form input[type="text"]{
+    background:var(--bg); border:1px solid var(--line); color:var(--ink);
+    border-radius:4px; padding:5px 8px; font-family:'JetBrains Mono',monospace; font-size:11px;
+  }
+  .watchlist-add-form input#watchlistAddAddress{width:160px;}
+  .watchlist-add-form input#watchlistAddName{width:110px;}
+  .watchlist-add-form input:focus{outline:1px solid var(--gold); border-color:var(--gold);}
+  .watchlist-add-form button{
+    background:transparent; border:1px solid var(--line); color:var(--ink-dim);
+    border-radius:4px; padding:5px 10px; font-size:11px; cursor:pointer;
+    font-family:'JetBrains Mono',monospace; white-space:nowrap;
+  }
+  .watchlist-add-form button:hover{border-color:#ffd600; color:#ffd600;}
+  .watchlist-add-error{font-size:10.5px; color:var(--down); margin-left:2px;}
   .watchlist-interval{font-size:11px; color:var(--ink-dim); display:flex; align-items:center; gap:5px;}
   .watchlist-interval input{
     width:44px; background:var(--bg); border:1px solid var(--line); color:var(--ink);
@@ -628,6 +643,8 @@
     <span class="fresh-badge" id="freshMarkets"></span>
     <button class="alert-toggle" id="alertToggleBtn" title="Alerte son + notification quand un nouveau marché wV fort à gros volume apparaît (auto-refresh en arrière-plan)">🔔 Alertes wV fort : OFF</button>
     <input type="number" id="alertVolThreshold" class="alert-threshold-input" value="50000" min="0" step="1000" title="Volume 24h minimum pour déclencher une alerte ($)">
+    <button class="alert-toggle" id="volAlertToggleBtn" title="Alerte son + toast + notification navigateur quand le volume 24h d'un marché grimpe fortement par rapport à ~3h plus tôt (même détection que le badge 🔥 dans la liste).">🔥 Alertes hausse volume : OFF</button>
+    <input type="number" id="volAlertPctThreshold" class="alert-threshold-input" value="30" min="1" step="5" title="Seuil de hausse de volume (%) sur ~3h pour déclencher une alerte">
     <button class="alert-toggle" id="copyOppToggleBtn" title="Scanne en arrière-plan les marchés 🚀 wV fort affichés pour repérer ceux où un wallet est aussi en gros profit — tes meilleures opportunités de copie. Consomme des appels API supplémentaires.">🎯 Détection copie : OFF</button>
     <span class="api-health api-unknown" id="apiHealthIndicator" title="État des API Polymarket (Gamma + Data) utilisées par ce dashboard">● API : —</span>
     <span class="view-toggle" id="langToggle" title="Langue des noms de marché">
@@ -641,6 +658,11 @@
   <div class="watchlist-head">
     <span class="watchlist-title">⭐ Wallets suivis <span id="watchlistCount">(0)</span></span>
     <div class="watchlist-controls">
+      <form class="watchlist-add-form" id="watchlistAddForm">
+        <input type="text" id="watchlistAddAddress" placeholder="0x… adresse wallet" title="Adresse du wallet à suivre (0x...)" autocomplete="off">
+        <input type="text" id="watchlistAddName" placeholder="Nom (optionnel)" title="Nom/pseudo affiché (optionnel)" autocomplete="off">
+        <button type="submit" title="Ajouter ce wallet à la watchlist">＋ Ajouter</button>
+      </form>
       <label class="watchlist-interval">Vérif toutes les
         <input type="number" id="watchAlertIntervalInput" min="1" step="1" value="2" title="Intervalle de vérification des nouveaux trades des wallets suivis (minutes)"> min
       </label>
@@ -648,7 +670,7 @@
     </div>
   </div>
   <div class="watchlist-list" id="watchlistList">
-    <span class="watchlist-empty">Épingle des wallets ⭐ depuis la liste des wallets d'un marché (bouton 👥) pour les suivre ici et être alerté de leurs nouveaux trades.</span>
+    <span class="watchlist-empty">Épingle des wallets ⭐ depuis la liste des wallets d'un marché (bouton 👥), ou ajoute une adresse directement ci-dessus, pour les suivre ici et être alerté de leurs nouveaux trades.</span>
   </div>
 </div>
 
@@ -1967,6 +1989,18 @@ function togglePinWallet(wallet, name){
   if(overlay && overlay.style.display !== 'none') renderWalletModal();
 }
 
+// Ajout manuel (formulaire) : n'enlève jamais un wallet déjà suivi, met juste
+// à jour son nom si on le re-soumet avec un nom différent.
+function addWalletToWatchlist(wallet, name){
+  const addr = wallet.toLowerCase();
+  const existing = watchlist[addr];
+  watchlist[addr] = { wallet: addr, name: name || existing?.name || '', pinnedAt: existing?.pinnedAt || Date.now() };
+  saveWatchlistData(watchlist);
+  renderWatchlistBar();
+  const overlay = document.getElementById('walletModalOverlay');
+  if(overlay && overlay.style.display !== 'none') renderWalletModal();
+}
+
 function shortAddr(a){ return a ? `${a.slice(0,6)}…${a.slice(-4)}` : ''; }
 
 function renderWatchlistBar(){
@@ -1975,7 +2009,7 @@ function renderWatchlistBar(){
   const entries = Object.values(watchlist).sort((a,b)=> b.pinnedAt - a.pinnedAt);
   count.textContent = `(${entries.length})`;
   if(!entries.length){
-    list.innerHTML = '<span class="watchlist-empty">Épingle des wallets ⭐ depuis la liste des wallets d\'un marché (bouton 👥) pour les suivre ici et être alerté de leurs nouveaux trades.</span>';
+    list.innerHTML = '<span class="watchlist-empty">Épingle des wallets ⭐ depuis la liste des wallets d\'un marché (bouton 👥), ou ajoute une adresse directement ci-dessus, pour les suivre ici et être alerté de leurs nouveaux trades.</span>';
     return;
   }
   list.innerHTML = entries.map(w => `
@@ -1989,6 +2023,32 @@ document.getElementById('watchlistList').addEventListener('click', (e)=>{
   const btn = e.target.closest('.watch-unpin');
   if(!btn) return;
   togglePinWallet(btn.dataset.wallet);
+});
+
+// Ajout manuel d'un wallet par adresse (sans passer par la modale d'un marché).
+document.getElementById('watchlistAddForm').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const addrInput = document.getElementById('watchlistAddAddress');
+  const nameInput = document.getElementById('watchlistAddName');
+  const raw = addrInput.value.trim();
+
+  // Retire un éventuel message d'erreur précédent.
+  const existingErr = document.getElementById('watchlistAddError');
+  if(existingErr) existingErr.remove();
+
+  if(!/^0x[a-fA-F0-9]{40}$/.test(raw)){
+    const err = document.createElement('span');
+    err.id = 'watchlistAddError';
+    err.className = 'watchlist-add-error';
+    err.textContent = 'Adresse invalide (format attendu : 0x + 40 caractères hexadécimaux).';
+    document.getElementById('watchlistAddForm').appendChild(err);
+    return;
+  }
+
+  addWalletToWatchlist(raw, nameInput.value.trim());
+  addrInput.value = '';
+  nameInput.value = '';
+  addrInput.focus();
 });
 
 renderWatchlistBar();
