@@ -333,6 +333,20 @@
   }
   .wr-copy:hover{border-color:var(--gold); color:var(--gold);}
   .wr-copy.copied{border-color:var(--up); color:var(--up);}
+  .activity-row{
+    display:flex; align-items:center; gap:10px;
+    padding:9px 10px; border-radius:6px; margin-bottom:6px;
+    background:var(--surface-2); border:1px solid var(--line);
+  }
+  .activity-row .ar-time{font-size:10px; color:var(--ink-dim); font-family:'JetBrains Mono'; width:70px; flex:none;}
+  .activity-row .ar-body{flex:1; min-width:0;}
+  .activity-row .ar-who{font-size:11.5px; color:#ffd600; font-weight:600;}
+  .activity-row .ar-title{font-size:12.5px; color:var(--ink); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .activity-row .ar-title a{color:inherit; text-decoration:none;}
+  .activity-row .ar-title a:hover{color:var(--gold);}
+  .activity-row .ar-stats{font-size:11px; color:var(--ink-dim); text-align:right; flex:none; font-family:'JetBrains Mono';}
+  .activity-row .ar-stats b{color:var(--gold); display:block; font-size:12px;}
+  #watchActivityBtn.unread{border-color:#ffd600; color:#ffd600; background:rgba(255,214,0,0.08);}
   .wr-star{
     background:transparent; border:1px solid var(--line); color:var(--ink-dim);
     border-radius:5px; padding:4px 8px; cursor:pointer; font-size:13px; line-height:1;
@@ -667,6 +681,7 @@
         <input type="number" id="watchAlertIntervalInput" min="1" step="1" value="2" title="Intervalle de vérification des nouveaux trades des wallets suivis (minutes)"> min
       </label>
       <button class="alert-toggle" id="watchAlertToggleBtn" title="Poll les trades taker des wallets suivis et notifie (son + toast + notif navigateur) dès qu'ils prennent une nouvelle position, pour copier en quasi temps réel.">🔔 Alertes copie : OFF</button>
+      <button class="alert-toggle" id="watchActivityBtn" title="Consulter l'historique des trades détectés sur tes wallets suivis">🕘 Activité <span id="watchActivityCount">(0)</span></button>
     </div>
   </div>
   <div class="watchlist-list" id="watchlistList">
@@ -839,6 +854,20 @@
       </div>
     </div>
     <div class="modal-list" id="walletModalList"><div class="loading">Chargement…</div></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="activityModalOverlay" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>🕘 Activité des wallets suivis</h3>
+      <button class="modal-close" id="activityModalClose">✕</button>
+    </div>
+    <div class="modal-sub" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+      <span>Historique des trades taker détectés sur tes wallets ⭐ suivis, conservé localement — consultable à tout moment, même après avoir fermé les toasts.</span>
+      <button class="live-feed-toggle" id="activityClearBtn" style="margin-left:0;flex:none;" title="Effacer tout l'historique">🗑 Vider l'historique</button>
+    </div>
+    <div class="modal-list" id="activityModalList"></div>
   </div>
 </div>
 
@@ -1300,6 +1329,7 @@ function renderMarkets(){
     </a>`).join('');
 
   checkForWvFortAlerts(items);
+  checkForVolumeSurgeAlerts(items);
   queueCopyOpportunityScans(items);
 }
 
@@ -2501,6 +2531,99 @@ document.getElementById('alertToggleBtn').addEventListener('click', ()=>{
 });
 
 /* =========================================================================
+   ALERTES HAUSSE DE VOLUME — réutilise la détection déjà en place pour le
+   badge 🔥 (getVolumeSurge / volHistory) et déclenche en plus un son + toast
+   + notification navigateur quand un marché a une hausse de volume 24h
+   importante par rapport à ~3h plus tôt.
+========================================================================= */
+const VOL_ALERT_SEEN_KEY = 'pc_vol_alert_seen_v1';           // slug -> timestamp du dernier alert
+const VOL_ALERT_BASELINE_KEY = 'pc_vol_alert_baseline_done_v1';
+const VOL_ALERT_COOLDOWN_MS = 2 * 60 * 60 * 1000;             // ne réalerte pas le même marché avant 2h
+const VOL_ALERT_POLL_MS = 90 * 1000;
+let volAlertsEnabled = false;
+let volAlertPollTimer = null;
+
+function loadVolAlertSeen(){
+  try{ return JSON.parse(localStorage.getItem(VOL_ALERT_SEEN_KEY) || '{}'); }
+  catch(e){ return {}; }
+}
+function saveVolAlertSeen(obj){
+  try{ localStorage.setItem(VOL_ALERT_SEEN_KEY, JSON.stringify(obj)); }catch(e){ /* tant pis */ }
+}
+let volAlertSeen = loadVolAlertSeen(); // { [slug]: dernierAlertTs }
+
+function showVolumeSurgeToast(item, surge){
+  const stack = document.getElementById('toastStack');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML = `
+    <button class="t-close">✕</button>
+    <div class="t-head">🔥 Hausse de volume</div>
+    <div class="t-title"><a href="${item.url}" target="_blank" rel="noopener" style="color:inherit;">${escapeHtml(item.title)}</a></div>
+    <div class="t-stats">Vol 24h ${fmtUsd(item.vol)} · +${surge.pct}% sur ${surge.hours}</div>
+  `;
+  el.querySelector('.t-close').addEventListener('click', ()=> el.remove());
+  stack.appendChild(el);
+  setTimeout(()=>{ if(el.parentNode) el.remove(); }, 15000);
+}
+
+function sendVolumeSurgeNotification(item, surge){
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  try{
+    const n = new Notification('🔥 Hausse de volume importante', {
+      body: `${item.title}\nVol 24h ${fmtUsd(item.vol)} · +${surge.pct}% sur ${surge.hours}`,
+    });
+    n.onclick = () => { window.open(item.url, '_blank'); n.close(); };
+  }catch(e){ /* notifications indisponibles : tant pis */ }
+}
+
+function checkForVolumeSurgeAlerts(items){
+  if(!volAlertsEnabled) return;
+  const minPct = parseFloat(document.getElementById('volAlertPctThreshold').value) || VOL_SURGE_MIN_PCT;
+  // Première activation jamais faite : on mémorise sans alerter, pour ne pas
+  // spammer sur tout ce qui est déjà en hausse au moment de l'activation.
+  const isBaseline = !localStorage.getItem(VOL_ALERT_BASELINE_KEY);
+  const now = Date.now();
+  let changed = false;
+  items.forEach(it=>{
+    if(!it.slug) return;
+    const surge = getVolumeSurge(it.slug, it.vol);
+    if(!surge || surge.pct < minPct) return;
+    const lastAlertTs = volAlertSeen[it.slug];
+    if(lastAlertTs && (now - lastAlertTs) < VOL_ALERT_COOLDOWN_MS) return;
+    volAlertSeen[it.slug] = now;
+    changed = true;
+    if(!isBaseline){
+      playAlertSound();
+      showVolumeSurgeToast(it, surge);
+      sendVolumeSurgeNotification(it, surge);
+    }
+  });
+  if(isBaseline){ try{ localStorage.setItem(VOL_ALERT_BASELINE_KEY, '1'); }catch(e){} }
+  if(changed) saveVolAlertSeen(volAlertSeen);
+}
+
+function setVolAlertsEnabled(on){
+  volAlertsEnabled = on;
+  const btn = document.getElementById('volAlertToggleBtn');
+  btn.textContent = `🔥 Alertes hausse volume : ${on ? 'ON' : 'OFF'}`;
+  btn.classList.toggle('on', on);
+  btn.classList.toggle('pulse', on);
+  if(volAlertPollTimer){ clearInterval(volAlertPollTimer); volAlertPollTimer = null; }
+  if(on){
+    if('Notification' in window && Notification.permission === 'default'){
+      Notification.requestPermission();
+    }
+    loadMarkets();
+    volAlertPollTimer = setInterval(loadMarkets, VOL_ALERT_POLL_MS);
+  }
+}
+
+document.getElementById('volAlertToggleBtn').addEventListener('click', ()=>{
+  setVolAlertsEnabled(!volAlertsEnabled);
+});
+
+/* =========================================================================
    DÉTECTION D'OPPORTUNITÉS DE COPIE — croise le badge "🚀 wV fort" avec la
    présence d'un wallet en gros profit sur ce même marché (voir pnlCache /
    fetchWalletMarketPnl plus haut), pour faire ressortir automatiquement les
@@ -2662,6 +2785,9 @@ async function checkWatchlistTrades(){
             playAlertSound();
             showWatchTradeToast(w.wallet, label, freshTrades[0], freshTrades.length - 1);
             sendWatchBrowserNotification(label, freshTrades[0]);
+            // Journalise CHAQUE trade frais (pas juste le plus récent affiché
+            // dans le toast) pour pouvoir consulter l'historique complet plus tard.
+            freshTrades.forEach(t => logWatchActivity(w.wallet, label, t));
           }
         }
         // Baseline (première activation pour ce wallet) : on mémorise sans
@@ -2702,6 +2828,107 @@ document.getElementById('watchAlertToggleBtn').addEventListener('click', ()=>{
 document.getElementById('watchAlertIntervalInput').addEventListener('change', ()=>{
   if(watchAlertsEnabled) setWatchAlertsEnabled(true); // relance le timer avec le nouvel intervalle
 });
+
+/* =========================================================================
+   HISTORIQUE D'ACTIVITÉ WATCHLIST — chaque trade détecté sur un wallet suivi
+   (voir checkWatchlistTrades) est journalisé ici, en plus du toast éphémère,
+   pour pouvoir le consulter à tout moment via le bouton "🕘 Activité".
+========================================================================= */
+const WATCH_ACTIVITY_KEY = 'pc_watch_activity_v1';
+const WATCH_ACTIVITY_SEEN_KEY = 'pc_watch_activity_last_seen_v1';
+const WATCH_ACTIVITY_MAX = 200; // conserve les 200 entrées les plus récentes
+
+function loadWatchActivity(){
+  try{ return JSON.parse(localStorage.getItem(WATCH_ACTIVITY_KEY) || '[]'); }
+  catch(e){ return []; }
+}
+function saveWatchActivityLog(arr){
+  try{ localStorage.setItem(WATCH_ACTIVITY_KEY, JSON.stringify(arr)); }catch(e){ /* tant pis */ }
+}
+let watchActivityLog = loadWatchActivity(); // [{wallet,name,title,outcome,price,size,usd,url,ts}], plus récent en premier
+
+function logWatchActivity(wallet, name, trade){
+  const usd = (parseFloat(trade.size) || 0) * (parseFloat(trade.price) || 0);
+  const url = trade.eventSlug ? `https://polymarket.com/event/${trade.eventSlug}` : (trade.slug ? `https://polymarket.com/event/${trade.slug}` : `https://polymarket.com/profile/${wallet}`);
+  watchActivityLog.unshift({
+    wallet, name,
+    title: trade.title || 'Marché Polymarket',
+    outcome: trade.outcome || '',
+    price: parseFloat(trade.price) || 0,
+    usd, url,
+    ts: trade.timestamp ? trade.timestamp * 1000 : Date.now()
+  });
+  if(watchActivityLog.length > WATCH_ACTIVITY_MAX) watchActivityLog.length = WATCH_ACTIVITY_MAX;
+  saveWatchActivityLog(watchActivityLog);
+  renderWatchActivityButton();
+  const overlay = document.getElementById('activityModalOverlay');
+  if(overlay && overlay.style.display !== 'none') renderActivityModalList();
+}
+
+function getWatchActivityLastSeen(){
+  const v = parseInt(localStorage.getItem(WATCH_ACTIVITY_SEEN_KEY) || '0', 10);
+  return isNaN(v) ? 0 : v;
+}
+function setWatchActivityLastSeen(ts){
+  try{ localStorage.setItem(WATCH_ACTIVITY_SEEN_KEY, String(ts)); }catch(e){ /* tant pis */ }
+}
+
+function renderWatchActivityButton(){
+  const btn = document.getElementById('watchActivityBtn');
+  const countEl = document.getElementById('watchActivityCount');
+  if(!btn || !countEl) return;
+  const lastSeen = getWatchActivityLastSeen();
+  const unread = watchActivityLog.filter(a => a.ts > lastSeen).length;
+  countEl.textContent = `(${watchActivityLog.length}${unread > 0 ? `, +${unread}` : ''})`;
+  btn.classList.toggle('unread', unread > 0);
+}
+
+function renderActivityModalList(){
+  const list = document.getElementById('activityModalList');
+  if(!watchActivityLog.length){
+    list.innerHTML = '<div class="empty">Aucune activité enregistrée pour l\'instant — active "🔔 Alertes copie" pour commencer à journaliser les trades de tes wallets suivis.</div>';
+    return;
+  }
+  list.innerHTML = watchActivityLog.map(a=>{
+    const isYes = (a.outcome || '').toLowerCase().startsWith('y');
+    const outcomeChip = a.outcome ? `<span class="chip ${isYes ? 'yes' : 'no'}">${escapeHtml(a.outcome)}${a.price ? ` ${(a.price*100).toFixed(1)}¢` : ''}</span>` : '';
+    return `
+      <div class="activity-row">
+        <span class="ar-time">${timeAgoLabel(Math.floor(a.ts/1000))}</span>
+        <div class="ar-body">
+          <span class="ar-who">⭐ ${escapeHtml(a.name || shortAddr(a.wallet))}</span>
+          <div class="ar-title"><a href="${a.url}" target="_blank" rel="noopener">${escapeHtml(a.title)}</a></div>
+        </div>
+        ${outcomeChip}
+        <div class="ar-stats"><b>${fmtUsd(a.usd)}</b></div>
+      </div>`;
+  }).join('');
+}
+
+function openActivityModal(){
+  document.getElementById('activityModalOverlay').style.display = 'flex';
+  renderActivityModalList();
+  setWatchActivityLastSeen(Date.now());
+  renderWatchActivityButton();
+}
+
+document.getElementById('watchActivityBtn').addEventListener('click', openActivityModal);
+document.getElementById('activityModalClose').addEventListener('click', ()=>{
+  document.getElementById('activityModalOverlay').style.display = 'none';
+});
+document.getElementById('activityModalOverlay').addEventListener('click', (e)=>{
+  if(e.target.id === 'activityModalOverlay') e.currentTarget.style.display = 'none';
+});
+document.getElementById('activityClearBtn').addEventListener('click', ()=>{
+  if(!watchActivityLog.length) return;
+  if(!confirm('Effacer tout l\'historique d\'activité des wallets suivis ?')) return;
+  watchActivityLog = [];
+  saveWatchActivityLog(watchActivityLog);
+  renderActivityModalList();
+  renderWatchActivityButton();
+});
+
+renderWatchActivityButton();
 </script>
 
 </body>
