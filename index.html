@@ -265,6 +265,30 @@
   }
   .alert-toggle.on{background:rgba(232,201,74,0.14); border-color:#e8c94a; color:#e8c94a;}
   .alert-toggle.on.pulse{animation:alertPulse 1.4s ease-in-out infinite;}
+  .alert-toggle.unread{border-color:#e8c94a; color:#e8c94a; background:rgba(232,201,74,0.10);}
+  .ac-filters{display:flex; gap:6px; flex-wrap:wrap; align-items:center;}
+  .ac-chip{
+    background:var(--surface-2); border:1px solid var(--line); color:var(--ink-dim);
+    font-size:11px; padding:4px 9px; border-radius:12px; cursor:pointer; font-family:'JetBrains Mono',monospace;
+    text-transform:none; font-weight:400; letter-spacing:0;
+  }
+  .ac-chip:hover{border-color:var(--gold); color:var(--gold); background:var(--surface-2);}
+  .ac-chip.on{background:var(--gold); color:#161200; border-color:var(--gold);}
+  .ac-chip .ac-n{opacity:.7; margin-left:3px;}
+  .ac-search{
+    background:var(--surface-2); border:1px solid var(--line); color:var(--ink);
+    font-family:'JetBrains Mono',monospace; font-size:11px; padding:5px 9px; border-radius:4px; width:190px; max-width:100%;
+  }
+  .ac-search:focus{outline:1px solid var(--gold); border-color:var(--gold);}
+  .ac-actions{display:flex; gap:6px; flex-wrap:wrap; align-items:center;}
+  .activity-row.ac-new{background:rgba(232,201,74,0.08); border-color:rgba(232,201,74,0.4); box-shadow:inset 2px 0 0 #e8c94a;}
+  .activity-row .ac-del{
+    background:transparent; border:none; color:var(--ink-dim); cursor:pointer; font-size:12px;
+    padding:2px 6px; border-radius:4px; flex:none; text-transform:none; font-weight:400;
+  }
+  .activity-row .ac-del:hover{color:var(--down); background:rgba(229,72,77,0.1);}
+  .ac-day{font-size:10.5px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.06em; margin:12px 0 6px;}
+  .ac-new-dot{display:inline-block; width:6px; height:6px; border-radius:50%; background:#e8c94a; margin-right:6px; vertical-align:middle;}
   @keyframes alertPulse{0%,100%{box-shadow:0 0 0 0 rgba(232,201,74,0.35);}50%{box-shadow:0 0 0 5px rgba(232,201,74,0);}}
   .wallet-row input.alert-threshold-input{
     width:77px; max-width:77px; background:var(--surface-2); border:1px solid var(--line); color:var(--ink-dim);
@@ -401,6 +425,17 @@
     font-size:11px; padding:2px 4px; border-radius:50%; line-height:1;
   }
   .watch-unpin:hover{color:var(--down); background:rgba(255,80,80,0.1);}
+  .watch-chip.wc-card{display:flex; flex-direction:column; gap:5px; border-radius:6px; padding:8px 10px; min-width:210px; max-width:320px;}
+  .watch-chip.wc-card.wc-muted{opacity:.6;}
+  .wc-top{display:flex; align-items:center; justify-content:space-between; gap:8px;}
+  .wc-top a{font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .wc-btns{display:flex; align-items:center; gap:2px; flex:none;}
+  .wc-btn{background:transparent; border:none; color:var(--ink-dim); cursor:pointer; font-size:11px; padding:2px 4px; border-radius:4px; text-transform:none; font-weight:400; letter-spacing:0;}
+  .wc-btn:hover{color:var(--gold); background:var(--surface-2);}
+  .wc-stats{display:flex; flex-wrap:wrap; gap:3px 10px; font-size:10.5px; font-family:'JetBrains Mono',monospace;}
+  .wc-stats .wr-quality, .wc-stats .wr-pnl{display:inline; margin:0; font-size:10.5px;}
+  .wc-s.wc-dim{color:var(--ink-dim);}
+  .wc-s.wc-hot{color:#ffd600;}
   .wallet-row.profit-highlight{
     background:rgba(255,214,0,0.14);
     border-color:rgba(255,214,0,0.55);
@@ -605,6 +640,20 @@
     padding:20px 24px 24px;
     max-width:680px;
   }
+  .pf-wrap{padding:20px 24px 28px; max-width:1200px;}
+  .pf-bar{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:18px; padding:12px 14px; background:var(--surface); border:1px solid var(--line); border-radius:6px;}
+  .pf-label{font-size:11px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.08em;}
+  .pf-bar input{background:var(--surface-2); border:1px solid var(--line); color:var(--ink); font-family:'JetBrains Mono',monospace; font-size:12px; padding:8px 10px; border-radius:4px; width:360px; max-width:100%; flex:1 1 280px;}
+  .pf-bar input:focus{outline:1px solid var(--gold); border-color:var(--gold);}
+  .pf-bar .fresh-badge{margin-left:auto;}
+  .pf-grid{display:grid; grid-template-columns:minmax(0,1.4fr) minmax(0,1fr); gap:16px; align-items:start;}
+  @media (max-width:900px){ .pf-grid{grid-template-columns:1fr;} }
+  .pf-card{background:var(--surface); border:1px solid var(--line); border-radius:6px; padding:16px 18px;}
+  .pf-links{display:flex; flex-direction:column; gap:8px;}
+  .pf-link{display:block; text-decoration:none; color:inherit; background:var(--surface-2); border:1px solid var(--line); border-radius:6px; padding:11px 13px; transition:border-color .15s ease;}
+  .pf-link:hover{border-color:var(--gold);}
+  .pf-link-t{display:block; font-family:'Space Grotesk',sans-serif; font-weight:600; font-size:13px; color:var(--gold); margin-bottom:3px;}
+  .pf-link-d{display:block; font-size:11px; color:var(--ink-dim); line-height:1.5;}
   .panel-sub{font-size:11.5px;color:var(--ink-dim);line-height:1.6;margin:8px 0 16px;}
   .panel-sub a{color:var(--gold);}
 </style>
@@ -617,15 +666,6 @@
     <div class="sub">by BlueMoon</div>
   </div>
   <div class="wallet-row">
-    <input id="walletInput" type="text" value="0xe786C3487e60Cf9ae9cdE877791614E0aC3d9D92" spellcheck="false">
-    <button id="loadBtn">Charger</button>
-    <button class="ghost" id="refreshBtn">↻ Rafraîchir</button>
-    <span class="fresh-badge" id="freshMarkets"></span>
-    <button class="alert-toggle" id="alertToggleBtn" title="Alerte son + notification quand un nouveau marché wV fort à gros volume apparaît (auto-refresh en arrière-plan)">🔔 Alertes wV fort : OFF</button>
-    <input type="number" id="alertVolThreshold" class="alert-threshold-input" value="50000" min="0" step="1000" title="Volume 24h minimum pour déclencher une alerte ($)">
-    <button class="alert-toggle" id="volAlertToggleBtn" title="Alerte son + toast + notification navigateur quand le volume 24h d'un marché grimpe fortement par rapport à ~3h plus tôt (même détection que le badge 🔥 dans la liste).">🔥 Alertes hausse volume : OFF</button>
-    <input type="number" id="volAlertPctThreshold" class="alert-threshold-input" value="30" min="1" step="5" title="Seuil de hausse de volume (%) sur ~3h pour déclencher une alerte">
-    <button class="alert-toggle" id="copyOppToggleBtn" title="Scanne en arrière-plan les marchés 🚀 wV fort affichés pour repérer ceux où un wallet est aussi en gros profit — tes meilleures opportunités de copie. Consomme des appels API supplémentaires.">🎯 Détection copie : OFF</button>
     <button class="alert-toggle" id="alertCenterBtn" title="Centre d'alertes : toutes les alertes au même endroit + historique commun">🔔 Centre d'alertes <span id="alertCenterCount">(0)</span></button>
     <span class="api-health api-unknown" id="apiHealthIndicator" title="État des API Polymarket (Gamma + Data) utilisées par ce dashboard">● API : —</span>
     <span class="view-toggle" id="langToggle" title="Langue des noms de marché">
@@ -637,7 +677,9 @@
 
 <div class="watchlist-bar" id="watchlistBar">
   <div class="watchlist-head">
-    <span class="watchlist-title">⭐ Wallets suivis <span id="watchlistCount">(0)</span></span>
+    <span class="watchlist-title">⭐ Wallets suivis <span id="watchlistCount">(0)</span>
+      <button class="live-feed-toggle" id="watchlistCollapseBtn" style="margin-left:8px;" title="Replier / déplier la liste">▾</button>
+    </span>
     <div class="watchlist-controls">
       <form class="watchlist-add-form" id="watchlistAddForm">
         <input type="text" id="watchlistAddAddress" placeholder="0x… adresse wallet" title="Adresse du wallet à suivre (0x...)" autocomplete="off">
@@ -666,11 +708,8 @@
   <button class="tab-btn active" data-tab="dashboard">Marchés tendance</button>
   <button class="tab-btn" data-tab="whales">🐋 Whale Bets 24h</button>
   <span class="tab-sep"></span>
-  <button class="tab-btn" data-tab="wv">Taker Rebate Tiers</button>
   <span class="tab-sep"></span>
-  <a class="tab-btn" href="https://polymarket.com/rewards?id=competitiveness&desc=true&q=&page=17" target="_blank" rel="noopener" title="Maximise les récompenses journalières en ciblant les marchés compétitifs avec les meilleurs multiplicateurs de rewards.">🎁 Récompenses</a>
-  <a class="tab-btn" href="https://polymarket.com/predictions/earn-4" target="_blank" rel="noopener" title="Dépose des USDC sur Polymarket et gagne 4% APY passivement.">💰 Gagnez 4 %</a>
-  <a class="tab-btn" href="https://polymarket.com/fr/rewards?desc=false&id=earnings&onlyPositions=false&q=" target="_blank" rel="noopener">💰 Récompenses Quotidiennes</a>
+  <button class="tab-btn" data-tab="portfolio">💼 Mon portefeuille</button>
 </nav>
 
 <div class="tab-panel active" id="tab-dashboard">
@@ -681,6 +720,8 @@
     <div class="filter-row" id="filterRow">
       <input type="text" id="marketSearch" class="search-input" placeholder="Rechercher un marché…" spellcheck="false">
       <span class="num" id="marketCount"></span>
+      <button class="ghost" id="marketsRefreshBtn" title="Rafraîchir les marchés">↻</button>
+      <span class="fresh-badge" id="freshMarkets"></span>
       <span id="marketFilterControls" style="display:contents">
         <button data-f="volume24hr" class="on">Volume 24h</button>
         <button data-f="new">Récents</button>
@@ -750,10 +791,39 @@
 </main>
 </div>
 
-<div class="tab-panel" id="tab-wv">
-<div class="rebate-section">
-  <div class="panel-title">Taker rebate tier <span class="fresh-badge" id="freshRebate"></span></div>
-  <div id="rebatePanel"><div class="loading">Charge un wallet pour voir le tier.</div></div>
+<div class="tab-panel" id="tab-portfolio">
+<div class="pf-wrap">
+  <div class="pf-bar">
+    <span class="pf-label">Wallet</span>
+    <input id="walletInput" type="text" value="0xe786C3487e60Cf9ae9cdE877791614E0aC3d9D92" spellcheck="false">
+    <button id="loadBtn">Charger</button>
+    <button class="ghost" id="refreshBtn">↻ Rafraîchir</button>
+    <a class="wr-copy" id="walletProfileLink" href="https://polymarket.com/profile/0xe786C3487e60Cf9ae9cdE877791614E0aC3d9D92" target="_blank" rel="noopener" title="Voir ce wallet sur Polymarket">↗ Profil</a>
+    <span class="fresh-badge" id="freshRebate"></span>
+  </div>
+  <div class="pf-grid">
+    <div class="pf-card">
+      <div class="panel-title">Taker rebate tier</div>
+      <div id="rebatePanel"><div class="loading">Charge un wallet pour voir le tier.</div></div>
+    </div>
+    <div class="pf-card">
+      <div class="panel-title">Liens rapides</div>
+      <div class="pf-links">
+        <a class="pf-link" href="https://polymarket.com/rewards?id=competitiveness&desc=true&q=&page=17" target="_blank" rel="noopener">
+          <span class="pf-link-t">🎁 Récompenses</span>
+          <span class="pf-link-d">Maximise les récompenses journalières en ciblant les marchés compétitifs avec les meilleurs multiplicateurs de rewards.</span>
+        </a>
+        <a class="pf-link" href="https://polymarket.com/predictions/earn-4" target="_blank" rel="noopener">
+          <span class="pf-link-t">💰 Gagnez 4 %</span>
+          <span class="pf-link-d">Dépose des USDC sur Polymarket et gagne 4% APY passivement.</span>
+        </a>
+        <a class="pf-link" href="https://polymarket.com/fr/rewards?desc=false&id=earnings&onlyPositions=false&q=" target="_blank" rel="noopener">
+          <span class="pf-link-t">💰 Récompenses Quotidiennes</span>
+          <span class="pf-link-d">Suis tes gains de récompenses du jour.</span>
+        </a>
+      </div>
+    </div>
+  </div>
 </div>
 </div>
 
@@ -838,11 +908,28 @@
       <div id="alertCenterToggles" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;"></div>
       <div id="alertCenterPerm" style="margin-top:6px;"></div>
     </div>
+    <div class="modal-sub" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+      <label>🚀 wV fort : volume 24h ≥ $
+        <input type="number" id="alertVolThreshold" min="0" step="1000" value="50000" title="Volume 24h minimum pour déclencher une alerte wV fort ($)" style="width:90px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink);padding:3px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11px;">
+      </label>
+      <label>🔥 Hausse volume ≥
+        <input type="number" id="volAlertPctThreshold" min="1" step="5" value="30" title="Seuil de hausse de volume (%) sur ~3h pour déclencher une alerte" style="width:60px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink);padding:3px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11px;"> %
+      </label>
+    </div>
     <div class="modal-sub" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
       <label>🐋 Alerte whales : pari ≥ $
         <input type="number" id="whaleAlertThreshold" min="1000" step="5000" value="25000" title="Montant minimum par fill pour déclencher une alerte whale ($)" style="width:90px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink);padding:3px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11px;">
       </label>
-      <button class="live-feed-toggle" id="alertCenterClear" style="margin-left:0;flex:none;">🗑 Vider l'historique</button>
+      <div class="ac-actions">
+        <button class="live-feed-toggle" id="alertSoundBtn" style="margin-left:0;flex:none;" title="Couper / activer le son des alertes">🔊 Son : ON</button>
+        <button class="live-feed-toggle" id="alertTestBtn" style="margin-left:0;flex:none;" title="Joue le son et affiche une notification de test">🧪 Tester</button>
+        <button class="live-feed-toggle" id="alertMarkReadBtn" style="margin-left:0;flex:none;">✓ Tout marquer lu</button>
+        <button class="live-feed-toggle" id="alertCenterClear" style="margin-left:0;flex:none;">🗑 Vider l'historique</button>
+      </div>
+    </div>
+    <div class="modal-sub" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+      <div class="ac-filters" id="alertCenterFilters"></div>
+      <input type="text" id="alertCenterSearch" class="ac-search" placeholder="Filtrer par texte…" spellcheck="false">
     </div>
     <div class="modal-list" id="alertCenterList"></div>
   </div>
@@ -1585,7 +1672,14 @@ async function loadRebate(address){
   }
 }
 
+function syncWalletProfileLink(){
+  const a = document.getElementById('walletProfileLink');
+  const v = (document.getElementById('walletInput').value || '').trim();
+  if(a && /^0x[a-fA-F0-9]{40}$/.test(v)) a.href = 'https://polymarket.com/profile/' + v;
+}
+document.getElementById('walletInput').addEventListener('input', syncWalletProfileLink);
 document.getElementById('loadBtn').addEventListener('click', ()=>{
+  syncWalletProfileLink();
   loadRebate(document.getElementById('walletInput').value);
 });
 document.getElementById('refreshBtn').addEventListener('click', ()=>{
@@ -1608,9 +1702,13 @@ document.getElementById('categorySelect').addEventListener('change', (e)=>{
   currentCategory = e.target.value;
   loadMarkets();
 });
+document.getElementById('marketsRefreshBtn').addEventListener('click', ()=>{
+  loadTicker();
+  loadMarkets();
+});
 document.getElementById('filterRow').addEventListener('click', (e)=>{
   const btn = e.target.closest('button');
-  if(!btn) return;
+  if(!btn || !btn.dataset.f) return;
   document.querySelectorAll('#filterRow button').forEach(b=>b.classList.remove('on'));
   btn.classList.add('on');
   currentFilter = btn.dataset.f;
@@ -2208,7 +2306,7 @@ function togglePinWallet(wallet, name){
 function addWalletToWatchlist(wallet, name){
   const addr = wallet.toLowerCase();
   const existing = watchlist[addr];
-  watchlist[addr] = { wallet: addr, name: name || existing?.name || '', pinnedAt: existing?.pinnedAt || Date.now() };
+  watchlist[addr] = { ...(existing || {}), wallet: addr, name: name || existing?.name || '', pinnedAt: existing?.pinnedAt || Date.now() };
   saveWatchlistData(watchlist);
   renderWatchlistBar();
   const overlay = document.getElementById('walletModalOverlay');
@@ -2226,17 +2324,118 @@ function renderWatchlistBar(){
     list.innerHTML = '<span class="watchlist-empty">Épingle des wallets ⭐ depuis la liste des wallets d\'un marché (bouton 👥), ou ajoute une adresse directement ci-dessus, pour les suivre ici et être alerté de leurs nouveaux trades.</span>';
     return;
   }
-  list.innerHTML = entries.map(w => `
-    <span class="watch-chip">
-      <a href="https://polymarket.com/profile/${w.wallet}" target="_blank" rel="noopener" title="${w.wallet}">${escapeHtml(w.name || shortAddr(w.wallet))}</a>
-      <button class="watch-unpin" data-wallet="${w.wallet}" title="Retirer de la watchlist">✕</button>
-    </span>`).join('');
+  list.innerHTML = entries.map(w => {
+    ensureWatchStats(w.wallet);
+    const gp = globalPnlCache.get(w.wallet);
+    const lt = watchLastTrade.get(w.wallet);
+    let stats = '';
+    if(!gp || gp.loading){
+      stats += '<span class="wc-s wc-dim">Profil…</span>';
+    } else if(gp.error){
+      stats += '<span class="wc-s wc-dim">Profil indisponible</span>';
+    } else {
+      const sign = gp.total30d >= 0 ? '+' : '';
+      const cls = gp.total30d >= 0 ? 'up' : 'down';
+      if(gp.qualityScore !== null && gp.qualityScore !== undefined){
+        stats += `<span class="wr-quality q-${gp.qualityClass} wc-s" title="Score de qualité du wallet">Q ${gp.qualityScore}/100 · ${gp.qualityLabel}</span>`;
+      }
+      stats += `<span class="wr-pnl ${cls} wc-s" title="PnL approx. sur 30 jours">30j ${gp.truncated ? '≥ ' : ''}${sign}${fmtUsd(gp.total30d)}</span>`;
+    }
+    if(lt && lt.ts){
+      const fresh = (Date.now()/1000 - lt.ts) < 3600;
+      stats += `<span class="wc-s ${fresh ? 'wc-hot' : 'wc-dim'}" title="${escapeHtml(lt.title || '')}">${fresh ? '● ' : ''}Dernier trade ${timeAgoLabel(lt.ts)}</span>`;
+    } else if(lt && lt.none){
+      stats += '<span class="wc-s wc-dim">Aucun trade récent</span>';
+    }
+    return `
+    <div class="watch-chip wc-card ${w.muted ? 'wc-muted' : ''}">
+      <div class="wc-top">
+        <a href="https://polymarket.com/profile/${w.wallet}" target="_blank" rel="noopener" title="${w.wallet}">${escapeHtml(w.name || shortAddr(w.wallet))}</a>
+        <span class="wc-btns">
+          <button class="wc-btn wc-rename" data-wallet="${w.wallet}" title="Renommer">✎</button>
+          <button class="wc-btn wc-mute ${w.muted ? 'on' : ''}" data-wallet="${w.wallet}" title="${w.muted ? 'Alertes coupées pour ce wallet (clique pour réactiver)' : 'Couper les alertes de ce wallet (activité toujours journalisée)'}">${w.muted ? '🔕' : '🔔'}</button>
+          <button class="wc-btn wc-copy" data-wallet="${w.wallet}" title="Copier l'adresse">📋</button>
+          <button class="watch-unpin" data-wallet="${w.wallet}" title="Retirer de la watchlist">✕</button>
+        </span>
+      </div>
+      <div class="wc-stats">${stats}</div>
+    </div>`;
+  }).join('');
 }
 
+// Stats affichées sur chaque carte : PnL 30j + qualité (cache partagé avec la modale / whales)
+// et dernier trade (une requête légère, rafraîchie toutes les 5 min).
+const watchLastTrade = new Map(); // wallet -> { ts, title, loading? , none? }
+let watchBarRedrawTimer = null;
+function scheduleWatchBarRedraw(){
+  if(watchBarRedrawTimer) return;
+  watchBarRedrawTimer = setTimeout(()=>{ watchBarRedrawTimer = null; renderWatchlistBar(); }, 250);
+}
+function ensureWatchStats(wallet){
+  if(!globalPnlCache.has(wallet)){
+    fetchWalletGlobalPnl(wallet).then(scheduleWatchBarRedraw);
+  }
+  if(!watchLastTrade.has(wallet)){
+    watchLastTrade.set(wallet, { loading: true });
+    fetch(`${DATA}/trades?user=${wallet}&limit=1&sortBy=TIMESTAMP&sortDirection=DESC`)
+      .then(r => r.ok ? r.json() : [])
+      .then(rows => {
+        const t = rows && rows[0];
+        watchLastTrade.set(wallet, t ? { ts: t.timestamp || 0, title: t.title || '' } : { none: true });
+      })
+      .catch(()=> watchLastTrade.set(wallet, { none: true }))
+      .then(scheduleWatchBarRedraw);
+  }
+}
+setInterval(()=>{ watchLastTrade.clear(); renderWatchlistBar(); }, 5 * 60 * 1000);
+setInterval(()=>{ if(Object.keys(watchlist).length) renderWatchlistBar(); }, 60 * 1000); // met à jour "il y a Xmin" 
+
 document.getElementById('watchlistList').addEventListener('click', (e)=>{
+  const ren = e.target.closest('.wc-rename');
+  if(ren){
+    const w = watchlist[ren.dataset.wallet];
+    if(!w) return;
+    const name = prompt('Nom affiché pour ce wallet (vide = adresse courte) :', w.name || '');
+    if(name === null) return;
+    w.name = name.trim();
+    saveWatchlistData(watchlist);
+    renderWatchlistBar();
+    return;
+  }
+  const mute = e.target.closest('.wc-mute');
+  if(mute){
+    const w = watchlist[mute.dataset.wallet];
+    if(!w) return;
+    w.muted = !w.muted;
+    saveWatchlistData(watchlist);
+    renderWatchlistBar();
+    return;
+  }
+  const cp = e.target.closest('.wc-copy');
+  if(cp){
+    navigator.clipboard.writeText(cp.dataset.wallet).then(()=>{
+      cp.textContent = '✓';
+      setTimeout(()=>{ cp.textContent = '📋'; }, 1200);
+    }).catch(()=>{});
+    return;
+  }
   const btn = e.target.closest('.watch-unpin');
   if(!btn) return;
   togglePinWallet(btn.dataset.wallet);
+});
+
+// Replier / déplier la liste (mémorisé)
+const WATCHLIST_COLLAPSED_KEY = 'pc_watchlist_collapsed_v1';
+function applyWatchlistCollapsed(c){
+  document.getElementById('watchlistList').style.display = c ? 'none' : '';
+  const b = document.getElementById('watchlistCollapseBtn');
+  b.textContent = c ? '▸' : '▾';
+}
+let watchlistCollapsed = (()=>{ try{ return localStorage.getItem(WATCHLIST_COLLAPSED_KEY) === '1'; }catch(e){ return false; } })();
+document.getElementById('watchlistCollapseBtn').addEventListener('click', ()=>{
+  watchlistCollapsed = !watchlistCollapsed;
+  try{ localStorage.setItem(WATCHLIST_COLLAPSED_KEY, watchlistCollapsed ? '1' : '0'); }catch(e){}
+  applyWatchlistCollapsed(watchlistCollapsed);
 });
 
 // Ajout manuel d'un wallet par adresse (sans passer par la modale d'un marché).
@@ -2266,6 +2465,7 @@ document.getElementById('watchlistAddForm').addEventListener('submit', (e)=>{
 });
 
 renderWatchlistBar();
+applyWatchlistCollapsed(watchlistCollapsed);
 
 function renderWalletModal(){
   const list = document.getElementById('walletModalList');
@@ -2471,7 +2671,11 @@ function saveSeenAlerts(set){
 }
 let seenWvFortSlugs = loadSeenAlerts();
 
+const ALERT_MUTE_KEY = 'pc_alert_mute_v1';
+let alertMuted = (()=>{ try{ return localStorage.getItem(ALERT_MUTE_KEY) === '1'; }catch(e){ return false; } })();
+
 function playAlertSound(){
+  if(alertMuted) return;
   try{
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     [0, 0.15].forEach((delay, i) => {
@@ -2540,10 +2744,6 @@ function checkForWvFortAlerts(items){
 
 function setAlertsEnabled(on){
   alertsEnabled = on;
-  const btn = document.getElementById('alertToggleBtn');
-  btn.textContent = `🔔 Alertes wV fort : ${on ? 'ON' : 'OFF'}`;
-  btn.classList.toggle('on', on);
-  btn.classList.toggle('pulse', on);
   if(alertPollTimer){ clearInterval(alertPollTimer); alertPollTimer = null; }
   if(on){
     if('Notification' in window && Notification.permission === 'default'){
@@ -2556,9 +2756,6 @@ function setAlertsEnabled(on){
   }
 }
 
-document.getElementById('alertToggleBtn').addEventListener('click', ()=>{
-  setAlertsEnabled(!alertsEnabled);
-});
 
 /* =========================================================================
    ALERTES HAUSSE DE VOLUME — réutilise la détection déjà en place pour le
@@ -2636,10 +2833,6 @@ function checkForVolumeSurgeAlerts(items){
 
 function setVolAlertsEnabled(on){
   volAlertsEnabled = on;
-  const btn = document.getElementById('volAlertToggleBtn');
-  btn.textContent = `🔥 Alertes hausse volume : ${on ? 'ON' : 'OFF'}`;
-  btn.classList.toggle('on', on);
-  btn.classList.toggle('pulse', on);
   if(volAlertPollTimer){ clearInterval(volAlertPollTimer); volAlertPollTimer = null; }
   if(on){
     if('Notification' in window && Notification.permission === 'default'){
@@ -2650,9 +2843,6 @@ function setVolAlertsEnabled(on){
   }
 }
 
-document.getElementById('volAlertToggleBtn').addEventListener('click', ()=>{
-  setVolAlertsEnabled(!volAlertsEnabled);
-});
 
 /* =========================================================================
    DÉTECTION D'OPPORTUNITÉS DE COPIE — croise le badge "🚀 wV fort" avec la
@@ -2727,18 +2917,11 @@ async function scanMarketForCopyOpportunity(conditionId){
 
 function setCopyDetectEnabled(on){
   copyDetectEnabled = on;
-  const btn = document.getElementById('copyOppToggleBtn');
-  btn.textContent = `🎯 Détection copie : ${on ? 'ON' : 'OFF'}`;
-  btn.classList.toggle('on', on);
-  btn.classList.toggle('pulse', on);
   // Re-render déclenche queueCopyOpportunityScans() en interne (maintenant activé),
   // ce qui lance le scan sur les marchés wV fort actuellement affichés.
   if(on && marketsCache.length) renderMarkets();
 }
 
-document.getElementById('copyOppToggleBtn').addEventListener('click', ()=>{
-  setCopyDetectEnabled(!copyDetectEnabled);
-});
 
 /* =========================================================================
    ALERTES WATCHLIST — pour les wallets épinglés ⭐, poll leurs trades taker
@@ -2811,7 +2994,10 @@ async function checkWatchlistTrades(){
 
         if(!isBaseline){
           const freshTrades = trades.filter(t => (t.timestamp || 0) > lastSeen);
-          if(freshTrades.length){
+          if(freshTrades.length && w.muted){
+            const mlabel = w.name || shortAddr(w.wallet);
+            freshTrades.forEach(t => logWatchActivity(w.wallet, mlabel, t));
+          } else if(freshTrades.length){
             const label = w.name || shortAddr(w.wallet);
             playAlertSound();
             showWatchTradeToast(w.wallet, label, freshTrades[0], freshTrades.length - 1);
@@ -2978,7 +3164,10 @@ const ALERT_KINDS = {
 let alertLog = (()=>{ try{ return JSON.parse(localStorage.getItem(ALERT_LOG_KEY) || '[]'); }catch(e){ return []; } })();
 
 function logAlert(kind, title, body, url){
-  alertLog.unshift({ kind, title, body, url: url || '', ts: Date.now() });
+  // Anti-doublon : même alerte identique dans les 60 dernières secondes ignorée.
+  const dup = alertLog.find(a => a.kind === kind && a.title === title && a.body === body && (Date.now() - a.ts) < 60000);
+  if(dup) return;
+  alertLog.unshift({ id: Date.now() + '-' + Math.random().toString(36).slice(2, 7), kind, title, body, url: url || '', ts: Date.now() });
   if(alertLog.length > ALERT_LOG_MAX) alertLog.length = ALERT_LOG_MAX;
   try{ localStorage.setItem(ALERT_LOG_KEY, JSON.stringify(alertLog)); }catch(e){ /* tant pis */ }
   renderAlertCenterBtn();
@@ -2997,6 +3186,21 @@ function renderAlertCenterBtn(){
   const unread = alertLog.filter(a => a.ts > lastSeen).length;
   cnt.textContent = `(${alertLog.length}${unread > 0 ? `, +${unread}` : ''})`;
   btn.classList.toggle('unread', unread > 0);
+  // Pastille dans le titre de l'onglet : visible même onglet en arrière-plan.
+  document.title = (unread > 0 ? `(${unread}) ` : '') + 'PolyCockpit by BlueMoon';
+}
+
+let alertCenterFilter = 'all';
+let alertCenterQuery = '';
+let alertCenterSeenAtOpen = 0; // "dernier lu" figé à l'ouverture pour surligner les nouvelles entrées
+
+function dayLabel(ts){
+  const d = new Date(ts), now = new Date();
+  const sameDay = (a,b) => a.toDateString() === b.toDateString();
+  const yest = new Date(now.getTime() - 86400000);
+  if(sameDay(d, now)) return "Aujourd'hui";
+  if(sameDay(d, yest)) return 'Hier';
+  return d.toLocaleDateString('fr-FR', { weekday:'long', day:'2-digit', month:'long' });
 }
 
 // Toast + notif navigateur génériques (utilisés par l'alerte whales)
@@ -3102,6 +3306,7 @@ function alertCenterSystems(){
     { id:'vol',   label:'🔥 Volume',    on: volAlertsEnabled,   set: setVolAlertsEnabled },
     { id:'watch', label:'⭐ Watchlist', on: watchAlertsEnabled, set: setWatchAlertsEnabled },
     { id:'whale', label:'🐋 Whales',    on: whaleAlertsEnabled, set: setWhaleAlertsEnabled },
+    { id:'copy',  label:'🎯 Détection copie', on: copyDetectEnabled, set: setCopyDetectEnabled },
   ];
 }
 function renderAlertCenter(){
@@ -3118,23 +3323,53 @@ function renderAlertCenter(){
     : p === 'default' ? 'ℹ Les notifications navigateur seront demandées à l\'activation d\'une alerte.'
     : 'Notifications navigateur non supportées ici.';
 
+  const soundBtn = document.getElementById('alertSoundBtn');
+  if(soundBtn){
+    soundBtn.textContent = alertMuted ? '🔇 Son : OFF' : '🔊 Son : ON';
+    soundBtn.classList.toggle('active', !alertMuted);
+  }
+
+  // Filtres par type, avec compteurs
+  const counts = { all: alertLog.length };
+  Object.keys(ALERT_KINDS).forEach(k => { counts[k] = alertLog.filter(a => a.kind === k).length; });
+  const filtersBox = document.getElementById('alertCenterFilters');
+  filtersBox.innerHTML = [['all', 'Tout', '']].concat(Object.entries(ALERT_KINDS).map(([k, v]) => [k, v.label, v.icon + ' ']))
+    .map(([k, label, icon]) => `<button class="ac-chip ${alertCenterFilter === k ? 'on' : ''}" data-acf="${k}">${icon}${label}<span class="ac-n">${counts[k] || 0}</span></button>`).join('');
+
+  const q = alertCenterQuery.trim().toLowerCase();
+  const rows = alertLog.filter(a =>
+    (alertCenterFilter === 'all' || a.kind === alertCenterFilter) &&
+    (!q || (a.title + ' ' + a.body).toLowerCase().includes(q))
+  );
+
   const list = document.getElementById('alertCenterList');
   if(!alertLog.length){
     list.innerHTML = '<div class="empty">Aucune alerte pour l\'instant — active une alerte ci-dessus, les prochains événements s\'afficheront ici.</div>';
     return;
   }
-  list.innerHTML = alertLog.map(a=>{
+  if(!rows.length){
+    list.innerHTML = '<div class="empty">Aucune alerte ne correspond à ce filtre.</div>';
+    return;
+  }
+  let lastDay = '';
+  list.innerHTML = rows.map(a=>{
     const k = ALERT_KINDS[a.kind] || { icon:'🔔', label:'' };
-    const d = new Date(a.ts).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const isNew = a.ts > alertCenterSeenAtOpen;
+    const day = dayLabel(a.ts);
+    const dayHead = day !== lastDay ? `<div class="ac-day">${escapeHtml(day)}</div>` : '';
+    lastDay = day;
+    const time = new Date(a.ts).toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
     const t = a.url ? `<a href="${a.url}" target="_blank" rel="noopener">${escapeHtml(a.body)}</a>` : escapeHtml(a.body);
-    return `<div class="activity-row">
-      <span class="ar-time">${d}<br>${timeAgoLabel(Math.floor(a.ts/1000))}</span>
-      <div class="ar-body"><span class="ar-who">${k.icon} ${escapeHtml(a.title)}</span><div class="ar-title">${t}</div></div>
+    return `${dayHead}<div class="activity-row ${isNew ? 'ac-new' : ''}">
+      <span class="ar-time">${time}<br>${timeAgoLabel(Math.floor(a.ts/1000))}</span>
+      <div class="ar-body"><span class="ar-who">${isNew ? '<span class="ac-new-dot" title="Nouveau"></span>' : ''}${k.icon} ${escapeHtml(a.title)}</span><div class="ar-title">${t}</div></div>
       <div class="ar-stats">${k.label}</div>
+      <button class="ac-del" data-id="${escapeHtml(a.id || '')}" data-ts="${a.ts}" title="Supprimer cette alerte">✕</button>
     </div>`;
   }).join('');
 }
 function openAlertCenter(){
+  alertCenterSeenAtOpen = alertCenterLastSeen(); // les entrées plus récentes seront surlignées "nouveau"
   document.getElementById('alertCenterOverlay').style.display = 'flex';
   renderAlertCenter();
   try{ localStorage.setItem(ALERT_LOG_SEEN_KEY, String(Date.now())); }catch(e){}
@@ -3163,6 +3398,66 @@ document.getElementById('alertCenterClear').addEventListener('click', ()=>{
   try{ localStorage.setItem(ALERT_LOG_KEY, '[]'); }catch(e){}
   renderAlertCenter(); renderAlertCenterBtn();
 });
+document.getElementById('alertCenterFilters').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-acf]');
+  if(!b) return;
+  alertCenterFilter = b.dataset.acf;
+  renderAlertCenter();
+});
+document.getElementById('alertCenterSearch').addEventListener('input', e=>{
+  alertCenterQuery = e.target.value;
+  renderAlertCenter();
+});
+document.getElementById('alertCenterList').addEventListener('click', e=>{
+  const b = e.target.closest('button.ac-del');
+  if(!b) return;
+  const id = b.dataset.id, ts = parseInt(b.dataset.ts, 10);
+  alertLog = alertLog.filter(a => id ? a.id !== id : a.ts !== ts);
+  try{ localStorage.setItem(ALERT_LOG_KEY, JSON.stringify(alertLog)); }catch(err){}
+  renderAlertCenter(); renderAlertCenterBtn();
+});
+document.getElementById('alertMarkReadBtn').addEventListener('click', ()=>{
+  try{ localStorage.setItem(ALERT_LOG_SEEN_KEY, String(Date.now())); }catch(e){}
+  alertCenterSeenAtOpen = Date.now();
+  renderAlertCenter(); renderAlertCenterBtn();
+});
+document.getElementById('alertSoundBtn').addEventListener('click', ()=>{
+  alertMuted = !alertMuted;
+  try{ localStorage.setItem(ALERT_MUTE_KEY, alertMuted ? '1' : '0'); }catch(e){}
+  renderAlertCenter();
+});
+document.getElementById('alertTestBtn').addEventListener('click', ()=>{
+  if('Notification' in window && Notification.permission === 'default'){
+    Notification.requestPermission().then(renderAlertCenter);
+  }
+  playAlertSound();
+  showGenericToast('🧪 Test d\'alerte', 'Les alertes fonctionnent', alertMuted ? 'Son coupé' : 'Son + toast + notification', '#');
+  sendGenericNotification('🧪 Test d\'alerte', 'Les alertes fonctionnent.', '');
+});
+
+/* ---- persistance : les alertes activées sont rétablies au rechargement ---- */
+const ALERT_STATE_KEY = 'pc_alert_state_v1';
+function saveAlertState(){
+  try{
+    localStorage.setItem(ALERT_STATE_KEY, JSON.stringify({
+      wv: alertsEnabled, vol: volAlertsEnabled, watch: watchAlertsEnabled, whale: whaleAlertsEnabled, copy: copyDetectEnabled
+    }));
+  }catch(e){}
+}
+[ 'watchAlertToggleBtn', 'alertCenterToggles' ].forEach(id=>{
+  document.getElementById(id).addEventListener('click', ()=> setTimeout(saveAlertState, 0));
+});
+// Différé : laisse d'abord se restaurer le seuil whale ci-dessous, avant d'activer les alertes.
+setTimeout(function restoreAlertState(){
+  let st = {};
+  try{ st = JSON.parse(localStorage.getItem(ALERT_STATE_KEY) || '{}'); }catch(e){}
+  if(st.wv) setAlertsEnabled(true);
+  if(st.vol) setVolAlertsEnabled(true);
+  if(st.watch) setWatchAlertsEnabled(true);
+  if(st.whale) setWhaleAlertsEnabled(true);
+  if(st.copy) setCopyDetectEnabled(true);
+}, 0);
+
 document.getElementById('whaleAlertThreshold').addEventListener('change', ()=>{
   try{ localStorage.setItem(WHALE_ALERT_THR_KEY, String(whaleAlertThreshold())); }catch(e){}
 });
