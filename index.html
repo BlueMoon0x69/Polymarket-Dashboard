@@ -605,42 +605,8 @@
     padding:20px 24px 24px;
     max-width:680px;
   }
-  #tab-elon .rebate-section{max-width:900px;}
-  .elon-sub{font-size:11.5px;color:var(--ink-dim);line-height:1.6;margin:8px 0 16px;}
-  .elon-sub a{color:var(--gold);}
-  .elon-calc{
-    background:var(--surface); border:1px solid var(--line); border-radius:6px;
-    padding:16px 18px; margin-bottom:18px;
-  }
-  .elon-calc-grid{
-    display:grid; grid-template-columns:repeat(4, 1fr); gap:14px; margin-bottom:16px;
-  }
-  .elon-calc-grid label{
-    display:flex; flex-direction:column; gap:6px; font-size:11px; color:var(--ink-dim);
-    text-transform:uppercase; letter-spacing:0.04em;
-  }
-  .elon-input{
-    background:var(--surface-2); border:1px solid var(--line); color:var(--ink);
-    font-family:'JetBrains Mono', monospace; font-size:14px; padding:8px 10px; border-radius:4px;
-  }
-  .elon-input:focus{outline:1px solid var(--gold); border-color:var(--gold);}
-  .elon-calc-results{
-    display:flex; gap:24px; flex-wrap:wrap; padding-top:12px; border-top:1px solid var(--line);
-  }
-  .elon-calc-results .ecr{font-size:12px;}
-  .elon-calc-results .ecr .l{color:var(--ink-dim); display:block; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:3px;}
-  .elon-calc-results .ecr .v{font-family:'JetBrains Mono'; font-weight:700; font-size:18px; color:var(--gold);}
-  .elon-calc-results .ecr.mid .v{color:var(--ink);}
-  .elon-market-load{margin-bottom:14px;}
-  .elon-market-load code{background:var(--surface-2); padding:1px 5px; border-radius:3px; font-size:11px;}
-  .elon-bucket-row{
-    display:flex; align-items:center; gap:14px; padding:9px 12px; border-radius:6px;
-    margin-bottom:5px; background:var(--surface-2); border:1px solid var(--line);
-  }
-  .elon-bucket-row.match{border-color:var(--gold); background:rgba(201,162,39,0.1); box-shadow:inset 2px 0 0 var(--gold);}
-  .elon-bucket-row .eb-label{flex:1; font-size:12.5px; color:var(--ink);}
-  .elon-bucket-row .eb-price{font-family:'JetBrains Mono'; font-weight:600; font-size:13px; color:var(--ink);}
-  .elon-bucket-row .eb-match-tag{font-size:10px; color:var(--gold); font-family:'JetBrains Mono'; border:1px solid var(--gold); border-radius:3px; padding:1px 5px;}
+  .panel-sub{font-size:11.5px;color:var(--ink-dim);line-height:1.6;margin:8px 0 16px;}
+  .panel-sub a{color:var(--gold);}
 </style>
 </head>
 <body>
@@ -660,6 +626,7 @@
     <button class="alert-toggle" id="volAlertToggleBtn" title="Alerte son + toast + notification navigateur quand le volume 24h d'un marché grimpe fortement par rapport à ~3h plus tôt (même détection que le badge 🔥 dans la liste).">🔥 Alertes hausse volume : OFF</button>
     <input type="number" id="volAlertPctThreshold" class="alert-threshold-input" value="30" min="1" step="5" title="Seuil de hausse de volume (%) sur ~3h pour déclencher une alerte">
     <button class="alert-toggle" id="copyOppToggleBtn" title="Scanne en arrière-plan les marchés 🚀 wV fort affichés pour repérer ceux où un wallet est aussi en gros profit — tes meilleures opportunités de copie. Consomme des appels API supplémentaires.">🎯 Détection copie : OFF</button>
+    <button class="alert-toggle" id="alertCenterBtn" title="Centre d'alertes : toutes les alertes au même endroit + historique commun">🔔 Centre d'alertes <span id="alertCenterCount">(0)</span></button>
     <span class="api-health api-unknown" id="apiHealthIndicator" title="État des API Polymarket (Gamma + Data) utilisées par ce dashboard">● API : —</span>
     <span class="view-toggle" id="langToggle" title="Langue des noms de marché">
       <button data-lang="en" class="on">EN</button>
@@ -697,8 +664,9 @@
 
 <nav class="tabs">
   <button class="tab-btn active" data-tab="dashboard">Marchés tendance</button>
+  <button class="tab-btn" data-tab="whales">🐋 Whale Bets 24h</button>
+  <span class="tab-sep"></span>
   <button class="tab-btn" data-tab="wv">Taker Rebate Tiers</button>
-  <button class="tab-btn" data-tab="elon">🐦 Projection Tweets</button>
   <span class="tab-sep"></span>
   <a class="tab-btn" href="https://polymarket.com/rewards?id=competitiveness&desc=true&q=&page=17" target="_blank" rel="noopener" title="Maximise les récompenses journalières en ciblant les marchés compétitifs avec les meilleurs multiplicateurs de rewards.">🎁 Récompenses</a>
   <a class="tab-btn" href="https://polymarket.com/predictions/earn-4" target="_blank" rel="noopener" title="Dépose des USDC sur Polymarket et gagne 4% APY passivement.">💰 Gagnez 4 %</a>
@@ -789,45 +757,34 @@
 </div>
 </div>
 
-<div class="tab-panel" id="tab-elon">
-<div class="rebate-section">
-  <div class="panel-title">🐦 Projection tweets Elon Musk</div>
-  <div class="elon-sub">
-    Calcule une projection du nombre total de posts sur la fenêtre du marché à partir du rythme récent,
-    puis compare-la aux tranches ("buckets") du marché Polymarket pour repérer si le prix reflète bien ta propre estimation.
-    Va chercher le décompte et le rythme récent sur un tracker en direct :
-    <a href="https://xtracker.polymarket.com/user/elonmusk" target="_blank" rel="noopener">xtracker</a> ·
-    <a href="https://www.muskmeter.live/" target="_blank" rel="noopener">muskmeter</a> ·
-    <a href="https://postxpulse.com/elon-musk/tweets-last-7-days" target="_blank" rel="noopener">postxpulse</a>
+<div class="tab-panel" id="tab-whales">
+<div class="rebate-section" style="max-width:1200px;">
+  <div class="panel-title">🐋 Biggest Whale Bets Last 24 Hours <span class="fresh-badge" id="freshWhales"></span></div>
+  <div class="panel-sub">Plus gros paris Polymarket des dernières 24h, tous marchés confondus. Les fills d'un même wallet sur un même marché/côté sont regroupés. Le seuil s'applique à chaque fill.</div>
+  <div class="filter-row" style="margin-top:8px;">
+    <select id="whaleMin" class="cat-select" title="Seuil minimum par fill">
+      <option value="2000">Fill ≥ $2K</option>
+      <option value="5000" selected>Fill ≥ $5K</option>
+      <option value="10000">Fill ≥ $10K</option>
+      <option value="25000">Fill ≥ $25K</option>
+      <option value="50000">Fill ≥ $50K</option>
+    </select>
+    <select id="whaleSide" class="cat-select" title="Filtrer par sens">
+      <option value="all">Achats + ventes</option>
+      <option value="BUY">Achats seulement</option>
+      <option value="SELL">Ventes seulement</option>
+    </select>
+    <button class="ghost" id="whaleRefresh">↻ Actualiser</button>
+    <span class="num" id="whaleCount"></span>
   </div>
-
-  <div class="elon-calc">
-    <div class="elon-calc-grid">
-      <label>Tweets déjà comptés dans la fenêtre
-        <input type="number" id="elonCounted" class="elon-input" value="0" min="0">
-      </label>
-      <label>Jours écoulés
-        <input type="number" id="elonElapsed" class="elon-input" value="0" min="0" step="0.5">
-      </label>
-      <label>Jours restants
-        <input type="number" id="elonRemaining" class="elon-input" value="7" min="0" step="0.5">
-      </label>
-      <label>Rythme récent (tweets/jour)
-        <input type="number" id="elonRate" class="elon-input" value="25" min="0" step="0.5">
-      </label>
-    </div>
-    <div class="elon-calc-results" id="elonResults"></div>
+  <div style="overflow-x:auto;">
+    <table style="table-layout:auto;">
+      <thead><tr>
+        <th>#</th><th>Marché</th><th class="th-num">Fin du marché</th><th>Pari</th><th class="th-num">Prix moy. → actuel</th><th class="th-num">Montant</th><th>Wallet · qualité</th><th class="th-num">Date</th>
+      </tr></thead>
+      <tbody id="whaleBody"><tr><td colspan="8"><div class="loading">Ouvre l'onglet pour charger…</div></td></tr></tbody>
+    </table>
   </div>
-
-  <div class="elon-market-load">
-    <div class="elon-sub" style="margin-top:0;">Colle l'URL, le slug, ou juste le titre du marché Polymarket (ex. <code>elon-musk-of-tweets-july-10-july-17-2026</code> ou "Elon Musk # tweets July 10 - July 17, 2026") pour comparer aux tranches en direct :</div>
-    <div class="filter-row" style="margin-top:6px;">
-      <input type="text" id="elonSlugInput" class="search-input" style="width:400px;" placeholder="URL ou slug du marché…" spellcheck="false">
-      <button class="ghost" id="elonLoadBtn">Charger le marché</button>
-    </div>
-  </div>
-
-  <div id="elonBuckets"></div>
 </div>
 </div>
 
@@ -868,6 +825,26 @@
       <button class="live-feed-toggle" id="activityClearBtn" style="margin-left:0;flex:none;" title="Effacer tout l'historique">🗑 Vider l'historique</button>
     </div>
     <div class="modal-list" id="activityModalList"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="alertCenterOverlay" style="display:none;">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h3>🔔 Centre d'alertes</h3>
+      <button class="modal-close" id="alertCenterClose">✕</button>
+    </div>
+    <div class="modal-sub">
+      <div id="alertCenterToggles" style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;"></div>
+      <div id="alertCenterPerm" style="margin-top:6px;"></div>
+    </div>
+    <div class="modal-sub" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+      <label>🐋 Alerte whales : pari ≥ $
+        <input type="number" id="whaleAlertThreshold" min="1000" step="5000" value="25000" title="Montant minimum par fill pour déclencher une alerte whale ($)" style="width:90px;background:var(--surface-2);border:1px solid var(--line);color:var(--ink);padding:3px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:11px;">
+      </label>
+      <button class="live-feed-toggle" id="alertCenterClear" style="margin-left:0;flex:none;">🗑 Vider l'historique</button>
+    </div>
+    <div class="modal-list" id="alertCenterList"></div>
   </div>
 </div>
 
@@ -1045,8 +1022,9 @@ const panelState = {
   markets: { lastOk: null, stale: false },
   rebate:  { lastOk: null, stale: false },
   wv:      { lastOk: null, stale: false },
+  whales:  { lastOk: null, stale: false },
 };
-const FRESH_BADGE_IDS = { markets: 'freshMarkets', rebate: 'freshRebate', wv: 'freshWv' };
+const FRESH_BADGE_IDS = { markets: 'freshMarkets', rebate: 'freshRebate', wv: 'freshWv', whales: 'freshWhales' };
 
 function markPanelOk(key){
   panelState[key].lastOk = Date.now();
@@ -1724,6 +1702,198 @@ document.querySelectorAll('.tab-btn[data-tab]').forEach(btn=>{
     btn.classList.add('active');
     document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
   });
+
+
+
+});
+
+/* =========================================================================
+   BIGGEST WHALE BETS — 24 dernières heures (data-api /trades global)
+========================================================================= */
+let whaleData = [];
+let whaleLoading = false;
+let whaleTimer = null;
+const whaleEndCache = new Map(); // conditionId -> { end: ISO ('' si inconnue), prices: { outcome(min.): prix actuel } }
+
+function fmtEndDate(iso){
+  if(!iso) return '<span style="color:var(--ink-dim);">—</span>';
+  const d = new Date(iso);
+  if(isNaN(d)) return '—';
+  const days = Math.ceil((d - Date.now())/86400000);
+  const rel = days > 0 ? `dans ${days}j` : (days === 0 ? "aujourd'hui" : 'terminé');
+  return `${d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'})}<div style="color:var(--ink-dim);font-size:10.5px;">${rel}</div>`;
+}
+
+async function loadWhaleEndDates(rows){
+  const ids = [...new Set(rows.map(r=>r.conditionId).filter(id => id && !whaleEndCache.has(id)))];
+  if(!ids.length) return;
+  for(let i=0; i<ids.length; i+=20){
+    const chunk = ids.slice(i, i+20);
+    try{
+      const q = chunk.map(id=>'condition_ids='+encodeURIComponent(id)).join('&');
+      const res = await fetch(`${GAMMA}/markets?${q}&limit=${chunk.length}`);
+      if(!res.ok) continue;
+      const mk = await res.json();
+      chunk.forEach(id=>{
+        const m = mk.find(x=>x.conditionId === id);
+        const prices = {};
+        if(m){
+          try{
+            const outs = typeof m.outcomes === 'string' ? JSON.parse(m.outcomes) : (m.outcomes || []);
+            const pr = typeof m.outcomePrices === 'string' ? JSON.parse(m.outcomePrices) : (m.outcomePrices || []);
+            outs.forEach((o,k)=>{ const v = parseFloat(pr[k]); if(!isNaN(v)) prices[String(o).toLowerCase()] = v; });
+          }catch(e){}
+        }
+        whaleEndCache.set(id, { end: m ? (m.endDate || m.endDateIso || '') : '', prices });
+      });
+    }catch(e){}
+  }
+  renderWhales(true);
+}
+
+async function fetchWhaleTrades(minUsd){
+  const since = Math.floor(Date.now()/1000) - 24*3600;
+  const limit = 500, maxPages = 12;
+  let all = [];
+  for(let page=0; page<maxPages; page++){
+    const url = `${DATA}/trades?limit=${limit}&offset=${page*limit}&filterType=CASH&filterAmount=${minUsd}`;
+    const res = await fetch(url);
+    if(!res.ok) throw new Error(`data-api ${res.status}`);
+    const batch = await res.json();
+    if(!Array.isArray(batch) || !batch.length) break;
+    all = all.concat(batch);
+    const oldest = Math.min(...batch.map(t=>t.timestamp||Infinity));
+    if(oldest < since || batch.length < limit) break;
+  }
+  const groups = new Map();
+  all.filter(t => t.timestamp >= since).forEach(t=>{
+    const size = parseFloat(t.size), price = parseFloat(t.price);
+    if(isNaN(size) || isNaN(price) || !t.proxyWallet) return;
+    const key = [t.proxyWallet, t.conditionId, t.outcome, t.side].join('|');
+    const g = groups.get(key) || { wallet:t.proxyWallet, name:t.name||t.pseudonym||'', conditionId:t.conditionId, title:t.title||'', slug:t.eventSlug||t.slug||'', outcome:t.outcome||'', side:t.side||'', usd:0, shares:0, fills:0, lastTs:0 };
+    g.usd += size*price; g.shares += size; g.fills += 1;
+    g.lastTs = Math.max(g.lastTs, t.timestamp);
+    if(!g.name) g.name = t.name||t.pseudonym||'';
+    groups.set(key, g);
+  });
+  return [...groups.values()].sort((a,b)=>b.usd-a.usd);
+}
+
+// Profils wallets (PnL 30j + qualité) : 3 requêtes de front en parallèle max,
+// réutilise le cache de la modale (mémoire + localStorage 4h).
+async function loadWhaleProfiles(rows){
+  const wallets = [...new Set(rows.map(r=>r.wallet))].filter(w => !globalPnlCache.has(w));
+  if(!wallets.length) return;
+  wallets.forEach(w => globalPnlCache.set(w, { loading: true }));
+  let idx = 0, redrawTimer = null;
+  const redraw = () => {
+    if(redrawTimer) return;
+    redrawTimer = setTimeout(()=>{ redrawTimer = null; renderWhales(true); }, 300);
+  };
+  const worker = async () => {
+    while(idx < wallets.length){
+      await fetchWalletGlobalPnl(wallets[idx++]);
+      redraw();
+    }
+  };
+  await Promise.all([worker(), worker(), worker()]);
+}
+
+function renderWhales(skipEnd){
+  const body = document.getElementById('whaleBody');
+  const side = document.getElementById('whaleSide').value;
+  const rows = whaleData.filter(w => side==='all' || w.side===side).slice(0, 50);
+  document.getElementById('whaleCount').textContent = rows.length ? `${rows.length} paris` : '';
+  if(!rows.length){
+    body.innerHTML = '<tr><td colspan="8"><div class="empty">Aucun pari trouvé avec ces filtres.</div></td></tr>';
+    return;
+  }
+  body.innerHTML = rows.map((w,i)=>{
+    const isYes = w.outcome.toLowerCase().startsWith('y');
+    const sideCls = w.side==='BUY' ? 'up' : 'down';
+    const avg = w.shares ? w.usd/w.shares : 0;
+    const mi = whaleEndCache.get(w.conditionId);
+    const cur = mi && mi.prices ? mi.prices[w.outcome.toLowerCase()] : undefined;
+    let curCell = '';
+    if(cur !== undefined && avg > 0){
+      const diff = (cur - avg) / avg;
+      const good = w.side === 'BUY' ? diff >= 0 : diff <= 0; // vente : gagnant si le prix a baissé depuis
+      curCell = `<div style="font-size:10.5px;color:var(--${good?'up':'down'});" title="${w.side==='BUY'?'Gain latent si le prix reste là':'Variation depuis la vente'}">→ ${(cur*100).toFixed(1)}¢ (${diff>=0?'+':''}${(diff*100).toFixed(0)}%)</div>`;
+    } else if(mi){
+      curCell = '<div style="font-size:10.5px;color:var(--ink-dim);">→ —</div>';
+    }
+    const gp = globalPnlCache.get(w.wallet);
+    let prof = '<div style="font-size:10.5px;color:var(--ink-dim);">Profil…</div>';
+    if(gp && !gp.loading){
+      if(gp.error){
+        prof = '<div style="font-size:10.5px;color:var(--ink-dim);">Profil indisponible</div>';
+      } else {
+        const sign = gp.total30d >= 0 ? '+' : '';
+        const cls = gp.total30d >= 0 ? 'up' : 'down';
+        const approx = gp.truncated ? '≥ ' : '';
+        let q = '';
+        if(gp.qualityScore !== null && gp.qualityScore !== undefined){
+          const wr = gp.winRate !== null ? `${Math.round(gp.winRate*100)}% win rate (${gp.totalClosed} soldées)` : 'win rate inconnu';
+          const qt = `${wr} · ${gp.distinctTradingDays} jours de trading distincts · actif depuis ${Math.round(gp.ageDays)}j`;
+          q = `<span class="wr-quality q-${gp.qualityClass}" title="${qt}">Qualité ${gp.qualityScore}/100 (${gp.qualityLabel})</span>`;
+        }
+        prof = `<div>${q}<span class="wr-pnl ${cls}" style="font-size:10.5px;">30j : ${approx}${sign}${fmtUsd(gp.total30d)}</span></div>`;
+      }
+    }
+    const watched = isWatched(w.wallet);
+    const mkt = w.slug ? `<a class="mlink" href="https://polymarket.com/event/${encodeURIComponent(w.slug)}" target="_blank" rel="noopener"><span class="q">${escapeHtml(w.title)}</span></a>` : escapeHtml(w.title);
+    return `<tr>
+      <td class="num" style="text-align:left;color:var(--ink-dim);">#${i+1}</td>
+      <td class="q" style="white-space:normal;min-width:220px;">${mkt}</td>
+      <td class="num">${fmtEndDate((whaleEndCache.get(w.conditionId)||{}).end)}</td>
+      <td style="white-space:nowrap;"><span class="trend ${sideCls}" style="font-weight:600;">${w.side==='BUY'?'ACHAT':'VENTE'}</span> <span class="chip ${isYes?'yes':'no'}">${escapeHtml(w.outcome)}</span>${w.fills>1?` <span style="color:var(--ink-dim);font-size:11px;">${w.fills} fills</span>`:''}</td>
+      <td class="num">${(avg*100).toFixed(1)}¢${curCell}</td>
+      <td class="num" style="color:var(--gold);font-weight:600;">${fmtUsd(w.usd)}</td>
+      <td style="white-space:nowrap;">
+        <span title="${w.wallet}">${escapeHtml(w.name || shortAddr(w.wallet))}</span>
+        <button class="wr-star wh-star ${watched?'on':''}" data-wallet="${w.wallet}" data-name="${escapeHtml(w.name||'')}" title="Suivre ce wallet">${watched?'⭐':'☆'}</button>
+        <a class="wr-copy" href="https://polymarket.com/profile/${w.wallet}" target="_blank" rel="noopener" title="Profil Polymarket">↗</a>
+        ${prof}
+      </td>
+      <td class="num" title="${new Date(w.lastTs*1000).toLocaleString('fr-FR')}">${new Date(w.lastTs*1000).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}<div style="color:var(--ink-dim);font-size:10.5px;">${timeAgoLabel(w.lastTs)}</div></td>
+    </tr>`;
+  }).join('');
+  if(!skipEnd){ loadWhaleEndDates(rows); loadWhaleProfiles(rows); }
+}
+
+async function loadWhales(){
+  if(whaleLoading) return;
+  whaleLoading = true;
+  const body = document.getElementById('whaleBody');
+  if(!whaleData.length) body.innerHTML = '<tr><td colspan="8"><div class="loading">Chargement des paris…</div></td></tr>';
+  try{
+    whaleData = await fetchWhaleTrades(document.getElementById('whaleMin').value);
+    whaleEndCache.clear(); // re-récupère fin + prix actuels
+    renderWhales();
+    markPanelOk('whales');
+  }catch(e){
+    if(!whaleData.length) body.innerHTML = '<tr><td colspan="8"><div class="err">API Polymarket indisponible — réessaie.</div></td></tr>';
+    markPanelStale('whales');
+  }finally{
+    whaleLoading = false;
+  }
+}
+
+document.querySelector('.tab-btn[data-tab="whales"]').addEventListener('click', ()=>{
+  loadWhales();
+  clearInterval(whaleTimer);
+  whaleTimer = setInterval(()=>{
+    if(document.getElementById('tab-whales').classList.contains('active')) loadWhales();
+  }, 300000);
+});
+document.getElementById('whaleRefresh').addEventListener('click', ()=>{ whaleData = []; loadWhales(); });
+document.getElementById('whaleMin').addEventListener('change', ()=>{ whaleData = []; loadWhales(); });
+document.getElementById('whaleSide').addEventListener('change', renderWhales);
+document.getElementById('whaleBody').addEventListener('click', e=>{
+  const b = e.target.closest('button.wh-star');
+  if(!b) return;
+  togglePinWallet(b.dataset.wallet, b.dataset.name);
+  renderWhales();
 });
 
 /* =========================================================================
@@ -2265,161 +2435,6 @@ document.getElementById('walletModalList').addEventListener('click', (e)=>{
 });
 
 /* =========================================================================
-   PROJECTION TWEETS ELON — calculette de rythme + comparaison aux tranches
-   d'un marché Polymarket ("buckets") pour repérer un décalage de pricing.
-========================================================================= */
-let elonBucketsData = null; // dernier marché chargé, pour re-surligner sans refetch
-
-function computeElonProjection(){
-  const counted = parseFloat(document.getElementById('elonCounted').value) || 0;
-  const remaining = Math.max(0, parseFloat(document.getElementById('elonRemaining').value) || 0);
-  const rate = Math.max(0, parseFloat(document.getElementById('elonRate').value) || 0);
-  // La partie déjà comptée est un fait ; seule la partie "restante" est incertaine,
-  // d'où une fourchette ±20% appliquée uniquement à cette portion projetée.
-  const low = counted + rate * 0.8 * remaining;
-  const mid = counted + rate * remaining;
-  const high = counted + rate * 1.2 * remaining;
-  return { low: Math.round(low), mid: Math.round(mid), high: Math.round(high) };
-}
-
-function renderElonResults(){
-  const p = computeElonProjection();
-  const results = document.getElementById('elonResults');
-  results.innerHTML = `
-    <div class="ecr"><span class="l">Projection basse</span><span class="v">${p.low}</span></div>
-    <div class="ecr mid"><span class="l">Projection moyenne</span><span class="v">${p.mid}</span></div>
-    <div class="ecr"><span class="l">Projection haute</span><span class="v">${p.high}</span></div>
-  `;
-  if(elonBucketsData) renderElonBuckets(elonBucketsData, p);
-  return p;
-}
-
-['elonCounted','elonElapsed','elonRemaining','elonRate'].forEach(id=>{
-  document.getElementById(id).addEventListener('input', renderElonResults);
-});
-
-// Extrait les bornes numériques d'un libellé de tranche ("140-159", "Less than 100",
-// "500 or more", "≥ 300"...). Retourne {lo, hi} (Infinity si ouvert) ou null si imparsable.
-function parseBucketRange(label){
-  const s = (label || '').toLowerCase().replace(/,/g, '');
-  let m = s.match(/(\d+(?:\.\d+)?)\s*-\s*(\d+(?:\.\d+)?)/);
-  if(m) return { lo: parseFloat(m[1]), hi: parseFloat(m[2]) };
-  m = s.match(/(less than|under|below|<)\s*(\d+(?:\.\d+)?)/);
-  if(m) return { lo: -Infinity, hi: parseFloat(m[2]) - 1 };
-  m = s.match(/(more than|above|over|greater than|>)\s*(\d+(?:\.\d+)?)/);
-  if(m) return { lo: parseFloat(m[2]) + 1, hi: Infinity };
-  m = s.match(/(\d+(?:\.\d+)?)\s*(\+|or more|and above)/);
-  if(m) return { lo: parseFloat(m[1]), hi: Infinity };
-  return null;
-}
-
-function extractSlug(input){
-  const s = (input || '').trim();
-  const m = s.match(/polymarket\.com\/event\/([a-z0-9-]+)/i);
-  return m ? m[1] : s;
-}
-
-async function fetchEventBySlug(slug){
-  const res = await fetch(`${GAMMA}/events?slug=${encodeURIComponent(slug)}`);
-  if(!res.ok) throw new Error(`gamma-api ${res.status}`);
-  const data = await res.json();
-  const ev = data[0];
-  return (ev && ev.markets && ev.markets.length) ? ev : null;
-}
-
-// Fallback quand l'entrée n'est pas un slug/URL valide : recherche par titre
-// via l'API publique de recherche Polymarket.
-async function searchElonEvents(query){
-  const res = await fetch(`${GAMMA}/public-search?q=${encodeURIComponent(query)}&events_status=active&limit_per_type=8`);
-  if(!res.ok) throw new Error(`gamma-api ${res.status}`);
-  const data = await res.json();
-  return (data.events || []).filter(ev => ev.markets && ev.markets.length);
-}
-
-function renderElonSearchResults(matches){
-  const box = document.getElementById('elonBuckets');
-  box.innerHTML = `<div class="elon-sub" style="margin:0 0 10px;">Plusieurs marchés correspondent — clique celui qui t'intéresse :</div>` +
-    matches.map(ev => `
-      <div class="elon-bucket-row" style="cursor:pointer;" data-pick-slug="${escapeHtml(ev.slug || '')}">
-        <span class="eb-label">${escapeHtml(ev.title || ev.slug || '')}</span>
-        <span class="eb-price">${ev.markets.length} tranche${ev.markets.length>1?'s':''}</span>
-      </div>`).join('');
-}
-
-document.getElementById('elonBuckets').addEventListener('click', (e)=>{
-  const row = e.target.closest('[data-pick-slug]');
-  if(!row) return;
-  const slug = row.dataset.pickSlug;
-  if(!slug) return;
-  document.getElementById('elonSlugInput').value = slug;
-  loadElonMarket();
-});
-
-async function loadElonMarket(){
-  const raw = document.getElementById('elonSlugInput').value;
-  const box = document.getElementById('elonBuckets');
-  if(!raw || !raw.trim()){ box.innerHTML = '<div class="empty">Colle une URL, un slug, ou le titre du marché.</div>'; return; }
-  box.innerHTML = '<div class="loading">Chargement des tranches…</div>';
-  const slug = extractSlug(raw);
-  // Un slug ressemble à "elon-musk-of-tweets-july-10-july-17-2026" : que des minuscules,
-  // chiffres et tirets, sans espaces. Si l'entrée ne correspond pas à ce format
-  // (ex. le titre affiché sur Polymarket, avec majuscules/espaces/ponctuation),
-  // on passe directement par la recherche.
-  const looksLikeSlug = /^[a-z0-9]+(-[a-z0-9]+)+$/.test(slug);
-  try{
-    if(looksLikeSlug){
-      const ev = await fetchEventBySlug(slug);
-      if(ev){
-        elonBucketsData = ev;
-        renderElonBuckets(ev, computeElonProjection());
-        return;
-      }
-    }
-    const matches = await searchElonEvents(raw);
-    if(!matches.length){
-      box.innerHTML = '<div class="empty">Aucun marché trouvé pour cette recherche — vérifie l\'orthographe ou colle directement l\'URL de la page Polymarket.</div>';
-      return;
-    }
-    if(matches.length === 1){
-      elonBucketsData = matches[0];
-      renderElonBuckets(matches[0], computeElonProjection());
-      return;
-    }
-    renderElonSearchResults(matches);
-  }catch(e){
-    box.innerHTML = '<div class="err">Impossible de charger ce marché (API indisponible ou CORS). Réessaie.</div>';
-  }
-}
-
-function renderElonBuckets(ev, projection){
-  const box = document.getElementById('elonBuckets');
-  const rows = ev.markets.map(m=>{
-    const label = m.groupItemTitle || m.question || '—';
-    let price = null;
-    try{ price = JSON.parse(m.outcomePrices || '[]')[0]; }catch(err){}
-    const pct = price !== null ? Math.round(parseFloat(price) * 100) : null;
-    const range = parseBucketRange(label);
-    const isMatch = range && projection && projection.mid >= range.lo && projection.mid <= range.hi;
-    return { label, pct, range, isMatch, sortKey: range ? range.lo : 0 };
-  }).sort((a,b)=> a.sortKey - b.sortKey);
-
-  const subtitle = `<div class="elon-sub" style="margin:0 0 10px;">${escapeHtml(ev.title || '')} — ${rows.length} tranches. La tranche en surbrillance correspond à ta projection moyenne (${projection.mid}).</div>`;
-  box.innerHTML = subtitle + rows.map(r => `
-    <div class="elon-bucket-row ${r.isMatch ? 'match' : ''}">
-      <span class="eb-label">${escapeHtml(r.label)}</span>
-      ${r.isMatch ? '<span class="eb-match-tag">✓ ta projection</span>' : ''}
-      <span class="eb-price">${r.pct !== null ? r.pct + '¢' : '—'}</span>
-    </div>`).join('');
-}
-
-document.getElementById('elonLoadBtn').addEventListener('click', loadElonMarket);
-document.getElementById('elonSlugInput').addEventListener('keydown', (e)=>{
-  if(e.key === 'Enter') loadElonMarket();
-});
-
-renderElonResults();
-
-/* =========================================================================
    ALERTES wV FORT — détecte les nouveaux marchés qui combinent badge "wV fort"
    ET gros volume, avec son + toast + notification navigateur, en auto-refresh
    pour farmer sans fixer l'écran en continu.
@@ -2502,6 +2517,7 @@ function checkForWvFortAlerts(items){
       playAlertSound();
       showAlertToast(it);
       sendBrowserNotification(it);
+      logAlert('wv', '🚀 Nouveau wV fort', `${it.title} · Vol 24h ${fmtUsd(it.vol)} · wV/$ ${it.wvpd.toFixed(2)}`, it.url);
     }
   });
   if(isBaseline){ try{ localStorage.setItem(ALERT_BASELINE_KEY, '1'); }catch(e){} }
@@ -2597,6 +2613,7 @@ function checkForVolumeSurgeAlerts(items){
       playAlertSound();
       showVolumeSurgeToast(it, surge);
       sendVolumeSurgeNotification(it, surge);
+      logAlert('vol', '🔥 Hausse de volume', `${it.title} · Vol 24h ${fmtUsd(it.vol)} · +${surge.pct}% sur ${surge.hours}`, it.url);
     }
   });
   if(isBaseline){ try{ localStorage.setItem(VOL_ALERT_BASELINE_KEY, '1'); }catch(e){} }
@@ -2785,6 +2802,7 @@ async function checkWatchlistTrades(){
             playAlertSound();
             showWatchTradeToast(w.wallet, label, freshTrades[0], freshTrades.length - 1);
             sendWatchBrowserNotification(label, freshTrades[0]);
+            logAlert('watch', `⭐ ${label} a tradé`, `${freshTrades[0].title || 'Marché Polymarket'}${freshTrades[0].outcome ? ' — ' + freshTrades[0].outcome : ''}${freshTrades.length > 1 ? ` (+${freshTrades.length - 1})` : ''}`, freshTrades[0].eventSlug ? `https://polymarket.com/event/${freshTrades[0].eventSlug}` : `https://polymarket.com/profile/${w.wallet}`);
             // Journalise CHAQUE trade frais (pas juste le plus récent affiché
             // dans le toast) pour pouvoir consulter l'historique complet plus tard.
             freshTrades.forEach(t => logWatchActivity(w.wallet, label, t));
@@ -2929,6 +2947,214 @@ document.getElementById('activityClearBtn').addEventListener('click', ()=>{
 });
 
 renderWatchActivityButton();
+
+/* =========================================================================
+   CENTRE D'ALERTES — journal commun (wV fort, volume, watchlist, whales),
+   alerte whales (nouveaux gros paris) et panneau unique pour tout activer.
+========================================================================= */
+const ALERT_LOG_KEY = 'pc_alert_log_v1';
+const ALERT_LOG_SEEN_KEY = 'pc_alert_log_seen_v1';
+const ALERT_LOG_MAX = 200;
+const ALERT_KINDS = {
+  wv:    { icon:'🚀', label:'wV fort' },
+  vol:   { icon:'🔥', label:'Volume' },
+  watch: { icon:'⭐', label:'Watchlist' },
+  whale: { icon:'🐋', label:'Whale' },
+};
+let alertLog = (()=>{ try{ return JSON.parse(localStorage.getItem(ALERT_LOG_KEY) || '[]'); }catch(e){ return []; } })();
+
+function logAlert(kind, title, body, url){
+  alertLog.unshift({ kind, title, body, url: url || '', ts: Date.now() });
+  if(alertLog.length > ALERT_LOG_MAX) alertLog.length = ALERT_LOG_MAX;
+  try{ localStorage.setItem(ALERT_LOG_KEY, JSON.stringify(alertLog)); }catch(e){ /* tant pis */ }
+  renderAlertCenterBtn();
+  const ov = document.getElementById('alertCenterOverlay');
+  if(ov && ov.style.display !== 'none') renderAlertCenter();
+}
+function alertCenterLastSeen(){
+  const v = parseInt(localStorage.getItem(ALERT_LOG_SEEN_KEY) || '0', 10);
+  return isNaN(v) ? 0 : v;
+}
+function renderAlertCenterBtn(){
+  const btn = document.getElementById('alertCenterBtn');
+  const cnt = document.getElementById('alertCenterCount');
+  if(!btn || !cnt) return;
+  const lastSeen = alertCenterLastSeen();
+  const unread = alertLog.filter(a => a.ts > lastSeen).length;
+  cnt.textContent = `(${alertLog.length}${unread > 0 ? `, +${unread}` : ''})`;
+  btn.classList.toggle('unread', unread > 0);
+}
+
+// Toast + notif navigateur génériques (utilisés par l'alerte whales)
+function showGenericToast(head, title, stats, url){
+  const stack = document.getElementById('toastStack');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML = `
+    <button class="t-close">✕</button>
+    <div class="t-head">${escapeHtml(head)}</div>
+    <div class="t-title"><a href="${url}" target="_blank" rel="noopener" style="color:inherit;">${escapeHtml(title)}</a></div>
+    <div class="t-stats">${escapeHtml(stats)}</div>`;
+  el.querySelector('.t-close').addEventListener('click', ()=> el.remove());
+  stack.appendChild(el);
+  setTimeout(()=>{ if(el.parentNode) el.remove(); }, 15000);
+}
+function sendGenericNotification(head, body, url){
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  try{
+    const n = new Notification(head, { body });
+    n.onclick = () => { if(url) window.open(url, '_blank'); n.close(); };
+  }catch(e){ /* notifications indisponibles : tant pis */ }
+}
+
+/* ---- alerte whales : poll léger des plus gros fills récents ---- */
+const WHALE_ALERT_POLL_MS = 90 * 1000;
+const WHALE_ALERT_THR_KEY = 'pc_whale_alert_thr_v1';
+const WHALE_ALERT_MAX_NOTIFS = 5; // au-delà : journalisé sans bruit
+let whaleAlertsEnabled = false;
+let whaleAlertTimer = null;
+let whaleAlertLastTs = 0;
+let whaleAlertSeen = new Set();
+let whaleAlertInFlight = false;
+
+function whaleAlertThreshold(){
+  return Math.max(1000, parseFloat(document.getElementById('whaleAlertThreshold').value) || 25000);
+}
+
+async function checkWhaleAlerts(){
+  if(!whaleAlertsEnabled || whaleAlertInFlight) return;
+  whaleAlertInFlight = true;
+  try{
+    const res = await fetch(`${DATA}/trades?limit=200&filterType=CASH&filterAmount=${whaleAlertThreshold()}`);
+    if(!res.ok) return;
+    const trades = await res.json();
+    if(!Array.isArray(trades)) return;
+    const fresh = trades.filter(t => (t.timestamp || 0) >= whaleAlertLastTs).filter(t=>{
+      const k = [t.transactionHash, t.asset, t.proxyWallet, t.size].join('|');
+      if(whaleAlertSeen.has(k)) return false;
+      whaleAlertSeen.add(k);
+      return true;
+    });
+    if(whaleAlertSeen.size > 3000) whaleAlertSeen = new Set([...whaleAlertSeen].slice(-1500));
+    if(!fresh.length) return;
+    whaleAlertLastTs = Math.max(whaleAlertLastTs, ...fresh.map(t => t.timestamp || 0));
+
+    // un pari = wallet + marché + outcome + sens (fills regroupés)
+    const groups = new Map();
+    fresh.forEach(t=>{
+      const size = parseFloat(t.size), price = parseFloat(t.price);
+      if(isNaN(size) || isNaN(price) || !t.proxyWallet) return;
+      const key = [t.proxyWallet, t.conditionId, t.outcome, t.side].join('|');
+      const g = groups.get(key) || { wallet:t.proxyWallet, name:t.name||t.pseudonym||'', title:t.title||'Marché Polymarket', outcome:t.outcome||'', side:t.side||'', slug:t.eventSlug||t.slug||'', usd:0, shares:0 };
+      g.usd += size*price; g.shares += size;
+      groups.set(key, g);
+    });
+    const bets = [...groups.values()].sort((a,b)=>b.usd-a.usd);
+    bets.forEach((g, i)=>{
+      const url = g.slug ? `https://polymarket.com/event/${encodeURIComponent(g.slug)}` : `https://polymarket.com/profile/${g.wallet}`;
+      const head = `🐋 ${g.side === 'BUY' ? 'ACHAT' : 'VENTE'} ${g.outcome} · ${fmtUsd(g.usd)}`;
+      const avg = g.shares ? g.usd / g.shares : 0;
+      const who = g.name || shortAddr(g.wallet);
+      const body = `${g.title} — ${who} @ ${(avg*100).toFixed(1)}¢`;
+      if(i < WHALE_ALERT_MAX_NOTIFS){
+        if(i === 0) playAlertSound();
+        showGenericToast(head, g.title, `${who} @ ${(avg*100).toFixed(1)}¢`, url);
+        sendGenericNotification(head, body, url);
+      }
+      logAlert('whale', head, body, url);
+    });
+  }catch(e){ /* API indisponible : on réessaie au prochain tour */ }
+  finally{ whaleAlertInFlight = false; }
+}
+
+function setWhaleAlertsEnabled(on){
+  whaleAlertsEnabled = on;
+  if(whaleAlertTimer){ clearInterval(whaleAlertTimer); whaleAlertTimer = null; }
+  if(on){
+    // Baseline : on ne remonte que les paris postérieurs à l'activation.
+    whaleAlertLastTs = Math.floor(Date.now()/1000);
+    whaleAlertSeen = new Set();
+    try{ localStorage.setItem(WHALE_ALERT_THR_KEY, String(whaleAlertThreshold())); }catch(e){}
+    if('Notification' in window && Notification.permission === 'default') Notification.requestPermission();
+    whaleAlertTimer = setInterval(checkWhaleAlerts, WHALE_ALERT_POLL_MS);
+  }
+  renderAlertCenter();
+}
+
+/* ---- modale ---- */
+function alertCenterSystems(){
+  return [
+    { id:'wv',    label:'🚀 wV fort',   on: alertsEnabled,      set: setAlertsEnabled },
+    { id:'vol',   label:'🔥 Volume',    on: volAlertsEnabled,   set: setVolAlertsEnabled },
+    { id:'watch', label:'⭐ Watchlist', on: watchAlertsEnabled, set: setWatchAlertsEnabled },
+    { id:'whale', label:'🐋 Whales',    on: whaleAlertsEnabled, set: setWhaleAlertsEnabled },
+  ];
+}
+function renderAlertCenter(){
+  const box = document.getElementById('alertCenterToggles');
+  if(!box) return;
+  const systems = alertCenterSystems();
+  const allOn = systems.every(x => x.on);
+  box.innerHTML = systems.map(x => `<button class="alert-toggle ${x.on ? 'on' : ''}" data-ac="${x.id}">${x.label} : ${x.on ? 'ON' : 'OFF'}</button>`).join('')
+    + `<button class="alert-toggle" data-ac="all">${allOn ? 'Tout couper' : 'Tout activer'}</button>`;
+  const perm = document.getElementById('alertCenterPerm');
+  const p = ('Notification' in window) ? Notification.permission : 'unsupported';
+  perm.innerHTML = p === 'granted' ? '✅ Notifications navigateur autorisées (alertes aussi quand l\'onglet est en arrière-plan, tant que la page reste ouverte).'
+    : p === 'denied' ? '<span style="color:var(--down);">⚠ Notifications bloquées par le navigateur : seuls le son et les toasts fonctionnent. Autorise-les dans les réglages du site.</span>'
+    : p === 'default' ? 'ℹ Les notifications navigateur seront demandées à l\'activation d\'une alerte.'
+    : 'Notifications navigateur non supportées ici.';
+
+  const list = document.getElementById('alertCenterList');
+  if(!alertLog.length){
+    list.innerHTML = '<div class="empty">Aucune alerte pour l\'instant — active une alerte ci-dessus, les prochains événements s\'afficheront ici.</div>';
+    return;
+  }
+  list.innerHTML = alertLog.map(a=>{
+    const k = ALERT_KINDS[a.kind] || { icon:'🔔', label:'' };
+    const d = new Date(a.ts).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    const t = a.url ? `<a href="${a.url}" target="_blank" rel="noopener">${escapeHtml(a.body)}</a>` : escapeHtml(a.body);
+    return `<div class="activity-row">
+      <span class="ar-time">${d}<br>${timeAgoLabel(Math.floor(a.ts/1000))}</span>
+      <div class="ar-body"><span class="ar-who">${k.icon} ${escapeHtml(a.title)}</span><div class="ar-title">${t}</div></div>
+      <div class="ar-stats">${k.label}</div>
+    </div>`;
+  }).join('');
+}
+function openAlertCenter(){
+  document.getElementById('alertCenterOverlay').style.display = 'flex';
+  renderAlertCenter();
+  try{ localStorage.setItem(ALERT_LOG_SEEN_KEY, String(Date.now())); }catch(e){}
+  renderAlertCenterBtn();
+}
+document.getElementById('alertCenterBtn').addEventListener('click', openAlertCenter);
+document.getElementById('alertCenterClose').addEventListener('click', ()=>{ document.getElementById('alertCenterOverlay').style.display = 'none'; });
+document.getElementById('alertCenterOverlay').addEventListener('click', e=>{ if(e.target.id === 'alertCenterOverlay') e.currentTarget.style.display = 'none'; });
+document.getElementById('alertCenterToggles').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-ac]');
+  if(!b) return;
+  const systems = alertCenterSystems();
+  if(b.dataset.ac === 'all'){
+    const target = !systems.every(x => x.on);
+    systems.forEach(x => { if(x.on !== target) x.set(target); });
+  } else {
+    const x = systems.find(y => y.id === b.dataset.ac);
+    if(x) x.set(!x.on);
+  }
+  renderAlertCenter();
+});
+document.getElementById('alertCenterClear').addEventListener('click', ()=>{
+  if(!alertLog.length) return;
+  if(!confirm('Effacer tout l\'historique du centre d\'alertes ?')) return;
+  alertLog = [];
+  try{ localStorage.setItem(ALERT_LOG_KEY, '[]'); }catch(e){}
+  renderAlertCenter(); renderAlertCenterBtn();
+});
+document.getElementById('whaleAlertThreshold').addEventListener('change', ()=>{
+  try{ localStorage.setItem(WHALE_ALERT_THR_KEY, String(whaleAlertThreshold())); }catch(e){}
+});
+try{ const v = localStorage.getItem(WHALE_ALERT_THR_KEY); if(v) document.getElementById('whaleAlertThreshold').value = v; }catch(e){}
+renderAlertCenterBtn();
+
 </script>
 
 </body>
