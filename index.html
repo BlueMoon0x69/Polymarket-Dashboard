@@ -1713,6 +1713,7 @@ document.querySelectorAll('.tab-btn[data-tab]').forEach(btn=>{
 let whaleData = [];
 let whaleLoading = false;
 let whaleTimer = null;
+const whaleClosed = new Set(); // conditionId des marchés terminés (masqués) — jamais vidé : un marché clos le reste
 const whaleEndCache = new Map(); // conditionId -> { end: ISO ('' si inconnue), prices: { outcome(min.): prix actuel } }
 
 function fmtEndDate(iso){
@@ -1724,7 +1725,14 @@ function fmtEndDate(iso){
   return `${d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'})}<div style="color:var(--ink-dim);font-size:10.5px;">${rel}</div>`;
 }
 
+// Lignes affichées : filtre sens, masque les marchés terminés, top 50.
+function whaleVisibleRows(){
+  const side = document.getElementById('whaleSide').value;
+  return whaleData.filter(w => (side==='all' || w.side===side) && !whaleClosed.has(w.conditionId)).slice(0, 50);
+}
+
 async function loadWhaleEndDates(rows){
+  let progressed = false;
   const ids = [...new Set(rows.map(r=>r.conditionId).filter(id => id && !whaleEndCache.has(id)))];
   if(!ids.length) return;
   for(let i=0; i<ids.length; i+=20){
@@ -1745,10 +1753,17 @@ async function loadWhaleEndDates(rows){
           }catch(e){}
         }
         whaleEndCache.set(id, { end: m ? (m.endDate || m.endDateIso || '') : '', prices });
+        progressed = true;
+        if(m && (m.closed || m.archived)) whaleClosed.add(id);
       });
     }catch(e){}
   }
   renderWhales(true);
+  // Des marchés terminés ont pu disparaître du top 50 : on vérifie ceux qui les remplacent.
+  if(progressed){
+    const next = whaleVisibleRows().filter(r => r.conditionId && !whaleEndCache.has(r.conditionId));
+    if(next.length) loadWhaleEndDates(next);
+  }
 }
 
 async function fetchWhaleTrades(minUsd){
@@ -1801,9 +1816,8 @@ async function loadWhaleProfiles(rows){
 
 function renderWhales(skipEnd){
   const body = document.getElementById('whaleBody');
-  const side = document.getElementById('whaleSide').value;
-  const rows = whaleData.filter(w => side==='all' || w.side===side).slice(0, 50);
-  document.getElementById('whaleCount').textContent = rows.length ? `${rows.length} paris` : '';
+  const rows = whaleVisibleRows();
+  document.getElementById('whaleCount').textContent = rows.length ? `${rows.length} paris · marchés terminés masqués` : '';
   if(!rows.length){
     body.innerHTML = '<tr><td colspan="8"><div class="empty">Aucun pari trouvé avec ces filtres.</div></td></tr>';
     return;
