@@ -3,6 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <title>PolyCockpit by BlueMoon</title>
+<script>
+(function(){
+  var t = null;
+  try{ t = localStorage.getItem('pc_theme_v1'); }catch(e){}
+  if(t !== 'light' && t !== 'dark'){
+    t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
+  }
+  document.documentElement.setAttribute('data-theme', t);
+})();
+</script>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3CradialGradient id='bg' cx='50%25' cy='42%25' r='75%25'%3E%3Cstop offset='0%25' stop-color='%23181F2B'/%3E%3Cstop offset='100%25' stop-color='%230B0E13'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect x='2' y='2' width='60' height='60' rx='14' fill='url(%23bg)' stroke='%23C9A227' stroke-width='2'/%3E%3Cg stroke='%236E5B1E' stroke-width='1.6' stroke-linecap='round'%3E%3Cline x1='32' y1='10' x2='32' y2='14'/%3E%3Cline x1='18.3' y1='15.3' x2='21' y2='17.8'/%3E%3Cline x1='46.7' y1='15.3' x2='44' y2='17.8'/%3E%3Cline x1='12.5' y1='28' x2='16.5' y2='28.6'/%3E%3Cline x1='51.5' y1='28' x2='47.5' y2='28.6'/%3E%3Cline x1='15' y1='43' x2='18.3' y2='40.8'/%3E%3Cline x1='49' y1='43' x2='45.7' y2='40.8'/%3E%3C/g%3E%3Ccircle cx='32' cy='30' r='16' fill='none' stroke='%23C9A227' stroke-width='2.4'/%3E%3Cg transform='rotate(35 32 30)'%3E%3Cline x1='32' y1='30' x2='32' y2='18' stroke='%233FBF7F' stroke-width='3' stroke-linecap='round'/%3E%3C/g%3E%3Ccircle cx='32' cy='30' r='3.6' fill='%23E7E7E2' stroke='%230B0E13' stroke-width='1'/%3E%3Cg stroke-linecap='round'%3E%3Cline x1='20' y1='49' x2='20' y2='57' stroke='%23E5484D' stroke-width='2.6'/%3E%3Cline x1='32' y1='45' x2='32' y2='57' stroke='%233FBF7F' stroke-width='2.6'/%3E%3Cline x1='44' y1='51' x2='44' y2='57' stroke='%23E5484D' stroke-width='2.6'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -27,6 +37,41 @@
     --t-diamond: #7aa7ff;
     --t-obsidian: #c084fc;
   }
+  :root{ color-scheme: dark; --accent-y:#e8c94a; --accent-y2:#ffd600; --on-gold:#161200; --overlay:rgba(6,8,11,0.7); }
+  :root[data-theme="light"]{
+    color-scheme: light;
+    --bg: #F4F5F7;
+    --surface: #FFFFFF;
+    --surface-2: #ECEEF2;
+    --line: #D5D9E0;
+    --ink: #1B1F27;
+    --ink-dim: #5E6776;
+    --gold: #8F6F00;
+    --gold-dim: #D9C27A;
+    --up: #14804A;
+    --down: #C62F35;
+    --t-none: #6b7385;
+    --t-bronze: #a35f25;
+    --t-silver: #6f7888;
+    --t-gold: #a97d00;
+    --t-platinum: #1d8aa0;
+    --t-diamond: #2f5fd0;
+    --t-obsidian: #8b3fd1;
+    --accent-y:#9a7400;
+    --accent-y2:#a57f00;
+    --on-gold:#FFFFFF;
+    --overlay:rgba(30,36,46,0.45);
+  }
+  :root[data-theme="light"] .vol-surge{color:#b25e00; background:rgba(255,159,67,0.16); border-color:rgba(200,110,20,0.45);}
+  :root[data-theme="light"] .api-health.api-degraded{color:#a86500;}
+  :root[data-theme="light"] .wc-s.wc-hot{color:#a57f00;}
+  :root[data-theme="light"] .alert-toggle.on, :root[data-theme="light"] .alert-toggle.unread{color:var(--accent-y); border-color:var(--accent-y);}
+  :root[data-theme="light"] .wv-strong{color:var(--accent-y);}
+  :root[data-theme="light"] #watchActivityBtn.unread, :root[data-theme="light"] .wr-star.on{color:var(--accent-y2); border-color:var(--accent-y2);}
+  :root[data-theme="light"] .ac-new-dot{background:var(--accent-y);}
+  :root[data-theme="light"] .ac-chip.on{color:#fff;}
+  :root[data-theme="light"] ::-webkit-scrollbar-thumb{background:#c3c8d1;}
+  #themeToggleBtn{font-size:13px; padding:5px 9px; line-height:1;}
   *{box-sizing:border-box;}
   body{
     margin:0;
@@ -42,12 +87,14 @@
     border-bottom:1px solid var(--line);
     padding:18px 24px;
     display:flex;
+    flex-direction:column;
     align-items:center;
-    justify-content:space-between;
-    gap:16px;
-    flex-wrap:wrap;
+    justify-content:center;
+    text-align:center;
+    gap:12px;
   }
-  .brand{display:flex;align-items:baseline;gap:10px;}
+  header .wallet-row{justify-content:center; margin-bottom:0;}
+  .brand{display:flex;align-items:baseline;justify-content:center;gap:10px;}
   .brand .mark{
     font-family:'Space Grotesk', sans-serif;
     font-weight:700;
@@ -192,6 +239,8 @@
   .tab-btn{transition:color .15s ease, border-bottom-color .15s ease;}
   .tab-btn:hover{color:var(--ink);border-bottom-color:var(--gold);}
   .tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+  .tab-btn.hdr-tab{padding:6px 12px;}
+  .tab-btn.hdr-tab.active, .tab-btn.hdr-tab:hover{background:transparent;}
   .tab-panel{display:none;}
   .tab-panel.active{display:block;}
   .tab-sep{
@@ -273,7 +322,7 @@
     text-transform:none; font-weight:400; letter-spacing:0;
   }
   .ac-chip:hover{border-color:var(--gold); color:var(--gold); background:var(--surface-2);}
-  .ac-chip.on{background:var(--gold); color:#161200; border-color:var(--gold);}
+  .ac-chip.on{background:var(--gold); color:var(--on-gold); border-color:var(--gold);}
   .ac-chip .ac-n{opacity:.7; margin-left:3px;}
   .ac-search{
     background:var(--surface-2); border:1px solid var(--line); color:var(--ink);
@@ -320,7 +369,7 @@
   .toast .t-close{position:absolute; top:6px; right:8px; background:none; border:none; color:var(--ink-dim); cursor:pointer; font-size:12px;}
   .toast{position:relative;}
   .modal-overlay{
-    position:fixed; inset:0; background:rgba(6,8,11,0.7);
+    position:fixed; inset:0; background:var(--overlay);
     display:flex; align-items:center; justify-content:center;
     z-index:1000; padding:20px;
   }
@@ -385,13 +434,13 @@
 
   .watchlist-bar{
     background:var(--panel); border-bottom:1px solid var(--line);
-    padding:8px 20px; display:flex; flex-direction:column; gap:6px;
+    padding:8px 20px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:6px;
   }
   .watchlist-head{
-    display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;
+    display:flex; align-items:center; justify-content:center; flex-wrap:wrap; gap:8px 18px; width:100%;
   }
   .watchlist-title{font-size:12.5px; font-weight:600; color:var(--ink);}
-  .watchlist-controls{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .watchlist-controls{display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap;}
   .watchlist-add-form{display:flex; align-items:center; gap:6px;}
   .watchlist-add-form input[type="text"]{
     background:var(--bg); border:1px solid var(--line); color:var(--ink);
@@ -412,7 +461,7 @@
     width:44px; background:var(--bg); border:1px solid var(--line); color:var(--ink);
     border-radius:4px; padding:2px 4px; font-family:'JetBrains Mono',monospace; font-size:11px;
   }
-  .watchlist-list{display:flex; flex-wrap:wrap; gap:6px;}
+  .watchlist-list{display:flex; flex-wrap:wrap; justify-content:center; gap:6px; width:100%;}
   .watchlist-empty{font-size:11px; color:var(--ink-dim); font-style:italic;}
   .watch-chip{
     display:inline-flex; align-items:center; gap:6px; background:var(--bg);
@@ -471,6 +520,34 @@
   .wr-quality.q-low{color:var(--down);}
 
   /* ---- layout ---- */
+  /* ---- Marchés : sidebar de filtres + tableau dense ---- */
+  main.mk-layout{grid-template-columns:210px max-content; justify-content:center; max-width:100%; margin:0 auto; background:transparent; gap:0;}
+  main.mk-layout section{background:transparent; padding:20px 16px 20px 12px; min-width:0; max-width:calc(100vw - 250px); overflow-x:auto;}
+  .mk-side{background:var(--bg); padding:20px 12px 20px 20px; display:flex; flex-direction:column; gap:2px; position:sticky; top:0; align-self:start; max-height:100vh; overflow-y:auto;}
+  .mk-side-t{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:15px; letter-spacing:0.1em; color:var(--ink); padding:0 8px 12px; border-bottom:1px solid var(--line); margin-bottom:4px;}
+  .mk-side-h{font-size:10.5px; text-transform:uppercase; letter-spacing:0.14em; color:var(--ink-dim); padding:18px 8px 6px;}
+  .mk-side-b{background:transparent; border:none; border-left:2px solid transparent; border-radius:0; color:var(--ink-dim); text-align:left; text-transform:none; letter-spacing:0; font-weight:400; font-size:14.5px; padding:9px 10px; cursor:pointer;}
+  .mk-side-b:hover{color:var(--ink); background:var(--surface);}
+  .mk-side-b.on{color:var(--ink); border-left-color:var(--gold); background:var(--surface); font-weight:600;}
+  #filterRow button[data-f], #categorySelect{display:none;}
+  @media (max-width:900px){
+    main.mk-layout{grid-template-columns:1fr;}
+    .mk-side{display:none;}
+    #filterRow button[data-f]{display:inline-block;}
+    #categorySelect{display:inline-block;}
+  }
+  #marketListView th{font-size:10px; text-transform:none; letter-spacing:0.02em; font-weight:600; color:var(--ink); padding:8px 10px;}
+  #marketListView td{padding:6px 10px; font-size:12px;}
+  #marketListView tbody tr{border-bottom:1px solid var(--line);}
+  #marketListView .th-bar{width:100px;}
+  #marketListView td.q{white-space:nowrap; overflow:visible; text-overflow:clip;}
+  .mc-title{white-space:normal; overflow:visible; text-overflow:clip; -webkit-line-clamp:unset; display:block;}
+  .bar-cell{padding:6px 10px; width:100px;}
+  .pbar{display:block; width:80px; height:14px; background:var(--surface-2); border-radius:2px; overflow:hidden;}
+  .pbar i{display:block; height:100%; border-radius:2px;}
+  .pbar i.hi{background:var(--up); opacity:.75;}
+  .pbar i.mid{background:var(--gold); opacity:.8;}
+  .pbar i.lo{background:var(--down); opacity:.75;}
   main{
     display:grid;
     grid-template-columns: 1fr;
@@ -508,7 +585,22 @@
   table{width:100%;border-collapse:collapse;font-size:12.5px;table-layout:fixed;}
   colgroup col.col-market{width:auto;}
   colgroup col.col-icon{width:40px;}
-  colgroup col.col-num{width:140px;}
+  colgroup col.col-num{width:84px;}
+  colgroup col.col-bar{width:100px;}
+  colgroup col.col-end{width:150px;}
+  colgroup col.col-price{width:140px;}
+  #marketListView td:nth-child(3){overflow:visible; text-overflow:clip; white-space:nowrap;}
+  #marketListView td:nth-child(3) .chip{display:inline-block; white-space:nowrap; text-align:right;}
+  #marketListView table{table-layout:auto; width:max-content !important; min-width:0 !important; max-width:none;}
+  #marketListView td, #marketListView th{white-space:nowrap; overflow:visible; text-overflow:clip;}
+  #marketListView td.num{overflow:visible; text-overflow:clip;}
+  #marketListView colgroup col{width:auto !important; min-width:0 !important;}
+  #marketListView colgroup col.col-icon{width:40px !important;}
+  #marketListView colgroup col.col-market{width:1px !important;}
+  #marketListView td.q{width:1px;}
+  #marketListView th.th-num{padding-left:4px; padding-right:10px;}
+  #marketListView td:last-child{overflow:visible; text-overflow:clip; white-space:nowrap;}
+  colgroup col.col-market{min-width:180px;}
   thead th{
     text-align:left;
     color:var(--ink-dim);
@@ -565,9 +657,10 @@
     font-size:11px;
     border-top:1px solid var(--line);
     display:flex;
-    justify-content:space-between;
-    flex-wrap:wrap;
-    gap:8px;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    gap:4px;
   }
   .filter-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap;align-items:center;}
   .filter-row .num{color:var(--gold);font-family:'JetBrains Mono';font-size:12px;}
@@ -640,7 +733,7 @@
     padding:20px 24px 24px;
     max-width:680px;
   }
-  .pf-wrap{padding:20px 24px 28px; max-width:1200px;}
+  .pf-wrap{padding:20px 24px 28px; max-width:1200px; margin:0 auto;}
   .pf-bar{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:18px; padding:12px 14px; background:var(--surface); border:1px solid var(--line); border-radius:6px;}
   .pf-label{font-size:11px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:0.08em;}
   .pf-bar input{background:var(--surface-2); border:1px solid var(--line); color:var(--ink); font-family:'JetBrains Mono',monospace; font-size:12px; padding:8px 10px; border-radius:4px; width:360px; max-width:100%; flex:1 1 280px;}
@@ -666,7 +759,11 @@
     <div class="sub">by BlueMoon</div>
   </div>
   <div class="wallet-row">
+    <button class="tab-btn hdr-tab active" data-tab="dashboard">Marchés tendance</button>
+    <button class="tab-btn hdr-tab" data-tab="whales" id="whalesTabBtn" style="display:none">🐋 Whale Bets 24h</button>
+    <button class="tab-btn hdr-tab" data-tab="portfolio">💼 Mon portefeuille</button>
     <button class="alert-toggle" id="alertCenterBtn" title="Centre d'alertes : toutes les alertes au même endroit + historique commun">🔔 Centre d'alertes <span id="alertCenterCount">(0)</span></button>
+    <button class="alert-toggle" id="themeToggleBtn" title="Basculer entre mode clair et sombre">🌙</button>
     <span class="api-health api-unknown" id="apiHealthIndicator" title="État des API Polymarket (Gamma + Data) utilisées par ce dashboard">● API : —</span>
     <span class="view-toggle" id="langToggle" title="Langue des noms de marché">
       <button data-lang="en" class="on">EN</button>
@@ -698,22 +795,29 @@
   </div>
 </div>
 
-<div class="ticker-wrap">
-  <div class="ticker" id="ticker">
-    <div class="tick-item"><span class="q">Chargement du fil des marchés…</span></div>
-  </div>
-</div>
-
-<nav class="tabs">
-  <button class="tab-btn active" data-tab="dashboard">Marchés tendance</button>
-  <button class="tab-btn" data-tab="whales">🐋 Whale Bets 24h</button>
-  <span class="tab-sep"></span>
-  <span class="tab-sep"></span>
-  <button class="tab-btn" data-tab="portfolio">💼 Mon portefeuille</button>
-</nav>
-
 <div class="tab-panel active" id="tab-dashboard">
-<main>
+<main class="mk-layout">
+  <aside class="mk-side" id="mkSide">
+    <div class="mk-side-t">MARCHÉS</div>
+    <div class="mk-side-h">Catégorie</div>
+    <button class="mk-side-b on" data-cat="all">▤ Toutes</button>
+    <button class="mk-side-b" data-cat="politics">🏛 Politics</button>
+    <button class="mk-side-b" data-cat="crypto">₿ Crypto</button>
+    <button class="mk-side-b" data-cat="sports">⚽ Sports</button>
+    <button class="mk-side-b" data-cat="finance">📈 Finance</button>
+    <button class="mk-side-b" data-cat="tech">💻 Tech</button>
+    <button class="mk-side-b" data-cat="economics">🏦 Economics</button>
+    <button class="mk-side-b" data-cat="culture">🎭 Culture</button>
+    <button class="mk-side-b" data-cat="weather">☁ Weather</button>
+    <button class="mk-side-b" data-cat="geopolitics">🌍 Geopolitics</button>
+    <div class="mk-side-h">Groupe</div>
+    <button class="mk-side-b on" data-sf="volume24hr">🔥 Tendance</button>
+    <button class="mk-side-b" data-sf="new">🆕 Récents</button>
+    <div class="mk-side-h">Filtres</div>
+    <button class="mk-side-b" id="mkOnlyStrong" title="N'afficher que les marchés 🚀 wV fort">🚀 wV fort seulement</button>
+    <button class="mk-side-b" id="mkWhales" title="Plus gros paris des dernières 24h">🐋 Whale Bets 24h</button>
+    <button class="mk-side-b" id="mkProbRange" title="Masque les marchés presque tranchés (prob. &lt; 5% ou &gt; 95%)">◐ Prob. 5% – 95%</button>
+  </aside>
   <section>
     <div class="panel-title">
     </div>
@@ -759,12 +863,14 @@
         <colgroup>
           <col class="col-icon">
           <col class="col-market">
+          <col class="col-price">
+          <col class="col-num">
+          <col class="col-bar">
           <col class="col-num">
           <col class="col-num">
           <col class="col-num">
           <col class="col-num">
-          <col class="col-num">
-          <col class="col-num">
+          <col class="col-end">
         </colgroup>
         <thead>
           <tr>
@@ -772,6 +878,7 @@
             <th data-sort="question">Marché</th>
             <th data-sort="outcome" class="th-num">Prix</th>
             <th data-sort="spread" class="th-num">Spread</th>
+            <th data-sort="outcome" class="th-bar">Probabilité</th>
             <th data-sort="volume24hr" class="th-num">Vol. 24h</th>
             <th data-sort="liquidity" class="th-num">Liquidité</th>
             <th data-sort="weight" class="th-num">Multiplicateur</th>
@@ -780,7 +887,7 @@
           </tr>
         </thead>
         <tbody id="marketBody">
-          <tr><td colspan="9"><div class="loading">Chargement des marchés…</div></td></tr>
+          <tr><td colspan="10"><div class="loading">Chargement des marchés…</div></td></tr>
         </tbody>
       </table>
     </div>
@@ -828,7 +935,8 @@
 </div>
 
 <div class="tab-panel" id="tab-whales">
-<div class="rebate-section" style="max-width:1200px;">
+<div class="rebate-section" style="max-width:1480px; margin:0 auto; border-bottom:none;">
+  <div style="margin-bottom:10px;"><button class="ghost" onclick="document.querySelector('.tab-btn[data-tab=dashboard]').click()">← Marchés</button></div>
   <div class="panel-title">🐋 Biggest Whale Bets Last 24 Hours <span class="fresh-badge" id="freshWhales"></span></div>
   <div class="panel-sub">Plus gros paris Polymarket des dernières 24h, tous marchés confondus. Les fills d'un même wallet sur un même marché/côté sont regroupés. Le seuil s'applique à chaque fill.</div>
   <div class="filter-row" style="margin-top:8px;">
@@ -850,7 +958,7 @@
   <div style="overflow-x:auto;">
     <table style="table-layout:auto;">
       <thead><tr>
-        <th>#</th><th>Marché</th><th class="th-num">Fin du marché</th><th>Pari</th><th class="th-num">Prix moy. → actuel</th><th class="th-num">Montant</th><th>Wallet · qualité</th><th class="th-num">Date</th>
+        <th>#</th><th>Marché</th><th>Pari</th><th class="th-num">Prix moy. → actuel</th><th class="th-num">Montant</th><th>Wallet · qualité</th><th class="th-num">Date</th><th class="th-num">Fin du marché</th>
       </tr></thead>
       <tbody id="whaleBody"><tr><td colspan="8"><div class="loading">Ouvre l'onglet pour charger…</div></td></tr></tbody>
     </table>
@@ -1059,9 +1167,26 @@ function displayTitle(text){
 }
 
 function refreshVisibleTitles(){
-  renderTicker();
   renderMarkets();
 }
+
+function applyTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  const b = document.getElementById('themeToggleBtn');
+  if(b){
+    b.textContent = t === 'light' ? '🌙' : '☀️';
+    b.title = t === 'light' ? 'Passer en mode sombre' : 'Passer en mode clair';
+  }
+  let m = document.querySelector('meta[name="theme-color"]');
+  if(!m){ m = document.createElement('meta'); m.name = 'theme-color'; document.head.appendChild(m); }
+  m.content = t === 'light' ? '#F4F5F7' : '#0B0E13';
+}
+document.getElementById('themeToggleBtn').addEventListener('click', ()=>{
+  const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  try{ localStorage.setItem('pc_theme_v1', next); }catch(e){}
+  applyTheme(next);
+});
+applyTheme(document.documentElement.getAttribute('data-theme') || 'dark');
 
 document.getElementById('langToggle')?.addEventListener('click', (e)=>{
   const btn = e.target.closest('button[data-lang]');
@@ -1147,35 +1272,6 @@ function renderFreshBadge(key){
 // recalcule le texte relatif ("il y a Xmin") toutes les 20s même sans nouveau chargement
 setInterval(() => { Object.keys(panelState).forEach(renderFreshBadge); }, 20000);
 
-let tickerCache = [];
-
-async function loadTicker(){
-  try{
-    const res = await fetch(`${GAMMA}/markets?order=volume24hr&ascending=false&limit=15&active=true&closed=false`);
-    const data = await res.json();
-    tickerCache = data;
-    renderTicker();
-  }catch(e){
-    document.getElementById('ticker').innerHTML = '<div class="tick-item"><span class="q err">Fil indisponible — réessaie plus tard.</span></div>';
-  }
-}
-
-function renderTicker(){
-  const el = document.getElementById('ticker');
-  if(!tickerCache.length) return;
-  const items = tickerCache.map(m=>{
-    let price = null;
-    try{ const prices = JSON.parse(m.outcomePrices || '[]'); price = prices[0]; }catch(e){}
-    const chg = m.oneDayPriceChange;
-    const dirClass = chg >= 0 ? 'up' : 'down';
-    const arrow = chg >= 0 ? '▲' : '▼';
-    return `<div class="tick-item"><span class="q">${escapeHtml(displayTitle((m.question||'').slice(0,50)))}</span>
-      <span class="p">${price ? (price*100).toFixed(0)+'¢' : '—'}</span>
-      ${chg!==undefined && chg!==null ? `<span class="d ${dirClass}">${arrow} ${fmtPct(chg)}</span>`:''}
-      </div>`;
-  }).join('');
-  el.innerHTML = items + items; // duplicate for seamless loop
-}
 
 function escapeHtml(s){
   return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1183,7 +1279,7 @@ function escapeHtml(s){
 
 async function loadMarkets(){
   const body = document.getElementById('marketBody');
-  body.innerHTML = '<tr><td colspan="9"><div class="loading">Chargement des marchés…</div></td></tr>';
+  body.innerHTML = '<tr><td colspan="10"><div class="loading">Chargement des marchés…</div></td></tr>';
   try{
     let order = currentFilter === 'new' ? 'startDate' : currentFilter;
     let ascending = 'false';
@@ -1217,7 +1313,7 @@ async function loadMarkets(){
     document.getElementById('marketCount').textContent = marketsCache.length + ' marchés';
     markPanelOk('markets');
   }catch(e){
-    body.innerHTML = '<tr><td colspan="9"><div class="err">Impossible de charger les marchés (API indisponible ou CORS). Réessaie avec Rafraîchir.</div></td></tr>';
+    body.innerHTML = '<tr><td colspan="10"><div class="err">Impossible de charger les marchés (API indisponible ou CORS). Réessaie avec Rafraîchir.</div></td></tr>';
     markPanelStale('markets');
   }
   setUpdated();
@@ -1291,6 +1387,7 @@ function trendArrow(curr, prev){
   return '';
 }
 
+let mkOnlyStrong = false, mkProbRangeOn = false;
 function renderMarkets(){
   const body = document.getElementById('marketBody');
   const grid = document.getElementById('marketGridView');
@@ -1308,12 +1405,12 @@ function renderMarkets(){
     : marketsCache;
 
   if(!marketsCache.length){
-    body.innerHTML = '<tr><td colspan="9"><div class="empty">Aucun marché trouvé.</div></td></tr>';
+    body.innerHTML = '<tr><td colspan="10"><div class="empty">Aucun marché trouvé.</div></td></tr>';
     grid.innerHTML = '<div class="empty">Aucun marché trouvé.</div>';
     return;
   }
   if(!filtered.length){
-    body.innerHTML = `<tr><td colspan="9"><div class="empty">Aucun marché ne correspond à "${escapeHtml(query)}".</div></td></tr>`;
+    body.innerHTML = `<tr><td colspan="10"><div class="empty">Aucun marché ne correspond à "${escapeHtml(query)}".</div></td></tr>`;
     grid.innerHTML = `<div class="empty">Aucun marché ne correspond à "${escapeHtml(query)}".</div>`;
     document.getElementById('marketCount').textContent = '0 marchés';
     return;
@@ -1372,13 +1469,25 @@ function renderMarkets(){
     return { title: displayTitle(ev.title || ''), url, pct, label, spread, vol, liq, endDate, category, weight, iconCell, pctTrend, volTrend, volSurge, wvpd, feesEnabled, wvStrong, conditionId, slug: ev.slug || '', copyBadgeHtml };
   });
 
-  body.innerHTML = items.map(it => `<tr class="${it.wvStrong ? 'wv-strong-row' : ''}">
+  const shown = items.filter(it =>
+    (!mkOnlyStrong || it.wvStrong) &&
+    (!mkProbRangeOn || (it.pct !== null && it.pct >= 5 && it.pct <= 95)));
+  document.getElementById('marketCount').textContent = shown.length + ' marchés';
+  if(!shown.length){
+    body.innerHTML = '<tr><td colspan="10"><div class="empty">Aucun marché ne passe ces filtres.</div></td></tr>';
+    grid.innerHTML = '<div class="empty">Aucun marché ne passe ces filtres.</div>';
+    checkForWvFortAlerts(items); checkForVolumeSurgeAlerts(items); queueCopyOpportunityScans(items);
+    return;
+  }
+
+  body.innerHTML = shown.map(it => `<tr class="${it.wvStrong ? 'wv-strong-row' : ''}">
       <td class="icon">${it.iconCell}</td>
-      <td class="q"><a class="mlink" href="${it.url}" target="_blank" rel="noopener"><span class="q">${escapeHtml(it.title)}</span></a>${it.wvStrong ? '<span class="wv-strong" title="wV fort : catégorie à fort poids + prix bas + frais taker actifs">🚀 wV fort</span>' : ''}${it.copyBadgeHtml}</td>
+      <td class="q"><a class="mlink" href="${it.url}" target="_blank" rel="noopener" title="${escapeHtml(it.title)}"><span class="q">${escapeHtml(it.title)}</span></a>${it.wvStrong ? '<span class="wv-strong" title="wV fort : catégorie à fort poids + prix bas + frais taker actifs">🚀 wV fort</span>' : ''}${it.copyBadgeHtml}</td>
       <td class="num">
         <span class="chip ${it.label.toLowerCase().startsWith('y')?'yes':'no'}">${escapeHtml(it.label)} ${it.pct!==null? it.pct+'¢' : '—'}</span>${it.pctTrend}
       </td>
       <td class="num">${it.spread!==null && !isNaN(it.spread) ? (it.spread*100).toFixed(1)+'¢' : '—'}</td>
+      <td class="bar-cell">${it.pct!==null ? `<span class="pbar" title="${it.pct}%"><i class="${it.pct>=60?'hi':it.pct>=25?'mid':'lo'}" style="width:${Math.max(2,Math.min(100,it.pct))}%"></i></span>` : ''}</td>
       <td class="num">${fmtUsd(it.vol)}${it.volTrend}${it.volSurge}</td>
       <td class="num">${fmtUsd(it.liq)}</td>
       <td class="num" style="color:var(--gold);font-weight:600;" title="${escapeHtml(it.category)}">×${it.weight}</td>
@@ -1386,7 +1495,7 @@ function renderMarkets(){
       <td class="num">${it.endDate ? new Date(it.endDate).toLocaleDateString('fr-FR', {day:'2-digit', month:'short', year:'numeric'}) : '—'}</td>
     </tr>`).join('');
 
-  grid.innerHTML = items.map(it => `
+  grid.innerHTML = shown.map(it => `
     <a class="market-card ${it.wvStrong ? 'wv-strong-row' : ''}" href="${it.url}" target="_blank" rel="noopener">
       <div class="mc-top">${it.iconCell}<span class="chip ${it.label.toLowerCase().startsWith('y')?'yes':'no'}">${escapeHtml(it.label)} ${it.pct!==null? it.pct+'¢' : '—'}</span>${it.pctTrend}</div>
       <div class="mc-title">${escapeHtml(it.title)}${it.wvStrong ? '<span class="wv-strong" title="wV fort : catégorie à fort poids + prix bas + frais taker actifs">🚀 wV fort</span>' : ''}${it.copyBadgeHtml}</div>
@@ -1683,11 +1792,36 @@ document.getElementById('loadBtn').addEventListener('click', ()=>{
   loadRebate(document.getElementById('walletInput').value);
 });
 document.getElementById('refreshBtn').addEventListener('click', ()=>{
-  loadTicker();
   loadMarkets();
   loadRebate(document.getElementById('walletInput').value);
 });
 document.getElementById('marketSearch').addEventListener('input', renderMarkets);
+function syncMarketSidebar(){
+  document.querySelectorAll('#mkSide [data-cat]').forEach(b=>b.classList.toggle('on', b.dataset.cat === (currentCategory || 'all')));
+  document.querySelectorAll('#mkSide [data-sf]').forEach(b=>b.classList.toggle('on', b.dataset.sf === currentFilter));
+  document.getElementById('mkOnlyStrong').classList.toggle('on', mkOnlyStrong);
+  document.getElementById('mkProbRange').classList.toggle('on', mkProbRangeOn);
+}
+document.getElementById('mkSide').addEventListener('click', (e)=>{
+  const b = e.target.closest('button');
+  if(!b) return;
+  if(b.dataset.cat){
+    const sel = document.getElementById('categorySelect');
+    sel.value = b.dataset.cat;
+    sel.dispatchEvent(new Event('change'));
+  } else if(b.dataset.sf){
+    const t = document.querySelector('#filterRow button[data-f="' + b.dataset.sf + '"]');
+    if(t) t.click();
+  } else if(b.id === 'mkOnlyStrong'){
+    mkOnlyStrong = !mkOnlyStrong; renderMarkets();
+  } else if(b.id === 'mkWhales'){
+    document.getElementById('whalesTabBtn').click();
+    return;
+  } else if(b.id === 'mkProbRange'){
+    mkProbRangeOn = !mkProbRangeOn; renderMarkets();
+  }
+  syncMarketSidebar();
+});
 document.getElementById('viewToggle').addEventListener('click', (e)=>{
   e.stopPropagation();
   const btn = e.target.closest('button');
@@ -1703,7 +1837,6 @@ document.getElementById('categorySelect').addEventListener('change', (e)=>{
   loadMarkets();
 });
 document.getElementById('marketsRefreshBtn').addEventListener('click', ()=>{
-  loadTicker();
   loadMarkets();
 });
 document.getElementById('filterRow').addEventListener('click', (e)=>{
@@ -1787,10 +1920,8 @@ document.getElementById('gridSortSelect').addEventListener('change', (e)=>{
 });
 
 // initial load
-loadTicker();
 loadMarkets();
 loadRebate(document.getElementById('walletInput').value);
-setInterval(loadTicker, 60000);
 
 /* ---- tab switching ---- */
 document.querySelectorAll('.tab-btn[data-tab]').forEach(btn=>{
@@ -1957,17 +2088,17 @@ function renderWhales(skipEnd){
     return `<tr>
       <td class="num" style="text-align:left;color:var(--ink-dim);">#${i+1}</td>
       <td class="q" style="white-space:normal;min-width:220px;">${mkt}</td>
-      <td class="num">${fmtEndDate((whaleEndCache.get(w.conditionId)||{}).end)}</td>
       <td style="white-space:nowrap;"><span class="trend ${sideCls}" style="font-weight:600;">${w.side==='BUY'?'ACHAT':'VENTE'}</span> <span class="chip ${isYes?'yes':'no'}">${escapeHtml(w.outcome)}</span>${w.fills>1?` <span style="color:var(--ink-dim);font-size:11px;">${w.fills} fills</span>`:''}</td>
       <td class="num">${(avg*100).toFixed(1)}¢${curCell}</td>
       <td class="num" style="color:var(--gold);font-weight:600;">${fmtUsd(w.usd)}</td>
-      <td style="white-space:nowrap;">
+      <td style="min-width:200px;">
         <span title="${w.wallet}">${escapeHtml(w.name || shortAddr(w.wallet))}</span>
         <button class="wr-star wh-star ${watched?'on':''}" data-wallet="${w.wallet}" data-name="${escapeHtml(w.name||'')}" title="Suivre ce wallet">${watched?'⭐':'☆'}</button>
         <a class="wr-copy" href="https://polymarket.com/profile/${w.wallet}" target="_blank" rel="noopener" title="Profil Polymarket">↗</a>
         ${prof}
       </td>
-      <td class="num" title="${new Date(w.lastTs*1000).toLocaleString('fr-FR')}">${new Date(w.lastTs*1000).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}<div style="color:var(--ink-dim);font-size:10.5px;">${timeAgoLabel(w.lastTs)}</div></td>
+      <td class="num" style="white-space:nowrap;" title="${new Date(w.lastTs*1000).toLocaleString('fr-FR')}">${new Date(w.lastTs*1000).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}<div style="color:var(--ink-dim);font-size:10.5px;">${timeAgoLabel(w.lastTs)}</div></td>
+      <td class="num" style="white-space:nowrap;">${fmtEndDate((whaleEndCache.get(w.conditionId)||{}).end)}</td>
     </tr>`;
   }).join('');
   if(!skipEnd){ loadWhaleEndDates(rows); loadWhaleProfiles(rows); }
