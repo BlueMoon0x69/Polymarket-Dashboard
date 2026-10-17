@@ -952,6 +952,25 @@
       <option value="BUY">Achats seulement</option>
       <option value="SELL">Ventes seulement</option>
     </select>
+    <select id="whaleCat" class="cat-select" title="Filtrer par catégorie">
+      <option value="all">Toutes catégories</option>
+      <option value="Sports">Sports</option>
+      <option value="Crypto">Crypto</option>
+      <option value="Politics">Politics</option>
+      <option value="Finance">Finance</option>
+      <option value="Tech">Tech</option>
+      <option value="Economics">Economics</option>
+      <option value="Culture">Culture</option>
+      <option value="Weather">Weather</option>
+      <option value="Geopolitics">Geopolitics</option>
+      <option value="Mentions">Mentions</option>
+      <option value="Other">Other</option>
+    </select>
+    <select id="whaleReco" class="cat-select" title="Score composite : qualité du wallet, PnL 30j, win rate, taille, consensus, prix encore accessible, échéance">
+      <option value="0">Tous les paris</option>
+      <option value="60">⭐ Paris recommandés (score ≥ 60)</option>
+      <option value="75">🔥 Très recommandés (score ≥ 75)</option>
+    </select>
     <button class="ghost" id="whaleRefresh">↻ Actualiser</button>
     <span class="num" id="whaleCount"></span>
   </div>
@@ -1955,9 +1974,133 @@ function fmtEndDate(iso){
 }
 
 // Lignes affichées : filtre sens, masque les marchés terminés, top 50.
+const whaleCatCache = new Map(); // eventSlug -> { category, feesEnabled } (statique : jamais vidé)
+let whaleCatLoading = false;
+
+function whaleCatOf(w){
+  if(!w.slug) return 'Other';
+  const e = whaleCatCache.get(w.slug);
+  return e ? e.category : null; // null = pas encore classé
+}
+
+/* ---- Score "pari recommandé" (0-100) : agrège toutes les analyses déjà calculées ----
+   Qualité wallet 30 · PnL 30j 15 · Win rate 10 · Taille 10 · Consensus 10 ·
+   Prix encore accessible 15 · Zone de prix 5 · Échéance 5.
+   Filtres durs : ACHAT, marché ouvert, wallet analysé (qualité ≥ 50, PnL 30j > 0),
+   prix actuel connu et pas déjà > 15¢ au-dessus du prix moyen d'entrée.
+   Heuristique de tri, pas une garantie de gain. */
+const WHALE_RECO_POOL = 40; // nb de paris (les plus gros ACHATS) analysés quand le filtre est actif
+let whaleConsKey = null, whaleConsMap = new Map();
+
+function whaleConsensus(w){
+  if(whaleConsKey !== whaleData){
+    whaleConsKey = whaleData; whaleConsMap = new Map();
+    whaleData.forEach(x=>{
+      const m = whaleConsMap.get(x.conditionId) || { yes:new Map(), opp:new Map() };
+      const key = String(x.outcome).toLowerCase();
+      // même côté : ACHAT de cet outcome ; opposé : ACHAT d'un autre outcome ou VENTE de cet outcome
+      if(x.side==='BUY'){
+        const e = m.yes.get(key) || { usd:0, wallets:new Set() };
+        e.usd += x.usd; e.wallets.add(x.wallet); m.yes.set(key, e);
+      }
+      whaleConsMap.set(x.conditionId, m);
+    });
+  }
+  const m = whaleConsMap.get(w.conditionId);
+  const key = String(w.outcome).toLowerCase();
+  const same = m && m.yes.get(key) ? m.yes.get(key) : { usd:w.usd, wallets:new Set([w.wallet]) };
+  let opp = 0;
+  if(m) m.yes.forEach((e,k)=>{ if(k!==key) opp += e.usd; });
+  whaleData.forEach(x=>{ if(x.conditionId===w.conditionId && x.side==='SELL' && String(x.outcome).toLowerCase()===key) opp += x.usd; });
+  const share = same.usd / (same.usd + opp || 1);
+  return { share, wallets: same.wallets.size };
+}
+
+function whaleRecoScore(w){
+  if(w.side !== 'BUY') return null;
+  const gp = globalPnlCache.get(w.wallet);
+  const mi = whaleEndCache.get(w.conditionId);
+  if(!gp || gp.loading || !mi) return null; // analyse pas encore finie
+  if(gp.error || gp.qualityScore === null || gp.qualityScore === undefined) return { score:null, ok:false, why:'profil wallet indisponible', parts:{} };
+  const clamp = (x,a,b)=>Math.max(a,Math.min(b,x));
+  const avg = w.shares ? w.usd/w.shares : 0;
+  const cur = mi.prices ? mi.prices[String(w.outcome).toLowerCase()] : undefined;
+  const parts = {};
+  parts['Qualité wallet'] = gp.qualityScore/100*30;
+  parts['PnL 30j'] = gp.total30d > 0 ? clamp(Math.log10(1+gp.total30d)/5,0,1)*15 : 0;
+  parts['Win rate'] = (gp.winRate !== null && gp.totalClosed >= 10) ? clamp((gp.winRate-0.5)/0.3,0,1)*10 : 0;
+  parts['Taille'] = clamp(Math.log10(Math.max(w.usd,1)/5000)/Math.log10(20),0,1)*10;
+  const c = whaleConsensus(w);
+  parts['Consensus'] = c.share * Math.min(1, c.wallets/3) * 10;
+  const gap = cur !== undefined ? cur - avg : null;
+  parts['Prix accessible'] = gap === null ? 0 : (gap <= 0.02 ? 15 : clamp(1-(gap-0.02)/0.13,0,1)*15);
+  const ref = cur !== undefined ? cur : avg;
+  parts['Zone de prix'] = (ref>=0.10 && ref<=0.85) ? 5 : ((ref>=0.05 && ref<0.10) || (ref>0.85 && ref<=0.92)) ? 2 : 0;
+  let days = null;
+  if(mi.end){ const d = new Date(mi.end); if(!isNaN(d)) days = (d - Date.now())/86400000; }
+  parts['Échéance'] = days === null ? 0 : (days>0.04 && days<=14 ? 5 : (days>14 && days<=60 ? 3 : 0));
+  const score = Math.round(Object.values(parts).reduce((a,b)=>a+b,0));
+  const fails = [];
+  if(gp.qualityScore < 50) fails.push('qualité wallet < 50');
+  if(!(gp.total30d > 0)) fails.push('PnL 30j ≤ 0');
+  if(cur === undefined) fails.push('prix actuel inconnu');
+  else if(gap > 0.15) fails.push('prix déjà +' + Math.round(gap*100) + '¢ au-dessus de l\'entrée');
+  return { score, ok: fails.length === 0, why: fails.join(', '), parts, consensus: c };
+}
+
+function whaleRecoLevel(){ return parseInt(document.getElementById('whaleReco').value, 10) || 0; }
+
+// Paris à analyser quand le filtre "recommandé" est actif : les plus gros ACHATS (ignore le filtre sens).
+function whalePool(){
+  const cat = document.getElementById('whaleCat').value;
+  return whaleData.filter(w =>
+    w.side==='BUY' && !whaleClosed.has(w.conditionId) && (cat==='all' || whaleCatOf(w)===cat)
+  ).slice(0, WHALE_RECO_POOL);
+}
+
+function whaleLoadTargets(){ return whaleRecoLevel() ? whalePool() : whaleVisibleRows(); }
+
 function whaleVisibleRows(){
+  const level = whaleRecoLevel();
+  if(level){
+    return whalePool()
+      .map(w => ({ w, r: whaleRecoScore(w) }))
+      .filter(x => x.r && x.r.ok && x.r.score >= level)
+      .sort((a,b) => b.r.score - a.r.score)
+      .map(x => x.w).slice(0, 50);
+  }
   const side = document.getElementById('whaleSide').value;
-  return whaleData.filter(w => (side==='all' || w.side===side) && !whaleClosed.has(w.conditionId)).slice(0, 50);
+  const cat = document.getElementById('whaleCat').value;
+  return whaleData.filter(w =>
+    (side==='all' || w.side===side) &&
+    !whaleClosed.has(w.conditionId) &&
+    (cat==='all' || whaleCatOf(w)===cat)
+  ).slice(0, 50);
+}
+
+// Classe tous les paris (par event) quand un filtre catégorie est actif — 6 requêtes en parallèle.
+async function loadWhaleCategories(){
+  if(whaleCatLoading) return;
+  const side = document.getElementById('whaleSide').value;
+  const slugs = [...new Set(whaleData
+    .filter(w => (side==='all' || w.side===side) && !whaleClosed.has(w.conditionId) && w.slug && !whaleCatCache.has(w.slug))
+    .map(w => w.slug))];
+  if(!slugs.length) return;
+  whaleCatLoading = true;
+  let idx = 0, redrawTimer = null;
+  const redraw = () => {
+    if(redrawTimer) return;
+    redrawTimer = setTimeout(()=>{ redrawTimer = null; renderWhales(true); }, 300);
+  };
+  const worker = async () => {
+    while(idx < slugs.length){
+      await getCategoryForSlug(slugs[idx++], whaleCatCache);
+      redraw();
+    }
+  };
+  await Promise.all(Array.from({length:6}, worker));
+  whaleCatLoading = false;
+  renderWhales(true);
 }
 
 async function loadWhaleEndDates(rows){
@@ -1990,7 +2133,7 @@ async function loadWhaleEndDates(rows){
   renderWhales(true);
   // Des marchés terminés ont pu disparaître du top 50 : on vérifie ceux qui les remplacent.
   if(progressed){
-    const next = whaleVisibleRows().filter(r => r.conditionId && !whaleEndCache.has(r.conditionId));
+    const next = whaleLoadTargets().filter(r => r.conditionId && !whaleEndCache.has(r.conditionId));
     if(next.length) loadWhaleEndDates(next);
   }
 }
@@ -2046,9 +2189,26 @@ async function loadWhaleProfiles(rows){
 function renderWhales(skipEnd){
   const body = document.getElementById('whaleBody');
   const rows = whaleVisibleRows();
-  document.getElementById('whaleCount').textContent = rows.length ? `${rows.length} paris · marchés terminés masqués` : '';
+  const catFilter = document.getElementById('whaleCat').value;
+  const recoLevel = whaleRecoLevel();
+  let pending = 0, poolN = 0;
+  if(recoLevel){
+    const pool = whalePool(); poolN = pool.length;
+    pending = pool.filter(w => { const gp = globalPnlCache.get(w.wallet); return !gp || gp.loading || !whaleEndCache.has(w.conditionId); }).length;
+  }
+  document.getElementById('whaleCount').textContent = recoLevel
+    ? (rows.length || poolN ? `${rows.length} recommandés sur ${poolN} gros achats analysés${pending ? ` · analyse en cours (${pending} restants)…` : ''}` : '')
+    : (rows.length ? `${rows.length} paris · marchés terminés masqués${catFilter!=='all' && whaleCatLoading ? ' · classement en cours…' : ''}` : '');
   if(!rows.length){
-    body.innerHTML = '<tr><td colspan="8"><div class="empty">Aucun pari trouvé avec ces filtres.</div></td></tr>';
+    body.innerHTML = (recoLevel && (pending || !poolN))
+      ? '<tr><td colspan="8"><div class="loading">Analyse des wallets et des prix en cours…</div></td></tr>'
+      : (catFilter!=='all' && whaleCatLoading)
+        ? '<tr><td colspan="8"><div class="loading">Classement par catégorie en cours…</div></td></tr>'
+        : `<tr><td colspan="8"><div class="empty">${recoLevel ? 'Aucun achat ne passe les critères de recommandation (score + filtres durs).' : 'Aucun pari trouvé avec ces filtres.'}</div></td></tr>`;
+    if(!skipEnd){
+      if(recoLevel){ const t = whalePool(); loadWhaleEndDates(t); loadWhaleProfiles(t); }
+      if(catFilter!=='all') loadWhaleCategories();
+    }
     return;
   }
   body.innerHTML = rows.map((w,i)=>{
@@ -2087,8 +2247,15 @@ function renderWhales(skipEnd){
     const mkt = w.slug ? `<a class="mlink" href="https://polymarket.com/event/${encodeURIComponent(w.slug)}" target="_blank" rel="noopener"><span class="q">${escapeHtml(w.title)}</span></a>` : escapeHtml(w.title);
     return `<tr>
       <td class="num" style="text-align:left;color:var(--ink-dim);">#${i+1}</td>
-      <td class="q" style="white-space:normal;min-width:220px;">${mkt}</td>
-      <td style="white-space:nowrap;"><span class="trend ${sideCls}" style="font-weight:600;">${w.side==='BUY'?'ACHAT':'VENTE'}</span> <span class="chip ${isYes?'yes':'no'}">${escapeHtml(w.outcome)}</span>${w.fills>1?` <span style="color:var(--ink-dim);font-size:11px;">${w.fills} fills</span>`:''}</td>
+      <td class="q" style="white-space:normal;min-width:220px;">${mkt}${whaleCatOf(w) ? `<div style="color:var(--ink-dim);font-size:10.5px;">${escapeHtml(whaleCatOf(w))}</div>` : ''}</td>
+      <td style="white-space:nowrap;"><span class="trend ${sideCls}" style="font-weight:600;">${w.side==='BUY'?'ACHAT':'VENTE'}</span> <span class="chip ${isYes?'yes':'no'}">${escapeHtml(w.outcome)}</span>${w.fills>1?` <span style="color:var(--ink-dim);font-size:11px;">${w.fills} fills</span>`:''}${(()=>{
+        const r = whaleRecoScore(w);
+        if(!r) return w.side==='BUY' ? '<div style="font-size:10.5px;color:var(--ink-dim);">Reco…</div>' : '';
+        if(r.score === null) return '<div style="font-size:10.5px;color:var(--ink-dim);">Reco —</div>';
+        const col = !r.ok ? 'var(--ink-dim)' : (r.score>=75 ? 'var(--up)' : (r.score>=60 ? 'var(--gold)' : 'var(--ink-dim)'));
+        const det = Object.entries(r.parts).map(([k,v])=>k+' '+Math.round(v)).join(' · ') + (r.consensus ? ` · ${r.consensus.wallets} wallet(s) du même côté, ${Math.round(r.consensus.share*100)}% du $ du marché` : '') + (r.ok ? '' : ' — exclu : ' + r.why);
+        return `<div style="font-size:10.5px;color:${col};font-weight:600;" title="${escapeHtml(det)}">${r.ok ? (r.score>=75?'🔥':(r.score>=60?'⭐':'')) : '⚠'} Reco ${r.score}/100</div>`;
+      })()}</td>
       <td class="num">${(avg*100).toFixed(1)}¢${curCell}</td>
       <td class="num" style="color:var(--gold);font-weight:600;">${fmtUsd(w.usd)}</td>
       <td style="min-width:200px;">
@@ -2101,7 +2268,11 @@ function renderWhales(skipEnd){
       <td class="num" style="white-space:nowrap;">${fmtEndDate((whaleEndCache.get(w.conditionId)||{}).end)}</td>
     </tr>`;
   }).join('');
-  if(!skipEnd){ loadWhaleEndDates(rows); loadWhaleProfiles(rows); }
+  if(!skipEnd){
+    const targets = recoLevel ? whalePool() : rows;
+    loadWhaleEndDates(targets); loadWhaleProfiles(targets);
+    if(catFilter!=='all') loadWhaleCategories();
+  }
 }
 
 async function loadWhales(){
@@ -2131,7 +2302,9 @@ document.querySelector('.tab-btn[data-tab="whales"]').addEventListener('click', 
 });
 document.getElementById('whaleRefresh').addEventListener('click', ()=>{ whaleData = []; loadWhales(); });
 document.getElementById('whaleMin').addEventListener('change', ()=>{ whaleData = []; loadWhales(); });
-document.getElementById('whaleSide').addEventListener('change', renderWhales);
+document.getElementById('whaleSide').addEventListener('change', ()=>renderWhales());
+document.getElementById('whaleCat').addEventListener('change', ()=>renderWhales());
+document.getElementById('whaleReco').addEventListener('change', ()=>renderWhales());
 document.getElementById('whaleBody').addEventListener('click', e=>{
   const b = e.target.closest('button.wh-star');
   if(!b) return;
