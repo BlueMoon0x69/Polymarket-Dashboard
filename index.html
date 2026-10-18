@@ -7,7 +7,7 @@
 (function(){
   var t = null;
   try{ t = localStorage.getItem('pc_theme_v1'); }catch(e){}
-  if(t !== 'light' && t !== 'dark'){
+  if(t !== 'light' && t !== 'dark' && t !== 'ocean'){
     t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
   }
   document.documentElement.setAttribute('data-theme', t);
@@ -71,6 +71,31 @@
   :root[data-theme="light"] .ac-new-dot{background:var(--accent-y);}
   :root[data-theme="light"] .ac-chip.on{color:#fff;}
   :root[data-theme="light"] ::-webkit-scrollbar-thumb{background:#c3c8d1;}
+  /* ---- Thème Océan : nuit bleue, accent turquoise ---- */
+  :root[data-theme="ocean"]{
+    color-scheme: dark;
+    --bg: #06121B;
+    --surface: #0B1D2A;
+    --surface-2: #11293A;
+    --panel: #0B1D2A;
+    --line: #1C3A4E;
+    --ink: #E2F0F4;
+    --ink-dim: #7E9FAF;
+    --gold: #2EC4B6;
+    --gold-dim: #1B6E68;
+    --up: #3FD8A0;
+    --down: #FF6B7A;
+    --t-none: #5a7488;
+    --t-silver: #a9bccb;
+    --t-diamond: #6fb4ff;
+    --accent-y:#F2C94C;
+    --accent-y2:#FFD54A;
+    --on-gold:#032320;
+    --overlay:rgba(2,9,15,0.78);
+  }
+  :root[data-theme="ocean"] body{background:radial-gradient(1100px 520px at 50% -8%, rgba(46,196,182,0.10), transparent 70%), var(--bg); background-attachment:fixed;}
+  :root[data-theme="ocean"] .brand .mark span{color:var(--gold);}
+  :root[data-theme="ocean"] ::-webkit-scrollbar-thumb{background:#1f4358;}
   #themeToggleBtn{font-size:13px; padding:5px 9px; line-height:1;}
   *{box-sizing:border-box;}
   body{
@@ -640,6 +665,7 @@
   }
   .chip.yes{background:rgba(63,191,127,0.14);color:var(--up);}
   .chip.no{background:rgba(229,72,77,0.14);color:var(--down);}
+  .chip.neutral{background:var(--surface-2);color:var(--ink);border:1px solid var(--line);}
 
   .empty, .loading, .err{
     color:var(--ink-dim);
@@ -763,7 +789,7 @@
     <button class="tab-btn hdr-tab" data-tab="whales" id="whalesTabBtn" style="display:none">🐋 Whale Bets 24h</button>
     <button class="tab-btn hdr-tab" data-tab="portfolio">💼 Mon portefeuille</button>
     <button class="alert-toggle" id="alertCenterBtn" title="Centre d'alertes : toutes les alertes au même endroit + historique commun">🔔 Centre d'alertes <span id="alertCenterCount">(0)</span></button>
-    <button class="alert-toggle" id="themeToggleBtn" title="Basculer entre mode clair et sombre">🌙</button>
+    <button class="alert-toggle" id="themeToggleBtn" title="Changer de thème">🌙</button>
     <span class="api-health api-unknown" id="apiHealthIndicator" title="État des API Polymarket (Gamma + Data) utilisées par ce dashboard">● API : —</span>
     <span class="view-toggle" id="langToggle" title="Langue des noms de marché">
       <button data-lang="en" class="on">EN</button>
@@ -1193,15 +1219,18 @@ function applyTheme(t){
   document.documentElement.setAttribute('data-theme', t);
   const b = document.getElementById('themeToggleBtn');
   if(b){
-    b.textContent = t === 'light' ? '🌙' : '☀️';
-    b.title = t === 'light' ? 'Passer en mode sombre' : 'Passer en mode clair';
+    const names = { dark:'Sombre', light:'Clair', ocean:'Océan' };
+    b.textContent = t === 'light' ? '☀️' : (t === 'ocean' ? '🌊' : '🌙');
+    b.title = 'Thème : ' + (names[t] || t) + ' — clique pour changer (Sombre → Clair → Océan)';
   }
   let m = document.querySelector('meta[name="theme-color"]');
   if(!m){ m = document.createElement('meta'); m.name = 'theme-color'; document.head.appendChild(m); }
-  m.content = t === 'light' ? '#F4F5F7' : '#0B0E13';
+  m.content = t === 'light' ? '#F4F5F7' : (t === 'ocean' ? '#06121B' : '#0B0E13');
 }
 document.getElementById('themeToggleBtn').addEventListener('click', ()=>{
-  const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+  const order = ['dark','light','ocean'];
+  const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next = order[(order.indexOf(cur) + 1) % order.length];
   try{ localStorage.setItem('pc_theme_v1', next); }catch(e){}
   applyTheme(next);
 });
@@ -1296,6 +1325,42 @@ function escapeHtml(s){
   return (s||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
+/* Marché "représentatif" d'un événement : Polymarket regroupe souvent plusieurs marchés
+   (ex. « Fed Decision » = 25bps / no change / …). Le premier du tableau n'est pas forcément
+   le bon (souvent un marché déjà résolu à 0¢ ou 100¢). On prend le marché ouvert le plus tradé. */
+function pickMarket(ev){
+  const ms = Array.isArray(ev.markets) ? ev.markets : [];
+  if(!ms.length) return {};
+  if(ms.length === 1) return ms[0];
+  const open = ms.filter(m => m && m.closed !== true && m.active !== false);
+  const pool = open.length ? open : ms;
+  const priceOf = m => { try{ return parseFloat(JSON.parse(m.outcomePrices || '[]')[0]) || 0; }catch(e){ return 0; } };
+  const live = pool.filter(m => { const p = priceOf(m); return p > 0.004 && p < 0.996; });
+  const cand = live.length ? live : pool;
+  return cand.slice().sort((a,b)=>
+    (parseFloat(b.volume24hr)||0) - (parseFloat(a.volume24hr)||0) || priceOf(b) - priceOf(a))[0];
+}
+function marketLabelAndPrice(ev, market){
+  let price = null, label = 'Yes';
+  try{
+    const prices = JSON.parse(market.outcomePrices || '[]');
+    const outcomes = JSON.parse(market.outcomes || '[]');
+    price = prices[0] !== undefined ? parseFloat(prices[0]) : null;
+    if(isNaN(price)) price = null;
+    label = outcomes[0] || 'Yes';
+  }catch(e){}
+  const multi = Array.isArray(ev.markets) && ev.markets.length > 1;
+  if(multi && market.groupItemTitle && /^(yes|oui)$/i.test(label)) label = market.groupItemTitle;
+  return { price, label };
+}
+function chipCls(label){ const l = String(label||'').toLowerCase(); return /^(yes|oui)/.test(l) ? 'yes' : (/^(no|non)$/.test(l) ? 'no' : 'neutral'); }
+function fmtCents(p){
+  if(p === null || p === undefined || isNaN(p)) return '—';
+  const c = p * 100;
+  if(c > 0 && c < 10 || c > 90 && c < 100) return (Math.round(c*10)/10).toString().replace(/\.0$/,'') + '¢';
+  return Math.round(c) + '¢';
+}
+
 async function loadMarkets(){
   const body = document.getElementById('marketBody');
   body.innerHTML = '<tr><td colspan="10"><div class="loading">Chargement des marchés…</div></td></tr>';
@@ -1322,9 +1387,8 @@ async function loadMarkets(){
     renderMarkets();
     filtered.forEach(ev => {
       if(!ev.slug) return;
-      const market = (ev.markets && ev.markets[0]) || {};
-      let price = null;
-      try{ price = JSON.parse(market.outcomePrices || '[]')[0]; }catch(e){}
+      const market = pickMarket(ev);
+      const price = marketLabelAndPrice(ev, market).price;
       const pct = price !== null ? Math.round(price*100) : null;
       const vol = ev.volume24hr ?? ev.volume;
       marketSnapshot.set(ev.slug, { pct, vol });
@@ -1437,15 +1501,11 @@ function renderMarkets(){
   document.getElementById('marketCount').textContent = filtered.length + ' marchés';
 
   const items = filtered.map(ev=>{
-    const market = (ev.markets && ev.markets[0]) || {};
-    let price = null, label = 'Yes';
-    try{
-      const prices = JSON.parse(market.outcomePrices || '[]');
-      const outcomes = JSON.parse(market.outcomes || '[]');
-      price = prices[0];
-      label = outcomes[0] || 'Yes';
-    }catch(e){}
+    const market = pickMarket(ev);
+    const { price, label } = marketLabelAndPrice(ev, market);
     const pct = price !== null ? Math.round(price*100) : null;
+    const priceTxt = fmtCents(price);
+    const pctExact = price !== null ? price*100 : null;
     const spread = market.spread !== undefined && market.spread !== null ? parseFloat(market.spread) : null;
     const vol = ev.volume24hr ?? ev.volume;
     const liq = ev.liquidity;
@@ -1485,7 +1545,7 @@ function renderMarkets(){
         : `${escapeHtml(w.name || 'Un wallet')} est en gros profit ici (${sign}${fmtUsd(w.cashPnl)}, ${sign}${w.percentPnl.toFixed(0)}%), mais pas encore confirmé (profil global ou score de qualité insuffisant). Clique pour voir les wallets.`;
       copyBadgeHtml = `<span class="copy-opp-badge ${w.confirmed ? 'confirmed' : ''}" data-cond="${conditionId}" data-title="${escapeHtml(displayTitle(ev.title || ''))}" title="${label}">🎯 Copie${w.confirmed ? ' ✓' : ''}</span>`;
     }
-    return { title: displayTitle(ev.title || ''), url, pct, label, spread, vol, liq, endDate, category, weight, iconCell, pctTrend, volTrend, volSurge, wvpd, feesEnabled, wvStrong, conditionId, slug: ev.slug || '', copyBadgeHtml };
+    return { title: displayTitle(ev.title || ''), url, pct, priceTxt, pctExact, label, spread, vol, liq, endDate, category, weight, iconCell, pctTrend, volTrend, volSurge, wvpd, feesEnabled, wvStrong, conditionId, slug: ev.slug || '', copyBadgeHtml };
   });
 
   const shown = items.filter(it =>
@@ -1503,10 +1563,10 @@ function renderMarkets(){
       <td class="icon">${it.iconCell}</td>
       <td class="q"><a class="mlink" href="${it.url}" target="_blank" rel="noopener" title="${escapeHtml(it.title)}"><span class="q">${escapeHtml(it.title)}</span></a>${it.wvStrong ? '<span class="wv-strong" title="wV fort : catégorie à fort poids + prix bas + frais taker actifs">🚀 wV fort</span>' : ''}${it.copyBadgeHtml}</td>
       <td class="num">
-        <span class="chip ${it.label.toLowerCase().startsWith('y')?'yes':'no'}">${escapeHtml(it.label)} ${it.pct!==null? it.pct+'¢' : '—'}</span>${it.pctTrend}
+        <span class="chip ${chipCls(it.label)}">${escapeHtml(it.label)} ${it.priceTxt}</span>${it.pctTrend}
       </td>
       <td class="num">${it.spread!==null && !isNaN(it.spread) ? (it.spread*100).toFixed(1)+'¢' : '—'}</td>
-      <td class="bar-cell">${it.pct!==null ? `<span class="pbar" title="${it.pct}%"><i class="${it.pct>=60?'hi':it.pct>=25?'mid':'lo'}" style="width:${Math.max(2,Math.min(100,it.pct))}%"></i></span>` : ''}</td>
+      <td class="bar-cell">${it.pct!==null ? `<span class="pbar" title="${it.pctExact.toFixed(1)}%"><i class="${it.pct>=60?'hi':it.pct>=25?'mid':'lo'}" style="width:${Math.max(1,Math.min(100,it.pctExact))}%"></i></span>` : ''}</td>
       <td class="num">${fmtUsd(it.vol)}${it.volTrend}${it.volSurge}</td>
       <td class="num">${fmtUsd(it.liq)}</td>
       <td class="num" style="color:var(--gold);font-weight:600;" title="${escapeHtml(it.category)}">×${it.weight}</td>
@@ -1516,7 +1576,7 @@ function renderMarkets(){
 
   grid.innerHTML = shown.map(it => `
     <a class="market-card ${it.wvStrong ? 'wv-strong-row' : ''}" href="${it.url}" target="_blank" rel="noopener">
-      <div class="mc-top">${it.iconCell}<span class="chip ${it.label.toLowerCase().startsWith('y')?'yes':'no'}">${escapeHtml(it.label)} ${it.pct!==null? it.pct+'¢' : '—'}</span>${it.pctTrend}</div>
+      <div class="mc-top">${it.iconCell}<span class="chip ${chipCls(it.label)}">${escapeHtml(it.label)} ${it.priceTxt}</span>${it.pctTrend}</div>
       <div class="mc-title">${escapeHtml(it.title)}${it.wvStrong ? '<span class="wv-strong" title="wV fort : catégorie à fort poids + prix bas + frais taker actifs">🚀 wV fort</span>' : ''}${it.copyBadgeHtml}</div>
       <div class="mc-stats"><span>Vol 24h <b>${fmtUsd(it.vol)}</b>${it.volTrend}${it.volSurge}</span><span>Liq <b>${fmtUsd(it.liq)}</b></span>${it.conditionId ? `<button class="wallet-btn" data-cond="${it.conditionId}" data-title="${escapeHtml(it.title)}" title="Voir les wallets qui font du volume sur ce marché">👥</button>` : ''}</div>
     </a>`).join('');
@@ -1871,8 +1931,8 @@ function applyMarketSort(key){
   if(key === 'outcome'){
     marketsCache.sort((a,b)=>{
       let pa=0, pb=0;
-      try{pa = JSON.parse((a.markets?.[0]?.outcomePrices)||'[0]')[0];}catch(e){}
-      try{pb = JSON.parse((b.markets?.[0]?.outcomePrices)||'[0]')[0];}catch(e){}
+      pa = marketLabelAndPrice(a, pickMarket(a)).price || 0;
+      pb = marketLabelAndPrice(b, pickMarket(b)).price || 0;
       return pb-pa;
     });
   } else if(key === 'endDate'){
@@ -1890,7 +1950,7 @@ function applyMarketSort(key){
     marketsCache.sort((a,b)=> weightOf(b) - weightOf(a));
   } else if(key === 'wvpd'){
     const wvpdOf = ev => {
-      const market = (ev.markets && ev.markets[0]) || {};
+      const market = pickMarket(ev);
       if(market.feesEnabled !== true) return 0;
       let price = 0;
       try{ price = JSON.parse(market.outcomePrices || '[0]')[0] || 0; }catch(e){}
@@ -1905,7 +1965,7 @@ function applyMarketSort(key){
     // à la fois un gros volume (liquidité/exécutable) ET un bon rendement wV par $ —
     // plutôt qu'un seul des deux critères pris isolément.
     const wvpdOf = ev => {
-      const market = (ev.markets && ev.markets[0]) || {};
+      const market = pickMarket(ev);
       if(market.feesEnabled !== true) return 0;
       let price = 0;
       try{ price = JSON.parse(market.outcomePrices || '[0]')[0] || 0; }catch(e){}
