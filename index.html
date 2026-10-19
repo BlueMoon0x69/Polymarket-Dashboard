@@ -2163,33 +2163,81 @@ async function loadWhaleCategories(){
   renderWhales(true);
 }
 
+// Un marché est "fini" s'il est clos/archivé/inactif/résolu, ou si sa date de fin est
+// dépassée depuis plus de WHALE_END_GRACE_H heures (matchs terminés, etc.).
+const WHALE_END_GRACE_H = 6;
+function whaleMarketIsFinished(m){
+  if(!m) return false;
+  if(m.closed === true || m.archived === true) return true;
+  if(m.active === false) return true;
+  if(String(m.umaResolutionStatus || '').toLowerCase() === 'resolved') return true;
+  const endIso = m.endDate || m.endDateIso || '';
+  if(endIso){
+    const d = new Date(endIso);
+    if(!isNaN(d) && (Date.now() - d.getTime()) > WHALE_END_GRACE_H * 3600000) return true;
+  }
+  return false;
+}
+function whaleStoreMarketInfo(id, m){
+  const prices = {};
+  if(m){
+    try{
+      const outs = typeof m.outcomes === 'string' ? JSON.parse(m.outcomes) : (m.outcomes || []);
+      const pr = typeof m.outcomePrices === 'string' ? JSON.parse(m.outcomePrices) : (m.outcomePrices || []);
+      outs.forEach((o,k)=>{ const v = parseFloat(pr[k]); if(!isNaN(v)) prices[String(o).toLowerCase()] = v; });
+    }catch(e){}
+  }
+  whaleEndCache.set(id, { end: m ? (m.endDate || m.endDateIso || '') : '', prices });
+  if(whaleMarketIsFinished(m)) whaleClosed.add(id);
+}
+
 async function loadWhaleEndDates(rows){
   let progressed = false;
+  const slugByCond = new Map();
+  rows.forEach(r => { if(r.conditionId && r.slug && !slugByCond.has(r.conditionId)) slugByCond.set(r.conditionId, r.slug); });
   const ids = [...new Set(rows.map(r=>r.conditionId).filter(id => id && !whaleEndCache.has(id)))];
   if(!ids.length) return;
+  const missing = [];
+  // 1) Requête groupée par conditionId (tous états : ouverts ET clos)
   for(let i=0; i<ids.length; i+=20){
     const chunk = ids.slice(i, i+20);
+    let mk = [];
     try{
       const q = chunk.map(id=>'condition_ids='+encodeURIComponent(id)).join('&');
       const res = await fetch(`${GAMMA}/markets?${q}&limit=${chunk.length}`);
-      if(!res.ok) continue;
-      const mk = await res.json();
-      chunk.forEach(id=>{
-        const m = mk.find(x=>x.conditionId === id);
-        const prices = {};
-        if(m){
-          try{
-            const outs = typeof m.outcomes === 'string' ? JSON.parse(m.outcomes) : (m.outcomes || []);
-            const pr = typeof m.outcomePrices === 'string' ? JSON.parse(m.outcomePrices) : (m.outcomePrices || []);
-            outs.forEach((o,k)=>{ const v = parseFloat(pr[k]); if(!isNaN(v)) prices[String(o).toLowerCase()] = v; });
-          }catch(e){}
-        }
-        whaleEndCache.set(id, { end: m ? (m.endDate || m.endDateIso || '') : '', prices });
-        progressed = true;
-        if(m && (m.closed || m.archived)) whaleClosed.add(id);
-      });
+      if(res.ok){ const j = await res.json(); if(Array.isArray(j)) mk = j; }
     }catch(e){}
+    chunk.forEach(id=>{
+      const m = mk.find(x => String(x.conditionId).toLowerCase() === String(id).toLowerCase());
+      if(m){ whaleStoreMarketInfo(id, m); progressed = true; }
+      else missing.push(id);
+    });
   }
+  // 2) Repli : les introuvables sont cherchés via leur event (slug), 6 en parallèle
+  let idx = 0;
+  const worker = async () => {
+    while(idx < missing.length){
+      const id = missing[idx++];
+      let m = null;
+      const slug = slugByCond.get(id);
+      if(slug){
+        try{
+          const res = await fetch(`${GAMMA}/events?slug=${encodeURIComponent(slug)}`);
+          if(res.ok){
+            const j = await res.json();
+            const ev = Array.isArray(j) ? j[0] : null;
+            if(ev && Array.isArray(ev.markets)){
+              m = ev.markets.find(x => String(x.conditionId).toLowerCase() === String(id).toLowerCase()) || null;
+              if(m && ev.closed === true && m.closed !== true) m = { ...m, closed: true };
+            }
+          }
+        }catch(e){}
+      }
+      whaleStoreMarketInfo(id, m);
+      progressed = true;
+    }
+  };
+  await Promise.all(Array.from({length:6}, worker));
   renderWhales(true);
   // Des marchés terminés ont pu disparaître du top 50 : on vérifie ceux qui les remplacent.
   if(progressed){
