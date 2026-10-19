@@ -775,6 +775,15 @@
   .pf-link-d{display:block; font-size:11px; color:var(--ink-dim); line-height:1.5;}
   .panel-sub{font-size:11.5px;color:var(--ink-dim);line-height:1.6;margin:8px 0 16px;}
   .panel-sub a{color:var(--gold);}
+.wh-group-toggle{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:var(--ink-dim);padding:0 6px;user-select:none;}
+.wh-group-toggle input{accent-color:var(--gold);cursor:pointer;}
+tr.wh-sub td{background:rgba(255,255,255,.03);}
+tr.wh-sub td:first-child{padding-left:18px;}
+.wh-expand{background:none;border:none;color:var(--ink-dim);font:inherit;font-size:10.5px;cursor:pointer;padding:0;text-decoration:underline dotted;}
+.wh-expand:hover{color:var(--gold);}
+.wh-badge{display:inline-block;font-size:10.5px;font-weight:600;padding:1px 6px;border-radius:4px;margin-bottom:2px;white-space:nowrap;}
+.wh-badge.live{color:var(--down);background:rgba(255,80,80,.12);}
+.wh-badge.soon{color:var(--gold);background:rgba(255,200,60,.12);}
 </style>
 </head>
 <body>
@@ -842,7 +851,6 @@
     <div class="mk-side-h">Filtres</div>
     <button class="mk-side-b" id="mkOnlyStrong" title="N'afficher que les marchés 🚀 wV fort">🚀 wV fort seulement</button>
     <button class="mk-side-b" id="mkWhales" title="Plus gros paris des dernières 24h">🐋 Whale Bets 24h</button>
-    <button class="mk-side-b" id="mkProbRange" title="Masque les marchés presque tranchés (prob. &lt; 5% ou &gt; 95%)">◐ Prob. 5% – 95%</button>
   </aside>
   <section>
     <div class="panel-title">
@@ -997,6 +1005,7 @@
       <option value="60">⭐ Paris recommandés (score ≥ 60)</option>
       <option value="75">🔥 Très recommandés (score ≥ 75)</option>
     </select>
+    <label class="wh-group-toggle" title="Une ligne par marché : côté dominant, total par côté, nombre de wallets. Clique sur « ▸ N paris » pour voir le détail."><input type="checkbox" id="whaleGroup" checked> Grouper par marché</label>
     <button class="ghost" id="whaleRefresh">↻ Actualiser</button>
     <span class="num" id="whaleCount"></span>
   </div>
@@ -1367,7 +1376,7 @@ async function loadMarkets(){
   try{
     let order = currentFilter === 'new' ? 'startDate' : currentFilter;
     let ascending = 'false';
-    const limit = 30;
+    const limit = 200, maxPages = 25; // pagination : tous les marchés actifs (jusqu'à 5000)
     let tagParam = '';
     if(currentCategory !== 'all'){
       const tagId = await getTagId(currentCategory);
@@ -1377,11 +1386,26 @@ async function loadMarkets(){
     // à l'URL polymarket.com/event/{slug}. Le slug d'un market individuel ne matche
     // pas toujours celui de la page (cas des events multi-candidats/multi-issues),
     // ce qui provoquait des liens vers des pages inexistantes.
-    const res = await fetch(`${GAMMA}/events?order=${order}&ascending=${ascending}&limit=${limit}${tagParam}&active=true&closed=false`);
-    const data = await res.json();
-    // filtre défensif : au cas où l'API renverrait encore un event dont la date de fin est passée
     const now = Date.now();
-    let filtered = data.filter(ev => !ev.endDate || new Date(ev.endDate).getTime() > now);
+    const seenSlugs = new Set();
+    let filtered = [];
+    for(let page=0; page<maxPages; page++){
+      const res = await fetch(`${GAMMA}/events?order=${order}&ascending=${ascending}&limit=${limit}&offset=${page*limit}${tagParam}&active=true&closed=false`);
+      if(!res.ok){ if(page===0) throw new Error('gamma '+res.status); break; }
+      const data = await res.json();
+      if(!Array.isArray(data) || !data.length) break;
+      // filtre défensif : au cas où l'API renverrait encore un event dont la date de fin est passée
+      data.forEach(ev => {
+        const k = ev.slug || ev.id;
+        if(seenSlugs.has(k)) return;
+        seenSlugs.add(k);
+        if(!ev.endDate || new Date(ev.endDate).getTime() > now) filtered.push(ev);
+      });
+      marketsCache = filtered.slice();
+      if(page === 0) renderMarkets(); // affichage immédiat de la 1re page
+      document.getElementById('marketCount').textContent = marketsCache.length + ' marchés…';
+      if(data.length < limit) break;
+    }
     marketsCache = filtered;
     recordVolumeSamples(filtered);
     renderMarkets();
@@ -1470,7 +1494,7 @@ function trendArrow(curr, prev){
   return '';
 }
 
-let mkOnlyStrong = false, mkProbRangeOn = false;
+let mkOnlyStrong = false;
 function renderMarkets(){
   const body = document.getElementById('marketBody');
   const grid = document.getElementById('marketGridView');
@@ -1548,9 +1572,7 @@ function renderMarkets(){
     return { title: displayTitle(ev.title || ''), url, pct, priceTxt, pctExact, label, spread, vol, liq, endDate, category, weight, iconCell, pctTrend, volTrend, volSurge, wvpd, feesEnabled, wvStrong, conditionId, slug: ev.slug || '', copyBadgeHtml };
   });
 
-  const shown = items.filter(it =>
-    (!mkOnlyStrong || it.wvStrong) &&
-    (!mkProbRangeOn || (it.pct !== null && it.pct >= 5 && it.pct <= 95)));
+  const shown = items.filter(it => !mkOnlyStrong || it.wvStrong);
   document.getElementById('marketCount').textContent = shown.length + ' marchés';
   if(!shown.length){
     body.innerHTML = '<tr><td colspan="10"><div class="empty">Aucun marché ne passe ces filtres.</div></td></tr>';
@@ -1879,7 +1901,6 @@ function syncMarketSidebar(){
   document.querySelectorAll('#mkSide [data-cat]').forEach(b=>b.classList.toggle('on', b.dataset.cat === (currentCategory || 'all')));
   document.querySelectorAll('#mkSide [data-sf]').forEach(b=>b.classList.toggle('on', b.dataset.sf === currentFilter));
   document.getElementById('mkOnlyStrong').classList.toggle('on', mkOnlyStrong);
-  document.getElementById('mkProbRange').classList.toggle('on', mkProbRangeOn);
 }
 document.getElementById('mkSide').addEventListener('click', (e)=>{
   const b = e.target.closest('button');
@@ -1896,8 +1917,6 @@ document.getElementById('mkSide').addEventListener('click', (e)=>{
   } else if(b.id === 'mkWhales'){
     document.getElementById('whalesTabBtn').click();
     return;
-  } else if(b.id === 'mkProbRange'){
-    mkProbRangeOn = !mkProbRangeOn; renderMarkets();
   }
   syncMarketSidebar();
 });
@@ -2033,6 +2052,112 @@ function fmtEndDate(iso){
   return `${d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'2-digit'})}<div style="color:var(--ink-dim);font-size:10.5px;">${rel}</div>`;
 }
 
+// ---- Statut du match : À venir / En cours (heure de début Gamma : gameStartTime) ----
+function parseGammaDate(v){
+  if(!v) return null;
+  let t = String(v).trim().replace(' ', 'T');
+  if(/[+-]\d{2}$/.test(t)) t += ':00';
+  const d = new Date(t);
+  return isNaN(d) ? null : d;
+}
+function fmtDurShort(ms){
+  const m = Math.round(ms/60000);
+  if(m < 60) return m + 'min';
+  const h = Math.floor(m/60);
+  if(h < 24) return h + 'h' + String(m%60).padStart(2,'0');
+  return Math.floor(h/24) + 'j';
+}
+function whaleStatusBadge(id){
+  const mi = whaleEndCache.get(id);
+  if(!mi) return '';
+  const st = parseGammaDate(mi.start);
+  if(st){
+    const dt = st - Date.now();
+    return dt > 0
+      ? `<div><span class="wh-badge soon" title="Début : ${st.toLocaleString('fr-FR')}">À venir · ${fmtDurShort(dt)}</span></div>`
+      : `<div><span class="wh-badge live" title="Début : ${st.toLocaleString('fr-FR')}">● En cours · ${fmtDurShort(-dt)}</span></div>`;
+  }
+  const en = parseGammaDate(mi.end);
+  if(en && en < Date.now()) return '<div><span class="wh-badge live" title="Date de fin dépassée, marché pas encore réglé">● En cours</span></div>';
+  return '';
+}
+
+// ---- Couverture (hedge) : un wallet qui achète les 2 côtés d'un même marché ----
+// Ratio petite jambe / grosse jambe ≥ 25 % → market making / arbitrage, pas un pari directionnel.
+let whaleHedgeKey = null, whaleHedgeMap = new Map();
+function whaleIsHedge(w){
+  if(w.side !== 'BUY') return false;
+  if(whaleHedgeKey !== whaleData){
+    whaleHedgeKey = whaleData; whaleHedgeMap = new Map();
+    const t = new Map();
+    whaleData.forEach(x=>{
+      if(x.side !== 'BUY') return;
+      const k = x.wallet + '|' + x.conditionId;
+      const e = t.get(k) || new Map();
+      const o = String(x.outcome).toLowerCase();
+      e.set(o, (e.get(o)||0) + x.usd);
+      t.set(k, e);
+    });
+    t.forEach((e,k)=>{
+      if(e.size < 2) return;
+      const v = [...e.values()].sort((a,b)=>b-a);
+      if(v[1]/v[0] >= 0.25) whaleHedgeMap.set(k, true);
+    });
+  }
+  return whaleHedgeMap.has(w.wallet + '|' + w.conditionId);
+}
+
+function whaleGrouped(){ const el = document.getElementById('whaleGroup'); return !el || el.checked; }
+function whaleCap(list){ return list; } // plus de limite : tous les paris/marchés sont affichés
+
+// ---- Vue groupée : une ligne par marché (côté dominant), détail dépliable ----
+const whaleExpanded = new Set();
+function whaleGroupedHtml(rows, betRow){
+  const order = [], map = new Map();
+  rows.forEach(w=>{
+    let g = map.get(w.conditionId);
+    if(!g){ g = []; map.set(w.conditionId, g); order.push(w.conditionId); }
+    g.push(w);
+  });
+  let html = '';
+  order.forEach((cid, gi)=>{
+    const bets = map.get(cid);
+    const dir = bets.filter(b=>b.side==='BUY');
+    const pool = dir.length ? dir : bets;
+    const real = pool.filter(b=>!whaleIsHedge(b));
+    const base = real.length ? real : pool;
+    const hedged = pool.filter(b=>whaleIsHedge(b));
+    const byOut = new Map();
+    base.forEach(b=>{
+      const k = String(b.outcome).toLowerCase();
+      const e = byOut.get(k) || { usd:0, items:[], name:b.outcome };
+      e.usd += b.usd; e.items.push(b); byOut.set(k, e);
+    });
+    let best = null;
+    byOut.forEach(e=>{ if(!best || e.usd > best.usd) best = e; });
+    const items = best.items.slice().sort((a,b)=>b.usd-a.usd);
+    const usd = items.reduce((a,b)=>a+b.usd,0);
+    const shares = items.reduce((a,b)=>a+b.shares,0);
+    const fills = items.reduce((a,b)=>a+b.fills,0);
+    const lastTs = Math.max(...items.map(b=>b.lastTs));
+    const wallets = new Set(items.map(b=>b.wallet)).size;
+    let oppUsd = 0, oppName = '', oppMax = 0;
+    byOut.forEach(e=>{ if(e !== best){ oppUsd += e.usd; if(e.usd > oppMax){ oppMax = e.usd; oppName = e.name; } } });
+    const hedgeUsd = hedged.reduce((a,b)=>a+b.usd,0);
+    const hedgeWallets = new Set(hedged.map(b=>b.wallet)).size;
+    const agg = { ...items[0], usd, shares, fills, lastTs };
+    const open = whaleExpanded.has(cid);
+    let extra = `<div style="font-size:10.5px;color:var(--ink-dim);">${wallets} wallet${wallets>1?'s':''}`;
+    if(oppUsd) extra += ` · contre : <span style="color:var(--down);">${escapeHtml(oppName)} ${fmtUsd(oppUsd)}</span>`;
+    if(hedgeWallets) extra += ` · <span style="color:var(--gold);" title="Wallets qui achètent les deux côtés (market making / arbitrage) : exclus du côté dominant, du consensus et du score Reco">⇄ ${hedgeWallets} hedge (${fmtUsd(hedgeUsd)})</span>`;
+    extra += '</div>';
+    if(bets.length > 1) extra += `<div><button class="wh-expand" data-cid="${escapeHtml(cid)}">${open?'▾':'▸'} ${bets.length} paris</button></div>`;
+    html += betRow(agg, '#' + (gi+1), { extra, fillsLabel: '' });
+    if(open) bets.slice().sort((a,b)=>b.usd-a.usd).forEach(b=>{ html += betRow(b, '↳', { sub:true }); });
+  });
+  return html;
+}
+
 // Lignes affichées : filtre sens, masque les marchés terminés, top 50.
 const whaleCatCache = new Map(); // eventSlug -> { category, feesEnabled } (statique : jamais vidé)
 let whaleCatLoading = false;
@@ -2059,7 +2184,7 @@ function whaleConsensus(w){
       const m = whaleConsMap.get(x.conditionId) || { yes:new Map(), opp:new Map() };
       const key = String(x.outcome).toLowerCase();
       // même côté : ACHAT de cet outcome ; opposé : ACHAT d'un autre outcome ou VENTE de cet outcome
-      if(x.side==='BUY'){
+      if(x.side==='BUY' && !whaleIsHedge(x)){
         const e = m.yes.get(key) || { usd:0, wallets:new Set() };
         e.usd += x.usd; e.wallets.add(x.wallet); m.yes.set(key, e);
       }
@@ -2078,6 +2203,7 @@ function whaleConsensus(w){
 
 function whaleRecoScore(w){
   if(w.side !== 'BUY') return null;
+  if(whaleIsHedge(w)) return { score:null, ok:false, hedge:true, why:'couverture (achète les 2 côtés)', parts:{} };
   const gp = globalPnlCache.get(w.wallet);
   const mi = whaleEndCache.get(w.conditionId);
   if(!gp || gp.loading || !mi) return null; // analyse pas encore finie
@@ -2123,19 +2249,19 @@ function whaleLoadTargets(){ return whaleRecoLevel() ? whalePool() : whaleVisibl
 function whaleVisibleRows(){
   const level = whaleRecoLevel();
   if(level){
-    return whalePool()
+    return whaleCap(whalePool()
       .map(w => ({ w, r: whaleRecoScore(w) }))
       .filter(x => x.r && x.r.ok && x.r.score >= level)
       .sort((a,b) => b.r.score - a.r.score)
-      .map(x => x.w).slice(0, 50);
+      .map(x => x.w));
   }
   const side = document.getElementById('whaleSide').value;
   const cat = document.getElementById('whaleCat').value;
-  return whaleData.filter(w =>
+  return whaleCap(whaleData.filter(w =>
     (side==='all' || w.side===side) &&
     !whaleClosed.has(w.conditionId) &&
     (cat==='all' || whaleCatOf(w)===cat)
-  ).slice(0, 50);
+  ));
 }
 
 // Classe tous les paris (par event) quand un filtre catégorie est actif — 6 requêtes en parallèle.
@@ -2187,7 +2313,9 @@ function whaleStoreMarketInfo(id, m){
       outs.forEach((o,k)=>{ const v = parseFloat(pr[k]); if(!isNaN(v)) prices[String(o).toLowerCase()] = v; });
     }catch(e){}
   }
-  whaleEndCache.set(id, { end: m ? (m.endDate || m.endDateIso || '') : '', prices });
+  let start = '';
+  if(m) start = m.gameStartTime || m.eventStartTime || (m.sportsMarketType && m.events && m.events[0] && m.events[0].startTime) || '';
+  whaleEndCache.set(id, { end: m ? (m.endDate || m.endDateIso || '') : '', start, prices });
   if(whaleMarketIsFinished(m)) whaleClosed.add(id);
 }
 
@@ -2229,6 +2357,7 @@ async function loadWhaleEndDates(rows){
             if(ev && Array.isArray(ev.markets)){
               m = ev.markets.find(x => String(x.conditionId).toLowerCase() === String(id).toLowerCase()) || null;
               if(m && ev.closed === true && m.closed !== true) m = { ...m, closed: true };
+              if(m && !m.events) m = { ...m, events: [ev] };
             }
           }
         }catch(e){}
@@ -2248,7 +2377,7 @@ async function loadWhaleEndDates(rows){
 
 async function fetchWhaleTrades(minUsd){
   const since = Math.floor(Date.now()/1000) - 24*3600;
-  const limit = 500, maxPages = 12;
+  const limit = 500, maxPages = 20;
   let all = [];
   for(let page=0; page<maxPages; page++){
     const url = `${DATA}/trades?limit=${limit}&offset=${page*limit}&filterType=CASH&filterAmount=${minUsd}`;
@@ -2306,7 +2435,7 @@ function renderWhales(skipEnd){
   }
   document.getElementById('whaleCount').textContent = recoLevel
     ? (rows.length || poolN ? `${rows.length} recommandés sur ${poolN} gros achats analysés${pending ? ` · analyse en cours (${pending} restants)…` : ''}` : '')
-    : (rows.length ? `${rows.length} paris · marchés terminés masqués${catFilter!=='all' && whaleCatLoading ? ' · classement en cours…' : ''}` : '');
+    : (rows.length ? `${whaleGrouped() ? new Set(rows.map(r=>r.conditionId)).size+' marchés · '+rows.length+' paris' : rows.length+' paris'} · marchés terminés masqués${catFilter!=='all' && whaleCatLoading ? ' · classement en cours…' : ''}` : '');
   if(!rows.length){
     body.innerHTML = (recoLevel && (pending || !poolN))
       ? '<tr><td colspan="8"><div class="loading">Analyse des wallets et des prix en cours…</div></td></tr>'
@@ -2319,7 +2448,8 @@ function renderWhales(skipEnd){
     }
     return;
   }
-  body.innerHTML = rows.map((w,i)=>{
+  const betRow = (w, label, opts) => {
+    opts = opts || {};
     const isYes = w.outcome.toLowerCase().startsWith('y');
     const sideCls = w.side==='BUY' ? 'up' : 'down';
     const avg = w.shares ? w.usd/w.shares : 0;
@@ -2353,17 +2483,19 @@ function renderWhales(skipEnd){
     }
     const watched = isWatched(w.wallet);
     const mkt = w.slug ? `<a class="mlink" href="https://polymarket.com/event/${encodeURIComponent(w.slug)}" target="_blank" rel="noopener"><span class="q">${escapeHtml(w.title)}</span></a>` : escapeHtml(w.title);
-    return `<tr>
-      <td class="num" style="text-align:left;color:var(--ink-dim);">#${i+1}</td>
+    const fl = opts.fillsLabel !== undefined ? opts.fillsLabel : (w.fills>1 ? w.fills+' fills' : '');
+    return `<tr${opts.sub?' class="wh-sub"':''}>
+      <td class="num" style="text-align:left;color:var(--ink-dim);">${label}</td>
       <td class="q" style="white-space:normal;min-width:220px;">${mkt}${whaleCatOf(w) ? `<div style="color:var(--ink-dim);font-size:10.5px;">${escapeHtml(whaleCatOf(w))}</div>` : ''}</td>
-      <td style="white-space:nowrap;"><span class="trend ${sideCls}" style="font-weight:600;">${w.side==='BUY'?'ACHAT':'VENTE'}</span> <span class="chip ${isYes?'yes':'no'}">${escapeHtml(w.outcome)}</span>${w.fills>1?` <span style="color:var(--ink-dim);font-size:11px;">${w.fills} fills</span>`:''}${(()=>{
+      <td style="white-space:nowrap;"><span class="trend ${sideCls}" style="font-weight:600;">${w.side==='BUY'?'ACHAT':'VENTE'}</span> <span class="chip ${isYes?'yes':'no'}">${escapeHtml(w.outcome)}</span>${fl?` <span style="color:var(--ink-dim);font-size:11px;">${fl}</span>`:''}${(()=>{
         const r = whaleRecoScore(w);
+        if(r && r.hedge) return '<div style="font-size:10.5px;color:var(--gold);font-weight:600;" title="Ce wallet achète les deux côtés du marché (market making / arbitrage) : pari non directionnel, exclu du score Reco et du consensus">⇄ Couverture</div>';
         if(!r) return w.side==='BUY' ? '<div style="font-size:10.5px;color:var(--ink-dim);">Reco…</div>' : '';
         if(r.score === null) return '<div style="font-size:10.5px;color:var(--ink-dim);">Reco —</div>';
         const col = !r.ok ? 'var(--ink-dim)' : (r.score>=75 ? 'var(--up)' : (r.score>=60 ? 'var(--gold)' : 'var(--ink-dim)'));
         const det = Object.entries(r.parts).map(([k,v])=>k+' '+Math.round(v)).join(' · ') + (r.consensus ? ` · ${r.consensus.wallets} wallet(s) du même côté, ${Math.round(r.consensus.share*100)}% du $ du marché` : '') + (r.ok ? '' : ' — exclu : ' + r.why);
         return `<div style="font-size:10.5px;color:${col};font-weight:600;" title="${escapeHtml(det)}">${r.ok ? (r.score>=75?'🔥':(r.score>=60?'⭐':'')) : '⚠'} Reco ${r.score}/100</div>`;
-      })()}</td>
+      })()}${opts.extra||''}</td>
       <td class="num">${(avg*100).toFixed(1)}¢${curCell}</td>
       <td class="num" style="color:var(--gold);font-weight:600;">${fmtUsd(w.usd)}</td>
       <td style="min-width:200px;">
@@ -2373,9 +2505,10 @@ function renderWhales(skipEnd){
         ${prof}
       </td>
       <td class="num" style="white-space:nowrap;" title="${new Date(w.lastTs*1000).toLocaleString('fr-FR')}">${new Date(w.lastTs*1000).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}<div style="color:var(--ink-dim);font-size:10.5px;">${timeAgoLabel(w.lastTs)}</div></td>
-      <td class="num" style="white-space:nowrap;">${fmtEndDate((whaleEndCache.get(w.conditionId)||{}).end)}</td>
+      <td class="num" style="white-space:nowrap;">${whaleStatusBadge(w.conditionId)}${fmtEndDate((whaleEndCache.get(w.conditionId)||{}).end)}</td>
     </tr>`;
-  }).join('');
+  };
+  body.innerHTML = whaleGrouped() ? whaleGroupedHtml(rows, betRow) : rows.map((w,i)=>betRow(w, '#'+(i+1), {})).join('');
   if(!skipEnd){
     const targets = recoLevel ? whalePool() : rows;
     loadWhaleEndDates(targets); loadWhaleProfiles(targets);
@@ -2413,7 +2546,15 @@ document.getElementById('whaleMin').addEventListener('change', ()=>{ whaleData =
 document.getElementById('whaleSide').addEventListener('change', ()=>renderWhales());
 document.getElementById('whaleCat').addEventListener('change', ()=>renderWhales());
 document.getElementById('whaleReco').addEventListener('change', ()=>renderWhales());
+document.getElementById('whaleGroup').addEventListener('change', ()=>renderWhales());
 document.getElementById('whaleBody').addEventListener('click', e=>{
+  const x = e.target.closest('button.wh-expand');
+  if(x){
+    const cid = x.dataset.cid;
+    if(whaleExpanded.has(cid)) whaleExpanded.delete(cid); else whaleExpanded.add(cid);
+    renderWhales(true);
+    return;
+  }
   const b = e.target.closest('button.wh-star');
   if(!b) return;
   togglePinWallet(b.dataset.wallet, b.dataset.name);
