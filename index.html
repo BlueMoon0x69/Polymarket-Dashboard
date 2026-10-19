@@ -1052,8 +1052,12 @@ tr.wh-sub td:first-child{padding-left:18px;}
       <h3>🕘 Activité des wallets suivis</h3>
       <button class="modal-close" id="activityModalClose">✕</button>
     </div>
+    <div class="modal-sub" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+      <button class="live-feed-toggle active" id="activityTabLog" style="margin-left:0;">📜 Journal</button>
+      <button class="live-feed-toggle" id="activityTabSel" style="margin-left:0;" title="Trades des 24 dernières heures regroupés par marché, classés par score de copie">🎯 Sélection</button>
+    </div>
     <div class="modal-sub" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-      <span>Historique des trades taker détectés sur tes wallets ⭐ suivis, conservé localement — consultable à tout moment, même après avoir fermé les toasts.</span>
+      <span id="activitySubText">Historique des trades taker détectés sur tes wallets ⭐ suivis, conservé localement — consultable à tout moment, même après avoir fermé les toasts.</span>
       <button class="live-feed-toggle" id="activityClearBtn" style="margin-left:0;flex:none;" title="Effacer tout l'historique">🗑 Vider l'historique</button>
     </div>
     <div class="modal-list" id="activityModalList"></div>
@@ -3626,6 +3630,7 @@ function logWatchActivity(wallet, name, trade){
     title: trade.title || 'Marché Polymarket',
     outcome: trade.outcome || '',
     price: parseFloat(trade.price) || 0,
+    cond: trade.conditionId || '', slug: trade.slug || '', side: trade.side || '',
     usd, url,
     ts: trade.timestamp ? trade.timestamp * 1000 : Date.now()
   });
@@ -3654,7 +3659,9 @@ function renderWatchActivityButton(){
   btn.classList.toggle('unread', unread > 0);
 }
 
+let activityView = 'log'; // 'log' | 'sel'
 function renderActivityModalList(){
+  if(activityView === 'sel'){ renderActivitySelection(); return; }
   const list = document.getElementById('activityModalList');
   if(!watchActivityLog.length){
     list.innerHTML = '<div class="empty">Aucune activité enregistrée pour l\'instant — active "🔔 Alertes copie" pour commencer à journaliser les trades de tes wallets suivis.</div>';
@@ -3675,6 +3682,106 @@ function renderActivityModalList(){
       </div>`;
   }).join('');
 }
+
+/* ---- Sélection : trades des 24h regroupés par marché/côté, classés par score de copie ---- */
+const SEL_WINDOW_MS = 24 * 3600000;
+let selRenderToken = 0;
+
+function buildActivityGroups(){
+  const since = Date.now() - SEL_WINDOW_MS;
+  const groups = new Map();
+  watchActivityLog.forEach(a=>{
+    if(a.ts < since || a.side === 'SELL' || !a.price) return;
+    const key = (a.cond || a.title) + '|' + String(a.outcome).toLowerCase();
+    const g = groups.get(key) || { cond:a.cond, slug:a.slug, title:a.title, outcome:a.outcome, url:a.url,
+      usd:0, shares:0, wallets:new Map(), last:0, n:0 };
+    g.usd += a.usd; g.shares += a.usd / a.price; g.n++;
+    g.wallets.set(a.wallet, a.name || shortAddr(a.wallet));
+    g.last = Math.max(g.last, a.ts);
+    if(!g.cond && a.cond) g.cond = a.cond;
+    groups.set(key, g);
+  });
+  return [...groups.values()];
+}
+
+function scoreActivityGroup(g){
+  const clamp = (x,a,b)=>Math.max(a,Math.min(b,x));
+  const avg = g.shares ? g.usd / g.shares : 0;
+  const mi = g.cond ? whaleEndCache.get(g.cond) : null;
+  const cur = mi && mi.prices ? mi.prices[String(g.outcome).toLowerCase()] : undefined;
+  const closed = g.cond ? whaleClosed.has(g.cond) : false;
+  const gap = cur !== undefined ? cur - avg : null;
+  const ref = cur !== undefined ? cur : avg;
+  const ageH = (Date.now() - g.last) / 3600000;
+  const parts = {};
+  parts['Consensus'] = Math.min(g.wallets.size, 3) / 3 * 30;
+  parts['Taille'] = clamp(Math.log10(Math.max(g.usd,1)/100) / Math.log10(50), 0, 1) * 20;
+  parts['Prix accessible'] = gap === null ? 0 : (gap <= 0.02 ? 25 : clamp(1 - (gap-0.02)/0.13, 0, 1) * 25);
+  parts['Zone de prix'] = (ref>=0.10 && ref<=0.85) ? 15 : ((ref>=0.05 && ref<0.10) || (ref>0.85 && ref<=0.92)) ? 7 : 0;
+  parts['Fraîcheur'] = ageH <= 2 ? 10 : ageH <= 12 ? 6 : 3;
+  const score = Math.round(Object.values(parts).reduce((a,b)=>a+b,0));
+  const fails = [];
+  if(closed) fails.push('marché terminé');
+  if(cur === undefined) fails.push('prix actuel inconnu');
+  else if(gap > 0.15) fails.push(`prix déjà +${Math.round(gap*100)}¢ au-dessus`);
+  if(ref < 0.05 || ref > 0.92) fails.push('prix hors zone');
+  return { score, ok: fails.length === 0, why: fails.join(', '), avg, cur, gap, parts };
+}
+
+async function renderActivitySelection(){
+  const list = document.getElementById('activityModalList');
+  const token = ++selRenderToken;
+  const groups = buildActivityGroups();
+  if(!groups.length){
+    list.innerHTML = '<div class="empty">Aucun trade d\'achat détecté sur les dernières 24h. Active « 🔔 Alertes copie » : la sélection se construit à partir des trades détectés.</div>';
+    return;
+  }
+  list.innerHTML = '<div class="loading">Récupération des prix actuels…</div>';
+  const rows = groups.filter(g=>g.cond).map(g=>({ conditionId:g.cond, slug:g.slug }));
+  try{ await loadWhaleEndDates(rows); }catch(e){ /* prix inconnus : les lignes seront exclues */ }
+  if(token !== selRenderToken || activityView !== 'sel') return; // vue changée entre-temps
+  const ranked = groups.map(g=>({ g, r: scoreActivityGroup(g) }));
+  const picks = ranked.filter(x=>x.r.ok).sort((a,b)=> b.r.score - a.r.score);
+  const excluded = ranked.filter(x=>!x.r.ok);
+  const cents = v => (v*100).toFixed(1) + '¢';
+  const row = ({g,r}, dim)=>{
+    const isYes = String(g.outcome).toLowerCase().startsWith('y');
+    const names = [...g.wallets.values()].map(escapeHtml).join(', ');
+    const priceTxt = r.cur !== undefined ? `${cents(r.avg)} → ${cents(r.cur)}` : cents(r.avg);
+    const tip = Object.entries(r.parts).map(([k,v])=>`${k} ${v.toFixed(0)}`).join(' · ');
+    return `
+      <div class="activity-row" style="${dim ? 'opacity:.55;' : ''}">
+        <span class="ar-time" title="${escapeHtml(tip)}" style="color:${dim ? 'var(--ink-dim)' : 'var(--gold)'};font-weight:700;font-size:13px;">${dim ? '—' : r.score}</span>
+        <div class="ar-body">
+          <span class="ar-who">⭐ ${names}${g.wallets.size > 1 ? ` · ${g.wallets.size} wallets` : ''}</span>
+          <div class="ar-title"><a href="${g.url}" target="_blank" rel="noopener">${escapeHtml(g.title)}</a></div>
+          ${dim ? `<div style="font-size:10.5px;color:var(--ink-dim);">${escapeHtml(r.why)}</div>` : ''}
+        </div>
+        <span class="chip ${isYes ? 'yes' : 'no'}">${escapeHtml(g.outcome)} ${priceTxt}</span>
+        <div class="ar-stats"><b>${fmtUsd(g.usd)}</b>${timeAgoLabel(Math.floor(g.last/1000))}</div>
+      </div>`;
+  };
+  let html = picks.length
+    ? picks.map(x=>row(x,false)).join('')
+    : '<div class="empty">Aucun trade ne passe les filtres pour l\'instant (marché terminé, prix déjà parti ou hors zone).</div>';
+  if(excluded.length){
+    html += `<div style="font-size:10.5px;color:var(--ink-dim);margin:10px 0 6px;">${excluded.length} exclu${excluded.length>1?'s':''}</div>`
+          + excluded.map(x=>row(x,true)).join('');
+  }
+  list.innerHTML = html;
+}
+
+function setActivityView(v){
+  activityView = v;
+  document.getElementById('activityTabLog').classList.toggle('active', v === 'log');
+  document.getElementById('activityTabSel').classList.toggle('active', v === 'sel');
+  document.getElementById('activitySubText').textContent = v === 'sel'
+    ? 'Achats des 24 dernières heures sur tes wallets suivis, regroupés par marché et classés (consensus, taille, prix encore accessible, zone de prix, fraîcheur). Survole le score pour le détail.'
+    : 'Historique des trades taker détectés sur tes wallets ⭐ suivis, conservé localement — consultable à tout moment, même après avoir fermé les toasts.';
+  renderActivityModalList();
+}
+document.getElementById('activityTabLog').addEventListener('click', ()=> setActivityView('log'));
+document.getElementById('activityTabSel').addEventListener('click', ()=> setActivityView('sel'));
 
 function openActivityModal(){
   document.getElementById('activityModalOverlay').style.display = 'flex';
