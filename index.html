@@ -431,6 +431,107 @@
   }
   .wr-copy:hover{border-color:var(--gold); color:var(--gold);}
   .wr-copy.copied{border-color:var(--up); color:var(--up);}
+  /* ---- Whale Bets : mise en page ---- */
+  .wh-wrap{max-width:1480px; margin:0 auto; padding:20px 24px 32px; display:flex; flex-direction:column; gap:16px;}
+  .wh-top{display:flex; justify-content:space-between; align-items:flex-end; gap:16px; flex-wrap:wrap;}
+  .wh-back{margin-bottom:10px;}
+  .wh-h{margin:0; font-family:'Space Grotesk',sans-serif; font-size:24px; letter-spacing:-0.01em; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap;}
+  .wh-h-sub{font-size:13px; font-weight:500; color:var(--ink-dim); letter-spacing:0;}
+  .wh-p{margin:6px 0 0; font-size:12px; color:var(--ink-dim); max-width:760px; line-height:1.55;}
+  .wh-top-r{display:flex; align-items:center; gap:12px;}
+  .wh-top-r #whaleCount{font-size:11.5px; color:var(--ink-dim);}
+  .wh-kpis{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:10px;}
+  @media (max-width:1000px){ .wh-kpis{grid-template-columns:repeat(2,minmax(0,1fr));} }
+  .wh-kpi{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:12px 14px; min-width:0;}
+  .wh-kpi .k-l{font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--ink-dim);}
+  .wh-kpi .k-v{font-family:'Space Grotesk',sans-serif; font-size:22px; font-weight:700; margin-top:3px;}
+  .wh-kpi .k-s{font-size:10.5px; color:var(--ink-dim); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .wh-split{display:flex; height:6px; border-radius:3px; overflow:hidden; margin-top:8px; background:var(--surface-2);}
+  .wh-split i{display:block; height:100%;}
+  .wh-split .b{background:var(--up);} .wh-split .s{background:var(--down);}
+  .wh-toolbar{display:flex; align-items:flex-end; gap:18px 26px; flex-wrap:wrap; padding:12px 16px;}
+  .wh-field{display:flex; flex-direction:column; gap:5px;}
+  .wh-lab{font-size:9.5px; text-transform:uppercase; letter-spacing:0.12em; color:var(--ink-dim);}
+  .wh-seg{display:inline-flex; border:1px solid var(--line); border-radius:6px; overflow:hidden;}
+  .wh-seg button{background:var(--surface-2); border:none; border-right:1px solid var(--line); border-radius:0; color:var(--ink-dim); font-size:11.5px; padding:7px 12px; cursor:pointer; text-transform:none; letter-spacing:0; font-weight:500;}
+  .wh-seg button:last-child{border-right:none;}
+  .wh-seg button:hover{color:var(--ink);}
+  .wh-seg button.on{background:var(--gold); color:var(--on-gold); font-weight:700;}
+  .wh-group-toggle{font-size:12px; color:var(--ink); cursor:pointer;}
+  .wh-group-toggle > span:last-child{padding:7px 0; display:flex; align-items:center; gap:6px;}
+  .wh-table-card{padding:6px 8px 10px;}
+  .wh-wal>span:first-child{max-width:230px; overflow-wrap:anywhere; word-break:break-all;}
+  .wh-table td:last-child,.wh-table th:last-child{white-space:nowrap; padding-right:16px;}
+  .wh-table thead th{position:sticky; top:0; background:var(--surface); z-index:1; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-dim); padding:12px 12px; border-bottom:1px solid var(--line); white-space:nowrap; cursor:default;}
+  .wh-table tbody td{padding:12px 12px; vertical-align:top;}
+  .wh-table tbody tr{border-bottom:1px solid var(--line);}
+  .wh-table tbody tr:last-child{border-bottom:none;}
+  .wh-table tbody tr.wh-buy td:first-child{box-shadow:inset 3px 0 0 var(--up);}
+  .wh-table tbody tr.wh-sell td:first-child{box-shadow:inset 3px 0 0 var(--down);}
+  .wh-table tbody tr.wh-sub{background:var(--surface-2);}
+  .wh-table tbody tr.wh-sub td{padding-top:8px; padding-bottom:8px; font-size:11.5px;}
+  .wh-rank{display:inline-flex; align-items:center; justify-content:center; min-width:28px; height:24px; padding:0 6px; border-radius:12px; background:var(--surface-2); color:var(--ink-dim); font-family:'JetBrains Mono',monospace; font-size:11px;}
+  tr:first-child > td > .wh-rank{background:var(--gold); color:var(--on-gold); font-weight:700;}
+  .wh-cat{display:inline-block; margin-top:5px; padding:1px 7px; border-radius:9px; background:var(--surface-2); border:1px solid var(--line); color:var(--ink-dim); font-size:10px;}
+  .wh-table td.wh-amt{position:relative; white-space:nowrap; min-width:110px;}
+  .wh-table td.wh-amt::before{content:""; position:absolute; bottom:8px; right:12px; height:4px; width:calc((100% - 24px) * var(--w,0) / 100%); background:var(--gold); opacity:.55; border-radius:2px; pointer-events:none;}
+  .wh-table td.wh-amt b{position:relative; font-family:'Space Grotesk',sans-serif; font-size:15px; color:var(--gold);}
+  .wh-wal{display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-weight:600;}
+  .wh-wal-sub{margin-top:5px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .wh-table .q a.mlink{font-size:13px; font-weight:500; line-height:1.4;}
+  /* ---- Onglet Wallets suivis ---- */
+  .tab-badge{display:inline-block; min-width:16px; padding:0 5px; margin-left:6px; border-radius:9px; background:var(--accent-y2); color:#161200; font-size:10px; line-height:16px; text-align:center; font-weight:700;}
+  .wl-wrap{max-width:1200px; margin:0 auto; padding:20px 24px 32px; display:flex; flex-direction:column; gap:18px;}
+  .wl-card{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:16px 18px;}
+  .wl-head{display:flex; align-items:center; justify-content:space-between; gap:10px 18px; flex-wrap:wrap; margin-bottom:14px;}
+  .wl-title{font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; letter-spacing:0.02em;}
+  .wl-title #watchlistCount, .wl-sub-n{color:var(--ink-dim); font-weight:500; font-size:12px; margin-left:4px;}
+  .wl-controls{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  #tab-watch .watchlist-list{display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:10px; justify-content:stretch;}
+  #tab-watch .watch-chip.wc-card{max-width:none; min-width:0; background:var(--surface-2); border-radius:8px; padding:10px 12px;}
+  #tab-watch .watchlist-empty{grid-column:1/-1; text-align:center; padding:14px 0;}
+  /* KPIs */
+  .act-kpis{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-bottom:14px;}
+  @media (max-width:800px){ .act-kpis{grid-template-columns:repeat(2,minmax(0,1fr));} }
+  .act-kpi{background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:10px 12px;}
+  .act-kpi .k-l{font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:var(--ink-dim);}
+  .act-kpi .k-v{font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:700; margin-top:2px;}
+  .act-kpi .k-s{font-size:10.5px; color:var(--ink-dim); margin-top:1px;}
+  .act-filters{display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin-bottom:6px;}
+  .act-filters .sep{width:1px; height:18px; background:var(--line); margin:0 6px;}
+  .act-sub{font-size:11px; color:var(--ink-dim); margin:2px 0 12px; line-height:1.5;}
+  /* Journal : cartes groupées par jour */
+  .act-day{display:flex; align-items:center; gap:10px; font-size:10.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-dim); margin:18px 0 8px;}
+  .act-day::after{content:""; flex:1; height:1px; background:var(--line);}
+  .act-day b{color:var(--ink); font-weight:600;}
+  .act-card{display:grid; grid-template-columns:38px minmax(0,1fr) auto auto; align-items:center; gap:4px 14px; padding:10px 14px; margin-bottom:8px; background:var(--surface-2); border:1px solid var(--line); border-left:3px solid var(--line); border-radius:8px; transition:border-color .15s ease, transform .15s ease;}
+  .act-card:hover{border-color:var(--gold); transform:translateX(2px);}
+  .act-card.buy{border-left-color:var(--up);}
+  .act-card.sell{border-left-color:var(--down);}
+  .act-card.is-new{background:linear-gradient(90deg, rgba(232,201,74,0.10), transparent 60%), var(--surface-2);}
+  .act-av{width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:13px; color:#fff; flex:none;}
+  .act-main{min-width:0;}
+  .act-who{font-size:12px; font-weight:600; color:var(--ink); display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
+  .act-who .act-ago{font-weight:400; color:var(--ink-dim); font-size:10.5px;}
+  .act-new-dot{width:7px; height:7px; border-radius:50%; background:var(--accent-y2); display:inline-block;}
+  .act-title{font-size:13px; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .act-title a{color:var(--ink); text-decoration:none;}
+  .act-title a:hover{color:var(--gold);}
+  .act-side{font-size:10px; font-weight:700; letter-spacing:0.08em; padding:2px 7px; border-radius:4px;}
+  .act-side.buy{background:rgba(63,191,127,0.14); color:var(--up);}
+  .act-side.sell{background:rgba(229,72,77,0.14); color:var(--down);}
+  .act-bet{display:flex; align-items:center; gap:8px; justify-content:flex-end;}
+  .act-amt{text-align:right; min-width:80px;}
+  .act-amt b{display:block; font-family:'Space Grotesk',sans-serif; font-size:15px; color:var(--gold);}
+  .act-amt span{font-size:10.5px; color:var(--ink-dim);}
+  /* Sélection : score en pastille */
+  .act-card.sel{grid-template-columns:46px minmax(0,1fr) auto auto;}
+  .act-score{width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px; border:2px solid var(--gold); color:var(--gold);}
+  .act-score.hi{border-color:var(--up); color:var(--up);}
+  .act-score.dim{border-color:var(--line); color:var(--ink-dim);}
+  .act-card.dim{opacity:.55;}
+  .act-why{font-size:10.5px; color:var(--ink-dim); margin-top:2px;}
+  @media (max-width:760px){ .act-card, .act-card.sel{grid-template-columns:38px minmax(0,1fr);} .act-bet,.act-amt{grid-column:2; justify-content:flex-start; text-align:left;} }
   .activity-row{
     display:flex; align-items:center; gap:10px;
     padding:9px 10px; border-radius:6px; margin-bottom:6px;
@@ -795,8 +896,9 @@ tr.wh-sub td:first-child{padding-left:18px;}
   </div>
   <div class="wallet-row">
     <button class="tab-btn hdr-tab active" data-tab="dashboard">Marchés tendance</button>
-    <button class="tab-btn hdr-tab" data-tab="whales" id="whalesTabBtn" style="display:none">🐋 Whale Bets 24h</button>
+    <button class="tab-btn hdr-tab" data-tab="whales" id="whalesTabBtn">🐋 Whale Bets 24h</button>
     <button class="tab-btn hdr-tab" data-tab="portfolio">💼 Mon portefeuille</button>
+    <button class="tab-btn hdr-tab" data-tab="watch" id="watchTabBtn">⭐ Wallets suivis <span class="tab-badge" id="watchTabBadge" style="display:none"></span></button>
     <button class="alert-toggle" id="alertCenterBtn" title="Centre d'alertes : toutes les alertes au même endroit + historique commun">🔔 Centre d'alertes <span id="alertCenterCount">(0)</span></button>
     <button class="alert-toggle" id="themeToggleBtn" title="Changer de thème">🌙</button>
     <span class="api-health api-unknown" id="apiHealthIndicator" title="État des API Polymarket (Gamma + Data) utilisées par ce dashboard">● API : —</span>
@@ -806,29 +908,6 @@ tr.wh-sub td:first-child{padding-left:18px;}
     </span>
   </div>
 </header>
-
-<div class="watchlist-bar" id="watchlistBar">
-  <div class="watchlist-head">
-    <span class="watchlist-title">⭐ Wallets suivis <span id="watchlistCount">(0)</span>
-      <button class="live-feed-toggle" id="watchlistCollapseBtn" style="margin-left:8px;" title="Replier / déplier la liste">▾</button>
-    </span>
-    <div class="watchlist-controls">
-      <form class="watchlist-add-form" id="watchlistAddForm">
-        <input type="text" id="watchlistAddAddress" placeholder="0x… adresse wallet" title="Adresse du wallet à suivre (0x...)" autocomplete="off">
-        <input type="text" id="watchlistAddName" placeholder="Nom (optionnel)" title="Nom/pseudo affiché (optionnel)" autocomplete="off">
-        <button type="submit" title="Ajouter ce wallet à la watchlist">＋ Ajouter</button>
-      </form>
-      <label class="watchlist-interval">Vérif toutes les
-        <input type="number" id="watchAlertIntervalInput" min="1" step="1" value="2" title="Intervalle de vérification des nouveaux trades des wallets suivis (minutes)"> min
-      </label>
-      <button class="alert-toggle" id="watchAlertToggleBtn" title="Poll les trades taker des wallets suivis et notifie (son + toast + notif navigateur) dès qu'ils prennent une nouvelle position, pour copier en quasi temps réel.">🔔 Alertes copie : OFF</button>
-      <button class="alert-toggle" id="watchActivityBtn" title="Consulter l'historique des trades détectés sur tes wallets suivis">🕘 Activité <span id="watchActivityCount">(0)</span></button>
-    </div>
-  </div>
-  <div class="watchlist-list" id="watchlistList">
-    <span class="watchlist-empty">Épingle des wallets ⭐ depuis la liste des wallets d'un marché (bouton 👥), ou ajoute une adresse directement ci-dessus, pour les suivre ici et être alerté de leurs nouveaux trades.</span>
-  </div>
-</div>
 
 <div class="tab-panel active" id="tab-dashboard">
 <main class="mk-layout">
@@ -848,9 +927,6 @@ tr.wh-sub td:first-child{padding-left:18px;}
     <div class="mk-side-h">Groupe</div>
     <button class="mk-side-b on" data-sf="volume24hr">🔥 Tendance</button>
     <button class="mk-side-b" data-sf="new">🆕 Récents</button>
-    <div class="mk-side-h">Filtres</div>
-    <button class="mk-side-b" id="mkOnlyStrong" title="N'afficher que les marchés 🚀 wV fort">🚀 wV fort seulement</button>
-    <button class="mk-side-b" id="mkWhales" title="Plus gros paris des dernières 24h">🐋 Whale Bets 24h</button>
   </aside>
   <section>
     <div class="panel-title">
@@ -969,24 +1045,40 @@ tr.wh-sub td:first-child{padding-left:18px;}
 </div>
 
 <div class="tab-panel" id="tab-whales">
-<div class="rebate-section" style="max-width:1480px; margin:0 auto; border-bottom:none;">
-  <div style="margin-bottom:10px;"><button class="ghost" onclick="document.querySelector('.tab-btn[data-tab=dashboard]').click()">← Marchés</button></div>
-  <div class="panel-title">🐋 Biggest Whale Bets Last 24 Hours <span class="fresh-badge" id="freshWhales"></span></div>
-  <div class="panel-sub">Plus gros paris Polymarket des dernières 24h, tous marchés confondus. Les fills d'un même wallet sur un même marché/côté sont regroupés. Le seuil s'applique à chaque fill.</div>
-  <div class="filter-row" style="margin-top:8px;">
-    <select id="whaleMin" class="cat-select" title="Seuil minimum par fill">
-      <option value="2000">Fill ≥ $2K</option>
-      <option value="5000" selected>Fill ≥ $5K</option>
-      <option value="10000">Fill ≥ $10K</option>
-      <option value="25000">Fill ≥ $25K</option>
-      <option value="50000">Fill ≥ $50K</option>
-    </select>
-    <select id="whaleSide" class="cat-select" title="Filtrer par sens">
-      <option value="all">Achats + ventes</option>
-      <option value="BUY">Achats seulement</option>
-      <option value="SELL">Ventes seulement</option>
-    </select>
-    <select id="whaleCat" class="cat-select" title="Filtrer par catégorie">
+<div class="wh-wrap">
+
+  <div class="wh-top">
+    <div>
+      <button class="ghost wh-back" onclick="document.querySelector('.tab-btn[data-tab=dashboard]').click()">← Marchés</button>
+      <h2 class="wh-h">🐋 Biggest Whale Bets <span class="wh-h-sub">dernières 24 h</span> <span class="fresh-badge" id="freshWhales"></span></h2>
+      <p class="wh-p">Plus gros paris Polymarket, tous marchés confondus. Les fills d'un même wallet sur un même marché/côté sont regroupés ; le seuil s'applique à chaque fill.</p>
+    </div>
+    <div class="wh-top-r">
+      <span class="num" id="whaleCount"></span>
+      <button class="ghost" id="whaleRefresh">↻ Actualiser</button>
+    </div>
+  </div>
+
+  <div class="wh-kpis" id="whaleKpis"></div>
+
+  <div class="wl-card wh-toolbar">
+    <div class="wh-field"><span class="wh-lab">Seuil par fill</span>
+      <select id="whaleMin" class="cat-select" title="Seuil minimum par fill">
+        <option value="2000">≥ $2K</option>
+        <option value="5000" selected>≥ $5K</option>
+        <option value="10000">≥ $10K</option>
+        <option value="25000">≥ $25K</option>
+        <option value="50000">≥ $50K</option>
+      </select>
+    </div>
+    <div class="wh-field"><span class="wh-lab">Sens</span>
+      <span class="wh-seg" id="whaleSideSeg">
+        <button data-v="all">Tout</button><button data-v="BUY">Achats</button><button data-v="SELL">Ventes</button>
+      </span>
+      <select id="whaleSide" class="cat-select" style="display:none"><option value="all">Achats + ventes</option><option value="BUY">Achats seulement</option><option value="SELL">Ventes seulement</option></select>
+    </div>
+    <div class="wh-field"><span class="wh-lab">Catégorie</span>
+      <select id="whaleCat" class="cat-select" title="Filtrer par catégorie">
       <option value="all">Toutes catégories</option>
       <option value="Sports">Sports</option>
       <option value="Crypto">Crypto</option>
@@ -1000,23 +1092,82 @@ tr.wh-sub td:first-child{padding-left:18px;}
       <option value="Mentions">Mentions</option>
       <option value="Other">Other</option>
     </select>
-    <select id="whaleReco" class="cat-select" title="Score composite : qualité du wallet, PnL 30j, win rate, taille, consensus, prix encore accessible, échéance">
-      <option value="0">Tous les paris</option>
-      <option value="60">⭐ Paris recommandés (score ≥ 60)</option>
-      <option value="75">🔥 Très recommandés (score ≥ 75)</option>
-    </select>
-    <label class="wh-group-toggle" title="Une ligne par marché : côté dominant, total par côté, nombre de wallets. Clique sur « ▸ N paris » pour voir le détail."><input type="checkbox" id="whaleGroup" checked> Grouper par marché</label>
-    <button class="ghost" id="whaleRefresh">↻ Actualiser</button>
-    <span class="num" id="whaleCount"></span>
+    </div>
+    <div class="wh-field"><span class="wh-lab">Recommandation</span>
+      <span class="wh-seg" id="whaleRecoSeg">
+        <button data-v="0">Tous</button><button data-v="60">⭐ ≥ 60</button><button data-v="75">🔥 ≥ 75</button>
+      </span>
+      <select id="whaleReco" class="cat-select" style="display:none" title="Score composite : qualité du wallet, PnL 30j, win rate, taille, consensus, prix encore accessible, échéance">
+        <option value="0">Tous les paris</option><option value="60">Paris recommandés (score ≥ 60)</option><option value="75">Très recommandés (score ≥ 75)</option>
+      </select>
+    </div>
+    <label class="wh-group-toggle wh-field" title="Une ligne par marché : côté dominant, total par côté, nombre de wallets. Clique sur « ▸ N paris » pour voir le détail."><span class="wh-lab">Affichage</span><span><input type="checkbox" id="whaleGroup" checked> Grouper par marché</span></label>
   </div>
-  <div style="overflow-x:auto;">
-    <table style="table-layout:auto;">
-      <thead><tr>
-        <th>#</th><th>Marché</th><th>Pari</th><th class="th-num">Prix moy. → actuel</th><th class="th-num">Montant</th><th>Wallet · qualité</th><th class="th-num">Date</th><th class="th-num">Fin du marché</th>
-      </tr></thead>
-      <tbody id="whaleBody"><tr><td colspan="8"><div class="loading">Ouvre l'onglet pour charger…</div></td></tr></tbody>
-    </table>
+
+  <div class="wl-card wh-table-card">
+    <div style="overflow-x:auto;">
+      <table class="wh-table" style="table-layout:auto;">
+        <thead><tr>
+          <th>#</th><th>Marché</th><th>Pari</th><th class="th-num">Prix moy. → actuel</th><th class="th-num">Montant</th><th>Wallet · qualité</th><th class="th-num">Date</th><th class="th-num">Fin du marché</th>
+        </tr></thead>
+        <tbody id="whaleBody"><tr><td colspan="8"><div class="loading">Ouvre l'onglet pour charger…</div></td></tr></tbody>
+      </table>
+    </div>
   </div>
+
+</div>
+</div>
+
+<div class="tab-panel" id="tab-watch">
+<div class="wl-wrap">
+
+  <section class="wl-card">
+    <div class="wl-head">
+      <div class="wl-title">⭐ Wallets suivis <span id="watchlistCount">(0)</span></div>
+      <div class="wl-controls">
+        <form class="watchlist-add-form" id="watchlistAddForm">
+          <input type="text" id="watchlistAddAddress" placeholder="0x… adresse wallet" title="Adresse du wallet à suivre (0x...)" autocomplete="off">
+          <input type="text" id="watchlistAddName" placeholder="Nom (optionnel)" title="Nom/pseudo affiché (optionnel)" autocomplete="off">
+          <button type="submit" title="Ajouter ce wallet à la watchlist">＋ Ajouter</button>
+        </form>
+        <label class="watchlist-interval">Vérif toutes les
+          <input type="number" id="watchAlertIntervalInput" min="1" step="1" value="2" title="Intervalle de vérification des nouveaux trades des wallets suivis (minutes)"> min
+        </label>
+        <button class="alert-toggle" id="watchAlertToggleBtn" title="Poll les trades taker des wallets suivis et notifie (son + toast + notif navigateur) dès qu'ils prennent une nouvelle position, pour copier en quasi temps réel.">🔔 Alertes copie : OFF</button>
+      </div>
+    </div>
+    <div class="watchlist-list" id="watchlistList">
+      <span class="watchlist-empty">Épingle des wallets ⭐ depuis la liste des wallets d'un marché (bouton 👥), ou ajoute une adresse directement ci-dessus, pour les suivre ici et être alerté de leurs nouveaux trades.</span>
+    </div>
+    <button class="live-feed-toggle" id="watchlistCollapseBtn" style="display:none;">▾</button>
+    <button class="alert-toggle" id="watchActivityBtn" style="display:none;">🕘 <span id="watchActivityCount">(0)</span></button>
+  </section>
+
+  <section class="wl-card">
+    <div class="wl-head">
+      <div class="wl-title">🎯 Sélection <span class="wl-sub-n" id="selCount"></span></div>
+      <div class="wl-controls">
+        <button class="live-feed-toggle" id="selRefreshBtn" style="margin-left:0;" title="Recalculer avec les prix actuels">↻ Actualiser</button>
+      </div>
+    </div>
+    <div class="act-sub" id="selSubText">Achats des 24 dernières heures sur tes wallets suivis, regroupés par marché et classés (consensus, taille, prix encore accessible, zone de prix, fraîcheur). Survole le score pour le détail.</div>
+    <div id="activitySelList"></div>
+  </section>
+
+  <section class="wl-card">
+    <div class="wl-head">
+      <div class="wl-title">🕘 Activité <span class="wl-sub-n" id="activityTotal"></span></div>
+      <div class="wl-controls">
+        <button class="live-feed-toggle" id="activityMarkReadBtn" style="margin-left:0;">✓ Tout marquer lu</button>
+        <button class="live-feed-toggle" id="activityClearBtn" style="margin-left:0;" title="Effacer tout l'historique">🗑 Vider</button>
+      </div>
+    </div>
+    <div class="act-kpis" id="activityKpis"></div>
+    <div class="act-filters" id="activityFilters"></div>
+    <div class="act-sub" id="activitySubText"></div>
+    <div id="activityModalList"></div>
+  </section>
+
 </div>
 </div>
 
@@ -1043,24 +1194,6 @@ tr.wh-sub td:first-child{padding-left:18px;}
       </div>
     </div>
     <div class="modal-list" id="walletModalList"><div class="loading">Chargement…</div></div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="activityModalOverlay" style="display:none;">
-  <div class="modal-box">
-    <div class="modal-head">
-      <h3>🕘 Activité des wallets suivis</h3>
-      <button class="modal-close" id="activityModalClose">✕</button>
-    </div>
-    <div class="modal-sub" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
-      <button class="live-feed-toggle active" id="activityTabLog" style="margin-left:0;">📜 Journal</button>
-      <button class="live-feed-toggle" id="activityTabSel" style="margin-left:0;" title="Trades des 24 dernières heures regroupés par marché, classés par score de copie">🎯 Sélection</button>
-    </div>
-    <div class="modal-sub" style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-      <span id="activitySubText">Historique des trades taker détectés sur tes wallets ⭐ suivis, conservé localement — consultable à tout moment, même après avoir fermé les toasts.</span>
-      <button class="live-feed-toggle" id="activityClearBtn" style="margin-left:0;flex:none;" title="Effacer tout l'historique">🗑 Vider l'historique</button>
-    </div>
-    <div class="modal-list" id="activityModalList"></div>
   </div>
 </div>
 
@@ -1904,7 +2037,6 @@ document.getElementById('marketSearch').addEventListener('input', renderMarkets)
 function syncMarketSidebar(){
   document.querySelectorAll('#mkSide [data-cat]').forEach(b=>b.classList.toggle('on', b.dataset.cat === (currentCategory || 'all')));
   document.querySelectorAll('#mkSide [data-sf]').forEach(b=>b.classList.toggle('on', b.dataset.sf === currentFilter));
-  document.getElementById('mkOnlyStrong').classList.toggle('on', mkOnlyStrong);
 }
 document.getElementById('mkSide').addEventListener('click', (e)=>{
   const b = e.target.closest('button');
@@ -2427,9 +2559,33 @@ async function loadWhaleProfiles(rows){
   await Promise.all([worker(), worker(), worker()]);
 }
 
+let whaleMaxUsd = 1;
+function renderWhaleChrome(rows){
+  // Montant max (barres) : par marché si groupé, sinon par pari.
+  const perMkt = new Map();
+  rows.forEach(r=>perMkt.set(r.conditionId, (perMkt.get(r.conditionId)||0) + r.usd));
+  whaleMaxUsd = Math.max(1, ...(whaleGrouped() ? [...perMkt.values()] : rows.map(r=>r.usd)));
+  const total = rows.reduce((t,r)=>t+r.usd, 0);
+  const buy = rows.filter(r=>r.side==='BUY').reduce((t,r)=>t+r.usd, 0);
+  const buyPct = total ? Math.round(buy/total*100) : 0;
+  const top = rows.slice().sort((a,b)=>b.usd-a.usd)[0];
+  const wallets = new Set(rows.map(r=>r.wallet)).size;
+  document.getElementById('whaleKpis').innerHTML = [
+    ['Marchés touchés', perMkt.size, `${rows.length} paris affichés`],
+    ['Volume des paris', fmtUsd(total), 'sur la sélection'],
+    ['Wallets distincts', wallets, 'baleines actives · 24h'],
+    ['Achats / ventes', `${buyPct}<span style="font-size:13px;color:var(--ink-dim);font-weight:500;"> % achats</span>`, '<div class="wh-split"><i class="b" style="width:'+buyPct+'%"></i><i class="s" style="width:'+(total?100-buyPct:0)+'%"></i></div>'],
+    ['Plus gros pari', top ? fmtUsd(top.usd) : '—', top ? escapeHtml((top.name || shortAddr(top.wallet)) + ' · ' + top.title) : 'aucun']
+  ].map(([l,v,sub])=>`<div class="wh-kpi"><div class="k-l">${l}</div><div class="k-v">${v}</div><div class="k-s">${sub}</div></div>`).join('');
+  const sv = document.getElementById('whaleSide').value, rv = document.getElementById('whaleReco').value;
+  document.querySelectorAll('#whaleSideSeg button').forEach(b=>b.classList.toggle('on', b.dataset.v === sv));
+  document.querySelectorAll('#whaleRecoSeg button').forEach(b=>b.classList.toggle('on', b.dataset.v === rv));
+}
+
 function renderWhales(skipEnd){
   const body = document.getElementById('whaleBody');
   const rows = whaleVisibleRows();
+  renderWhaleChrome(rows);
   const catFilter = document.getElementById('whaleCat').value;
   const recoLevel = whaleRecoLevel();
   let pending = 0, poolN = 0;
@@ -2488,10 +2644,11 @@ function renderWhales(skipEnd){
     const watched = isWatched(w.wallet);
     const mkt = w.slug ? `<a class="mlink" href="https://polymarket.com/event/${encodeURIComponent(w.slug)}" target="_blank" rel="noopener"><span class="q">${escapeHtml(w.title)}</span></a>` : escapeHtml(w.title);
     const fl = opts.fillsLabel !== undefined ? opts.fillsLabel : (w.fills>1 ? w.fills+' fills' : '');
-    return `<tr${opts.sub?' class="wh-sub"':''}>
-      <td class="num" style="text-align:left;color:var(--ink-dim);">${label}</td>
-      <td class="q" style="white-space:normal;min-width:220px;">${mkt}${whaleCatOf(w) ? `<div style="color:var(--ink-dim);font-size:10.5px;">${escapeHtml(whaleCatOf(w))}</div>` : ''}</td>
-      <td style="white-space:nowrap;"><span class="trend ${sideCls}" style="font-weight:600;">${w.side==='BUY'?'ACHAT':'VENTE'}</span> <span class="chip ${isYes?'yes':'no'}">${escapeHtml(w.outcome)}</span>${fl?` <span style="color:var(--ink-dim);font-size:11px;">${fl}</span>`:''}${(()=>{
+    const amtPct = Math.max(2, Math.min(100, (w.usd / (whaleMaxUsd || 1)) * 100));
+    return `<tr class="${w.side==='BUY'?'wh-buy':'wh-sell'}${opts.sub?' wh-sub':''}">
+      <td class="num" style="text-align:left;"><span class="wh-rank">${label}</span></td>
+      <td class="q" style="white-space:normal;min-width:220px;">${mkt}${whaleCatOf(w) ? `<div><span class="wh-cat">${escapeHtml(whaleCatOf(w))}</span></div>` : ''}</td>
+      <td style="white-space:nowrap;"><span class="act-side ${w.side==='BUY'?'buy':'sell'}">${w.side==='BUY'?'ACHAT':'VENTE'}</span> <span class="chip ${chipCls(w.outcome)}">${escapeHtml(w.outcome)}</span>${fl?` <span style="color:var(--ink-dim);font-size:11px;">${fl}</span>`:''}${(()=>{
         const r = whaleRecoScore(w);
         if(r && r.hedge) return '<div style="font-size:10.5px;color:var(--gold);font-weight:600;" title="Ce wallet achète les deux côtés du marché (market making / arbitrage) : pari non directionnel, exclu du score Reco et du consensus">⇄ Couverture</div>';
         if(!r) return w.side==='BUY' ? '<div style="font-size:10.5px;color:var(--ink-dim);">Reco…</div>' : '';
@@ -2501,12 +2658,12 @@ function renderWhales(skipEnd){
         return `<div style="font-size:10.5px;color:${col};font-weight:600;" title="${escapeHtml(det)}">${r.ok ? (r.score>=75?'🔥':(r.score>=60?'⭐':'')) : '⚠'} Reco ${r.score}/100</div>`;
       })()}${opts.extra||''}</td>
       <td class="num">${(avg*100).toFixed(1)}¢${curCell}</td>
-      <td class="num" style="color:var(--gold);font-weight:600;">${fmtUsd(w.usd)}</td>
-      <td style="min-width:200px;">
-        <span title="${w.wallet}">${escapeHtml(w.name || shortAddr(w.wallet))}</span>
-        <button class="wr-star wh-star ${watched?'on':''}" data-wallet="${w.wallet}" data-name="${escapeHtml(w.name||'')}" title="Suivre ce wallet">${watched?'⭐':'☆'}</button>
-        <a class="wr-copy" href="https://polymarket.com/profile/${w.wallet}" target="_blank" rel="noopener" title="Profil Polymarket">↗</a>
-        ${prof}
+      <td class="num wh-amt" style="--w:${amtPct}%;"><b>${fmtUsd(w.usd)}</b></td>
+      <td style="min-width:210px;">
+        <div class="wh-wal"><span title="${w.wallet}">${escapeHtml(w.name || shortAddr(w.wallet))}</span>
+          <button class="wr-star wh-star ${watched?'on':''}" data-wallet="${w.wallet}" data-name="${escapeHtml(w.name||'')}" title="Suivre ce wallet">${watched?'⭐':'☆'}</button>
+          <a class="wr-copy" href="https://polymarket.com/profile/${w.wallet}" target="_blank" rel="noopener" title="Profil Polymarket">↗</a></div>
+        <div class="wh-wal-sub">${prof}</div>
       </td>
       <td class="num" style="white-space:nowrap;" title="${new Date(w.lastTs*1000).toLocaleString('fr-FR')}">${new Date(w.lastTs*1000).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}<div style="color:var(--ink-dim);font-size:10.5px;">${timeAgoLabel(w.lastTs)}</div></td>
       <td class="num" style="white-space:nowrap;">${whaleStatusBadge(w.conditionId)}${fmtEndDate((whaleEndCache.get(w.conditionId)||{}).end)}</td>
@@ -2548,6 +2705,16 @@ document.querySelector('.tab-btn[data-tab="whales"]').addEventListener('click', 
 document.getElementById('whaleRefresh').addEventListener('click', ()=>{ whaleData = []; loadWhales(); });
 document.getElementById('whaleMin').addEventListener('change', ()=>{ whaleData = []; loadWhales(); });
 document.getElementById('whaleSide').addEventListener('change', ()=>renderWhales());
+['whaleSideSeg:whaleSide','whaleRecoSeg:whaleReco'].forEach(pair=>{
+  const [seg, sel] = pair.split(':');
+  document.getElementById(seg).addEventListener('click', e=>{
+    const b = e.target.closest('button[data-v]');
+    if(!b) return;
+    const el = document.getElementById(sel);
+    el.value = b.dataset.v;
+    el.dispatchEvent(new Event('change'));
+  });
+});
 document.getElementById('whaleCat').addEventListener('change', ()=>renderWhales());
 document.getElementById('whaleReco').addEventListener('change', ()=>renderWhales());
 document.getElementById('whaleGroup').addEventListener('change', ()=>renderWhales());
@@ -2988,7 +3155,7 @@ function applyWatchlistCollapsed(c){
   const b = document.getElementById('watchlistCollapseBtn');
   b.textContent = c ? '▸' : '▾';
 }
-let watchlistCollapsed = (()=>{ try{ return localStorage.getItem(WATCHLIST_COLLAPSED_KEY) === '1'; }catch(e){ return false; } })();
+let watchlistCollapsed = false;
 document.getElementById('watchlistCollapseBtn').addEventListener('click', ()=>{
   watchlistCollapsed = !watchlistCollapsed;
   try{ localStorage.setItem(WATCHLIST_COLLAPSED_KEY, watchlistCollapsed ? '1' : '0'); }catch(e){}
@@ -3637,8 +3804,8 @@ function logWatchActivity(wallet, name, trade){
   if(watchActivityLog.length > WATCH_ACTIVITY_MAX) watchActivityLog.length = WATCH_ACTIVITY_MAX;
   saveWatchActivityLog(watchActivityLog);
   renderWatchActivityButton();
-  const overlay = document.getElementById('activityModalOverlay');
-  if(overlay && overlay.style.display !== 'none') renderActivityModalList();
+  const tab = document.getElementById('tab-watch');
+  if(tab && tab.classList.contains('active')){ renderActivityModalList(); setWatchActivityLastSeen(Date.now()); renderWatchActivityButton(); }
 }
 
 function getWatchActivityLastSeen(){
@@ -3657,28 +3824,75 @@ function renderWatchActivityButton(){
   const unread = watchActivityLog.filter(a => a.ts > lastSeen).length;
   countEl.textContent = `(${watchActivityLog.length}${unread > 0 ? `, +${unread}` : ''})`;
   btn.classList.toggle('unread', unread > 0);
+  const badge = document.getElementById('watchTabBadge');
+  if(badge){ badge.textContent = unread > 99 ? '99+' : unread; badge.style.display = unread > 0 ? '' : 'none'; }
 }
 
 let activityView = 'log'; // 'log' | 'sel'
-function renderActivityModalList(){
-  if(activityView === 'sel'){ renderActivitySelection(); return; }
+let activityWalletFilter = 'all', activitySideFilter = 'all', activitySeenAtOpen = 0;
+const AV_HUES = (w)=>{ let h = 0; for(const ch of String(w)) h = (h*31 + ch.charCodeAt(0)) % 360; return h; };
+function actAvatar(name, wallet){
+  const ini = (String(name||'').replace(/^0x/i,'').replace(/[^a-zA-Z0-9]/g,'').slice(0,2) || '??').toUpperCase();
+  return `<div class="act-av" style="background:hsl(${AV_HUES(wallet)} 52% 42%)">${escapeHtml(ini)}</div>`;
+}
+function renderActivityHeader(){
+  const since = Date.now() - 24*3600000;
+  const rec = watchActivityLog.filter(a => a.ts >= since);
+  const vol = rec.reduce((t,a)=>t+a.usd, 0);
+  const buys = rec.filter(a=>a.side !== 'SELL').length, sells = rec.length - buys;
+  const wallets = new Set(rec.map(a=>a.wallet)).size;
+  const biggest = rec.slice().sort((a,b)=>b.usd-a.usd)[0];
+  document.getElementById('activityTotal').textContent = watchActivityLog.length ? `(${watchActivityLog.length} enregistrés)` : '';
+  document.getElementById('activityKpis').innerHTML = [
+    ['Trades · 24h', rec.length, `${buys} achats · ${sells} ventes`],
+    ['Wallets actifs', `${wallets}<span style="font-size:12px;color:var(--ink-dim);font-weight:500;"> / ${Object.keys(watchlist).length}</span>`, 'sur les dernières 24h'],
+    ['Volume détecté', fmtUsd(vol), 'somme des trades · 24h'],
+    ['Plus gros trade', biggest ? fmtUsd(biggest.usd) : '—', biggest ? escapeHtml(biggest.name || shortAddr(biggest.wallet)) : 'aucun pour l\'instant']
+  ].map(([l,v,sub])=>`<div class="act-kpi"><div class="k-l">${l}</div><div class="k-v">${v}</div><div class="k-s">${sub}</div></div>`).join('');
+  const f = document.getElementById('activityFilters');
+  {
+    const names = new Map();
+    watchActivityLog.forEach(a=>{ if(!names.has(a.wallet)) names.set(a.wallet, a.name || shortAddr(a.wallet)); });
+    f.innerHTML = `<button class="ac-chip ${activityWalletFilter==='all'?'on':''}" data-aw="all">Tous les wallets</button>` +
+      [...names].map(([w,n])=>`<button class="ac-chip ${activityWalletFilter===w?'on':''}" data-aw="${w}">${escapeHtml(n)}</button>`).join('') +
+      '<span class="sep"></span>' +
+      [['all','Tout'],['BUY','Achats'],['SELL','Ventes']].map(([k,l])=>`<button class="ac-chip ${activitySideFilter===k?'on':''}" data-as="${k}">${l}</button>`).join('');
+  }
+}
+function renderActivityModalList(withSel = true){
+  renderActivityHeader();
+  document.getElementById('activitySubText').textContent = 'Trades taker détectés sur tes wallets ⭐ suivis, conservés localement — consultables même après avoir fermé les toasts.';
+  if(withSel) renderActivitySelection();
   const list = document.getElementById('activityModalList');
   if(!watchActivityLog.length){
-    list.innerHTML = '<div class="empty">Aucune activité enregistrée pour l\'instant — active "🔔 Alertes copie" pour commencer à journaliser les trades de tes wallets suivis.</div>';
+    list.innerHTML = '<div class="empty">Aucune activité enregistrée pour l\'instant — active « 🔔 Alertes copie » pour commencer à journaliser les trades de tes wallets suivis.</div>';
     return;
   }
-  list.innerHTML = watchActivityLog.map(a=>{
-    const isYes = (a.outcome || '').toLowerCase().startsWith('y');
-    const outcomeChip = a.outcome ? `<span class="chip ${isYes ? 'yes' : 'no'}">${escapeHtml(a.outcome)}${a.price ? ` ${(a.price*100).toFixed(1)}¢` : ''}</span>` : '';
-    return `
-      <div class="activity-row">
-        <span class="ar-time">${timeAgoLabel(Math.floor(a.ts/1000))}</span>
-        <div class="ar-body">
-          <span class="ar-who">⭐ ${escapeHtml(a.name || shortAddr(a.wallet))}</span>
-          <div class="ar-title"><a href="${a.url}" target="_blank" rel="noopener">${escapeHtml(a.title)}</a></div>
+  const rows = watchActivityLog.filter(a =>
+    (activityWalletFilter === 'all' || a.wallet === activityWalletFilter) &&
+    (activitySideFilter === 'all' || (activitySideFilter === 'SELL') === (a.side === 'SELL')));
+  if(!rows.length){ list.innerHTML = '<div class="empty">Aucun trade ne correspond à ces filtres.</div>'; return; }
+  let lastDay = '';
+  list.innerHTML = rows.map(a=>{
+    const day = dayLabel(a.ts);
+    const head = day !== lastDay ? `<div class="act-day"><b>${escapeHtml(day)}</b></div>` : '';
+    lastDay = day;
+    const sell = a.side === 'SELL';
+    const isNew = a.ts > activitySeenAtOpen;
+    const time = new Date(a.ts).toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+    const name = a.name || shortAddr(a.wallet);
+    return head + `
+      <div class="act-card ${sell ? 'sell' : 'buy'} ${isNew ? 'is-new' : ''}">
+        ${actAvatar(name, a.wallet)}
+        <div class="act-main">
+          <div class="act-who">${isNew ? '<span class="act-new-dot" title="Nouveau"></span>' : ''}${escapeHtml(name)}<span class="act-ago">${time} · ${timeAgoLabel(Math.floor(a.ts/1000))}</span></div>
+          <div class="act-title"><a href="${a.url}" target="_blank" rel="noopener" title="${escapeHtml(a.title)}">${escapeHtml(a.title)}</a></div>
         </div>
-        ${outcomeChip}
-        <div class="ar-stats"><b>${fmtUsd(a.usd)}</b></div>
+        <div class="act-bet">
+          <span class="act-side ${sell ? 'sell' : 'buy'}">${sell ? 'VENTE' : 'ACHAT'}</span>
+          ${a.outcome ? `<span class="chip ${chipCls(a.outcome)}">${escapeHtml(a.outcome)}${a.price ? ` ${fmtCents(a.price)}` : ''}</span>` : ''}
+        </div>
+        <div class="act-amt"><b>${fmtUsd(a.usd)}</b><span>${a.price ? 'à ' + fmtCents(a.price) : ''}</span></div>
       </div>`;
   }).join('');
 }
@@ -3729,73 +3943,71 @@ function scoreActivityGroup(g){
 }
 
 async function renderActivitySelection(){
-  const list = document.getElementById('activityModalList');
+  const list = document.getElementById('activitySelList');
   const token = ++selRenderToken;
   const groups = buildActivityGroups();
   if(!groups.length){
     list.innerHTML = '<div class="empty">Aucun trade d\'achat détecté sur les dernières 24h. Active « 🔔 Alertes copie » : la sélection se construit à partir des trades détectés.</div>';
+    const sc0 = document.getElementById('selCount'); if(sc0) sc0.textContent = '';
     return;
   }
   list.innerHTML = '<div class="loading">Récupération des prix actuels…</div>';
   const rows = groups.filter(g=>g.cond).map(g=>({ conditionId:g.cond, slug:g.slug }));
   try{ await loadWhaleEndDates(rows); }catch(e){ /* prix inconnus : les lignes seront exclues */ }
-  if(token !== selRenderToken || activityView !== 'sel') return; // vue changée entre-temps
+  if(token !== selRenderToken) return; // un rendu plus récent a pris le relais
   const ranked = groups.map(g=>({ g, r: scoreActivityGroup(g) }));
   const picks = ranked.filter(x=>x.r.ok).sort((a,b)=> b.r.score - a.r.score);
   const excluded = ranked.filter(x=>!x.r.ok);
   const cents = v => (v*100).toFixed(1) + '¢';
   const row = ({g,r}, dim)=>{
-    const isYes = String(g.outcome).toLowerCase().startsWith('y');
     const names = [...g.wallets.values()].map(escapeHtml).join(', ');
-    const priceTxt = r.cur !== undefined ? `${cents(r.avg)} → ${cents(r.cur)}` : cents(r.avg);
+    const priceTxt = r.cur !== undefined ? `${fmtCents(r.avg)} → ${fmtCents(r.cur)}` : fmtCents(r.avg);
     const tip = Object.entries(r.parts).map(([k,v])=>`${k} ${v.toFixed(0)}`).join(' · ');
+    const cls = dim ? 'dim' : (r.score >= 70 ? 'hi' : '');
     return `
-      <div class="activity-row" style="${dim ? 'opacity:.55;' : ''}">
-        <span class="ar-time" title="${escapeHtml(tip)}" style="color:${dim ? 'var(--ink-dim)' : 'var(--gold)'};font-weight:700;font-size:13px;">${dim ? '—' : r.score}</span>
-        <div class="ar-body">
-          <span class="ar-who">⭐ ${names}${g.wallets.size > 1 ? ` · ${g.wallets.size} wallets` : ''}</span>
-          <div class="ar-title"><a href="${g.url}" target="_blank" rel="noopener">${escapeHtml(g.title)}</a></div>
-          ${dim ? `<div style="font-size:10.5px;color:var(--ink-dim);">${escapeHtml(r.why)}</div>` : ''}
+      <div class="act-card sel buy ${dim ? 'dim' : ''}">
+        <div class="act-score ${cls}" title="${escapeHtml(tip)}">${dim ? '—' : r.score}</div>
+        <div class="act-main">
+          <div class="act-who">⭐ ${names}${g.wallets.size > 1 ? ` · ${g.wallets.size} wallets` : ''}<span class="act-ago">${timeAgoLabel(Math.floor(g.last/1000))}</span></div>
+          <div class="act-title"><a href="${g.url}" target="_blank" rel="noopener" title="${escapeHtml(g.title)}">${escapeHtml(g.title)}</a></div>
+          ${dim ? `<div class="act-why">${escapeHtml(r.why)}</div>` : ''}
         </div>
-        <span class="chip ${isYes ? 'yes' : 'no'}">${escapeHtml(g.outcome)} ${priceTxt}</span>
-        <div class="ar-stats"><b>${fmtUsd(g.usd)}</b>${timeAgoLabel(Math.floor(g.last/1000))}</div>
+        <div class="act-bet"><span class="chip ${chipCls(g.outcome)}">${escapeHtml(g.outcome)} ${priceTxt}</span></div>
+        <div class="act-amt"><b>${fmtUsd(g.usd)}</b><span>${g.n} trade${g.n>1?'s':''}</span></div>
       </div>`;
   };
   let html = picks.length
     ? picks.map(x=>row(x,false)).join('')
     : '<div class="empty">Aucun trade ne passe les filtres pour l\'instant (marché terminé, prix déjà parti ou hors zone).</div>';
-  if(excluded.length){
-    html += `<div style="font-size:10.5px;color:var(--ink-dim);margin:10px 0 6px;">${excluded.length} exclu${excluded.length>1?'s':''}</div>`
-          + excluded.map(x=>row(x,true)).join('');
-  }
   list.innerHTML = html;
+  const sc = document.getElementById('selCount');
+  if(sc) sc.textContent = picks.length ? `(${picks.length} à copier)` : '';
 }
-
-function setActivityView(v){
-  activityView = v;
-  document.getElementById('activityTabLog').classList.toggle('active', v === 'log');
-  document.getElementById('activityTabSel').classList.toggle('active', v === 'sel');
-  document.getElementById('activitySubText').textContent = v === 'sel'
-    ? 'Achats des 24 dernières heures sur tes wallets suivis, regroupés par marché et classés (consensus, taille, prix encore accessible, zone de prix, fraîcheur). Survole le score pour le détail.'
-    : 'Historique des trades taker détectés sur tes wallets ⭐ suivis, conservé localement — consultable à tout moment, même après avoir fermé les toasts.';
-  renderActivityModalList();
-}
-document.getElementById('activityTabLog').addEventListener('click', ()=> setActivityView('log'));
-document.getElementById('activityTabSel').addEventListener('click', ()=> setActivityView('sel'));
 
 function openActivityModal(){
-  document.getElementById('activityModalOverlay').style.display = 'flex';
+  document.querySelector('.tab-btn[data-tab="watch"]').click();
+}
+document.getElementById('watchActivityBtn').addEventListener('click', openActivityModal);
+document.getElementById('watchTabBtn').addEventListener('click', ()=>{
+  activitySeenAtOpen = getWatchActivityLastSeen();
   renderActivityModalList();
   setWatchActivityLastSeen(Date.now());
   renderWatchActivityButton();
-}
-
-document.getElementById('watchActivityBtn').addEventListener('click', openActivityModal);
-document.getElementById('activityModalClose').addEventListener('click', ()=>{
-  document.getElementById('activityModalOverlay').style.display = 'none';
+  renderWatchlistBar();
 });
-document.getElementById('activityModalOverlay').addEventListener('click', (e)=>{
-  if(e.target.id === 'activityModalOverlay') e.currentTarget.style.display = 'none';
+document.getElementById('selRefreshBtn').addEventListener('click', ()=>renderActivitySelection());
+document.getElementById('activityMarkReadBtn').addEventListener('click', ()=>{
+  activitySeenAtOpen = Date.now();
+  setWatchActivityLastSeen(Date.now());
+  renderActivityModalList(false);
+  renderWatchActivityButton();
+});
+document.getElementById('activityFilters').addEventListener('click', (e)=>{
+  const b = e.target.closest('button');
+  if(!b) return;
+  if(b.dataset.aw !== undefined) activityWalletFilter = b.dataset.aw;
+  if(b.dataset.as !== undefined) activitySideFilter = b.dataset.as;
+  renderActivityModalList(false);
 });
 document.getElementById('activityClearBtn').addEventListener('click', ()=>{
   if(!watchActivityLog.length) return;
