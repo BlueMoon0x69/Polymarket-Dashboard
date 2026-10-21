@@ -2659,6 +2659,34 @@ async function loadWhaleProfiles(rows){
 }
 
 let whaleMaxUsd = 1;
+// ---- Alerte « Sélection » : nouveau pari à score élevé (activée depuis le centre d'alertes) ----
+const PICK_ALERT_MIN = 70;
+let pickAlertsEnabled = false, pickAlertBaseline = true, pickAlertSeen = new Set();
+function setPickAlertsEnabled(on){
+  pickAlertsEnabled = on; pickAlertBaseline = true; pickAlertSeen = new Set();
+  if(on && 'Notification' in window && Notification.permission === 'default'){ try{ Notification.requestPermission(); }catch(e){} }
+  if(on && whaleData.length) renderWhaleSelection();
+}
+function checkPickAlerts(picks, pending){
+  if(!pickAlertsEnabled) return;
+  const hot = picks.filter(x => x.r.score >= PICK_ALERT_MIN);
+  if(pickAlertBaseline){
+    if(pending) return; // on attend la fin de l'analyse avant de figer l'existant
+    hot.forEach(x => pickAlertSeen.add(x.w.conditionId+'|'+x.w.outcome+'|'+x.w.wallet));
+    pickAlertBaseline = false; return;
+  }
+  hot.forEach((x, i) => {
+    const k = x.w.conditionId+'|'+x.w.outcome+'|'+x.w.wallet;
+    if(pickAlertSeen.has(k)) return;
+    pickAlertSeen.add(k);
+    const w = x.w, avg = w.shares ? w.usd/w.shares : 0, who = w.name || shortAddr(w.wallet);
+    const url = w.slug ? `https://polymarket.com/event/${encodeURIComponent(w.slug)}` : `https://polymarket.com/profile/${w.wallet}`;
+    const head = `⭐ Sélection ${x.r.score}/100 · ${w.outcome} · ${fmtUsd(w.usd)}`;
+    const body = `${w.title} — ${who} @ ${(avg*100).toFixed(1)}¢`;
+    if(i < 3){ playAlertSound(); showGenericToast(head, w.title, `${who} @ ${(avg*100).toFixed(1)}¢`, url); sendGenericNotification(head, body, url); }
+    logAlert('pick', head, body, url);
+  });
+}
 function renderWhaleSelection(){
   const list = document.getElementById('whaleSelList'); if(!list) return;
   const pool = whalePool();
@@ -2669,6 +2697,7 @@ function renderWhaleSelection(){
     .sort((a,b) => b.r.score - a.r.score)
     .filter(x => { const k = x.w.conditionId + '|' + String(x.w.outcome).toLowerCase(); if(seen.has(k)) return false; seen.add(k); return true; })
     .slice(0, 6);
+  checkPickAlerts(picks, pending);
   document.getElementById('whaleSelCount').textContent = picks.length
     ? `(${picks.length} sur ${pool.length} gros achats analysés${pending ? ' · analyse en cours…' : ''})`
     : (pending ? '(analyse en cours…)' : '');
@@ -4176,6 +4205,7 @@ const ALERT_KINDS = {
   vol:   { icon:'🔥', label:'Volume' },
   watch: { icon:'⭐', label:'Watchlist' },
   whale: { icon:'🐋', label:'Whale' },
+  pick:  { icon:'⭐', label:'Sélection' },
 };
 let alertLog = (()=>{ try{ return JSON.parse(localStorage.getItem(ALERT_LOG_KEY) || '[]'); }catch(e){ return []; } })();
 
@@ -4323,6 +4353,7 @@ function alertCenterSystems(){
     { id:'watch', label:'⭐ Watchlist', on: watchAlertsEnabled, set: setWatchAlertsEnabled },
     { id:'whale', label:'🐋 Whales',    on: whaleAlertsEnabled, set: setWhaleAlertsEnabled },
     { id:'copy',  label:'🎯 Détection copie', on: copyDetectEnabled, set: setCopyDetectEnabled },
+    { id:'pick',  label:'⭐ Sélection whales', on: pickAlertsEnabled, set: setPickAlertsEnabled },
   ];
 }
 function renderAlertCenter(){
@@ -4456,7 +4487,7 @@ const ALERT_STATE_KEY = 'pc_alert_state_v1';
 function saveAlertState(){
   try{
     localStorage.setItem(ALERT_STATE_KEY, JSON.stringify({
-      wv: alertsEnabled, vol: volAlertsEnabled, watch: watchAlertsEnabled, whale: whaleAlertsEnabled, copy: copyDetectEnabled
+      wv: alertsEnabled, vol: volAlertsEnabled, watch: watchAlertsEnabled, whale: whaleAlertsEnabled, copy: copyDetectEnabled, pick: pickAlertsEnabled
     }));
   }catch(e){}
 }
@@ -4472,6 +4503,7 @@ setTimeout(function restoreAlertState(){
   if(st.watch) setWatchAlertsEnabled(true);
   if(st.whale) setWhaleAlertsEnabled(true);
   if(st.copy) setCopyDetectEnabled(true);
+  if(st.pick) setPickAlertsEnabled(true);
 }, 0);
 
 document.getElementById('whaleAlertThreshold').addEventListener('change', ()=>{
