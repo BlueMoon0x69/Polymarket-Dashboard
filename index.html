@@ -460,6 +460,8 @@
   .wh-group-toggle{font-size:12px; color:var(--ink); cursor:pointer;}
   .wh-group-toggle > span:last-child{padding:7px 0; display:flex; align-items:center; gap:6px;}
   .wh-table-card{padding:6px 8px 10px;}
+  .wh-search input{background:var(--surface-2); border:1px solid var(--line); color:var(--ink); border-radius:6px; padding:7px 10px; font-size:12px; width:210px; font-family:inherit;}
+  .wh-search input:focus{outline:none; border-color:var(--gold);}
   #whaleBody tr[data-cid]{cursor:pointer;}
   .wd-ov{position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:9000; display:none;}
   .wd-ov.open{display:block;}
@@ -1131,6 +1133,9 @@ tr.wh-sub td:first-child{padding-left:18px;}
         <option value="25000">≥ $25K</option>
         <option value="50000">≥ $50K</option>
       </select>
+    </div>
+    <div class="wh-field wh-search"><span class="wh-lab">Recherche</span>
+      <input type="search" id="whaleSearch" placeholder="Marché, wallet, issue…" autocomplete="off" spellcheck="false">
     </div>
     <div class="wh-field"><span class="wh-lab">Sens</span>
       <span class="wh-seg" id="whaleSideSeg">
@@ -2498,7 +2503,16 @@ function whaleApplySort(rows){
 function whaleVisibleRows(){
   return whaleApplySort(whaleVisibleRowsRaw());
 }
+function whaleSearchMatch(w){
+  const el = document.getElementById('whaleSearch'); const q = el ? el.value.trim().toLowerCase() : '';
+  if(!q) return true;
+  const hay = [w.title, w.name, w.wallet, w.outcome].join(' ').toLowerCase();
+  return q.split(/\s+/).every(t => hay.includes(t));
+}
 function whaleVisibleRowsRaw(){
+  return whaleVisibleRowsBase().filter(whaleSearchMatch);
+}
+function whaleVisibleRowsBase(){
   const level = whaleRecoLevel();
   if(level){
     return whaleCap(whalePool()
@@ -2949,6 +2963,7 @@ document.getElementById('whaleBody').addEventListener('click', e=>{
 });
 document.getElementById('wdOv').addEventListener('click', e=>{ if(e.target.id==='wdOv') wdClose(); });
 document.addEventListener('keydown', e=>{ if(e.key==='Escape') wdClose(); });
+{ let t; document.getElementById('whaleSearch').addEventListener('input', ()=>{ clearTimeout(t); t = setTimeout(()=>renderWhales(true), 150); }); }
 document.getElementById('whaleRefresh').addEventListener('click', ()=>{ whaleData = []; loadWhales(); });
 document.getElementById('whaleMin').addEventListener('change', ()=>{ whaleData = []; loadWhales(); });
 document.getElementById('whaleSide').addEventListener('change', ()=>renderWhales());
