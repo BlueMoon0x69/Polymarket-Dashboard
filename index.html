@@ -568,7 +568,30 @@
   .pk-foot .wh-badge{margin:0;}
   .wh-why span b{color:var(--ink);}
   .wh-why span.hot{color:var(--gold); border-color:var(--gold);}
+  .wh-match td{background:var(--surface-2); padding:9px 14px !important; font-size:12px; border-top:2px solid var(--line); white-space:normal !important;}
+  .wh-match b{font-family:'Space Grotesk',sans-serif; font-size:13.5px;}
+  .wh-match .m{color:var(--ink-dim); margin-left:10px;}
+  .wh-match .u{color:var(--gold); font-weight:700; float:right;}
+  .wh-lg{padding:5px 11px; font-size:11.5px;}
+  #whaleLeagueChips{padding:8px 14px; gap:6px;}
+  .wh-hist{padding:12px 16px;}
+  .wh-hist summary{cursor:pointer; font-family:'Space Grotesk',sans-serif; font-size:15px; font-weight:700; list-style:none; display:flex; gap:10px; align-items:baseline; flex-wrap:wrap;}
+  .wh-hist summary::-webkit-details-marker{display:none;}
+  .wh-hist summary small{font-weight:500; color:var(--ink-dim); font-size:12px; font-family:'JetBrains Mono',monospace;}
+  .hs-kpis{display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin:12px 0;}
+  .hs-k{background:var(--surface-2); border:1px solid var(--line); border-radius:8px; padding:8px 12px;}
+  .hs-k .l{font-size:9.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-dim);}
+  .hs-k .v{font-family:'Space Grotesk',sans-serif; font-size:20px; font-weight:700; margin-top:2px;}
+  .hs-k .v.up{color:var(--up);} .hs-k .v.down{color:var(--down);}
+  .hs-row{display:grid; grid-template-columns:auto 1fr auto auto; gap:12px; align-items:center; padding:7px 0; border-bottom:1px solid var(--line); font-size:12px;}
+  .hs-row .t{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .hs-st{font-size:10.5px; padding:2px 8px; border-radius:9px; font-weight:700;}
+  .hs-st.w{background:rgba(40,160,90,.15); color:var(--up);} .hs-st.l{background:rgba(220,60,60,.15); color:var(--down);} .hs-st.p{background:var(--surface-2); color:var(--ink-dim);}
+  a.wlink{color:var(--ink); text-decoration:none; border-bottom:1px dashed transparent;}
+  a.wlink:hover{color:var(--gold); border-bottom-color:var(--gold);}
+  .wh-bw .n a.wlink{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .wh-sel-empty{grid-column:1/-1; font-size:12.5px; color:var(--ink-dim); padding:6px 2px;}
+  .wh-wal>a.wlink:first-child{max-width:230px; overflow-wrap:anywhere; word-break:break-all;}
   .wh-wal>span:first-child{max-width:230px; overflow-wrap:anywhere; word-break:break-all;}
   .wh-table td:last-child,.wh-table th:last-child{white-space:nowrap; padding-right:16px;}
   .wh-table thead th{position:sticky; top:0; background:var(--surface); z-index:1; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-dim); padding:12px 12px; border-bottom:1px solid var(--line); white-space:nowrap; cursor:default;}
@@ -1177,6 +1200,8 @@ tr.wh-sub td:first-child{padding-left:18px;}
 
   <div class="wl-card wh-sports" id="whaleSportChips"></div>
 
+  <div class="wl-card wh-sports" id="whaleLeagueChips"></div>
+
   <div class="wl-card wh-toolbar">
     <div class="wh-field"><span class="wh-lab">Seuil par fill</span>
       <select id="whaleMin" class="cat-select" title="Seuil minimum par fill">
@@ -1230,6 +1255,7 @@ tr.wh-sub td:first-child{padding-left:18px;}
       </select>
     </div>
     <label class="wh-group-toggle wh-field" title="Une ligne par marché : côté dominant, total par côté, nombre de wallets. Clique sur « ▸ N paris » pour voir le détail."><span class="wh-lab">Affichage</span><span><input type="checkbox" id="whaleGroup" checked> Grouper par marché</span></label>
+    <label class="wh-group-toggle wh-field" title="Un bloc par match : tous les marchés du même match (vainqueur, handicap, total) réunis"><span class="wh-lab">Match</span><span><input type="checkbox" id="whaleByMatch" checked> Regrouper par match</span></label>
   </div>
 
   <section class="wl-card wh-sel" id="whaleSelCard">
@@ -1243,6 +1269,11 @@ tr.wh-sub td:first-child{padding-left:18px;}
       <div class="wh-sel-s">Résultats réels de chaque wallet sur ses dernières positions soldées dans le sport sélectionné (gain réalisé, taux de réussite), parmi les wallets qui ont parié dans cette liste.</div></div>
     <div class="wh-best-list" id="whaleBestList"></div>
   </section>
+
+  <details class="wl-card wh-hist" id="whaleHistCard">
+    <summary>📈 Historique de la Sélection <small id="whaleHistSum"></small></summary>
+    <div id="whaleHistBody"></div>
+  </details>
 
   <div class="wl-card wh-table-card">
     <div style="overflow-x:auto;">
@@ -2409,7 +2440,25 @@ function whaleGroupedHtml(rows, betRow){
     g.push(w);
   });
   let html = '';
-  order.forEach((cid, gi)=>{
+  const byMatch = !!(document.getElementById('whaleByMatch') || {}).checked;
+  const slugOf = cid => (map.get(cid)[0].slug || cid);
+  let seq = order;
+  const evInfo = new Map();
+  if(byMatch){
+    const ev = new Map();
+    order.forEach(cid=>{ const sl = slugOf(cid); if(!ev.has(sl)) ev.set(sl, []); ev.get(sl).push(cid); });
+    seq = []; ev.forEach(list=>list.forEach(c=>seq.push(c)));
+    ev.forEach((list, sl)=>{
+      const all = list.flatMap(c=>map.get(c));
+      const top = all.slice().sort((a,b)=>b.usd-a.usd)[0];
+      evInfo.set(list[0], { title: top.title, n: list.length, usd: all.reduce((a,b)=>a+b.usd,0), wallets: new Set(all.map(b=>b.wallet)).size, sport: whaleSportOf(top) });
+    });
+  }
+  seq.forEach((cid, gi)=>{
+    if(byMatch && evInfo.has(cid) && evInfo.get(cid).n > 1){
+      const e = evInfo.get(cid), sp = e.sport ? WH_SPORTS[e.sport] : null;
+      html += `<tr class="wh-match"><td colspan="8"><b>${sp?sp.icon+' ':''}${escapeHtml(e.title)}</b><span class="m">${e.n} marchés · ${e.wallets} wallet${e.wallets>1?'s':''}</span><span class="u">${fmtUsd(e.usd)}</span></td></tr>`;
+    }
     const bets = map.get(cid);
     const dir = bets.filter(b=>b.side==='BUY');
     const pool = dir.length ? dir : bets;
@@ -2604,6 +2653,39 @@ function whaleWhenMatch(w){
   const d = whaleStartDate(w); if(!d) return false;
   return d.toDateString() === new Date().toDateString();
 }
+const WH_LEAGUES = {
+  epl:'Premier League', lal:'La Liga', bun:'Bundesliga', sea:'Serie A', fl1:'Ligue 1', ucl:'Ligue des champions', uel:'Europa League', uecl:'Conference League',
+  mls:'MLS', ere:'Eredivisie', por:'Liga Portugal', tur:'Süper Lig', sau:'Saudi League', bra:'Brasileirão', arg:'Liga Argentina', mex:'Liga MX', efl:'EFL', elc:'Championship', cdr:'Copa del Rey', efa:'FA Cup', itc:'Coppa Italia', dfb:'DFB-Pokal', fif:'International', fifa:'International', wcq:'Qualif. Coupe du monde',
+  nba:'NBA', wnba:'WNBA', cbb:'NCAA Basket', ncaab:'NCAA Basket', euroleague:'Euroleague', nfl:'NFL', cfb:'NCAA Foot US', ncaaf:'NCAA Foot US', mlb:'MLB', nhl:'NHL', khl:'KHL',
+  atp:'ATP', wta:'WTA', ufc:'UFC', mma:'MMA', boxing:'Boxe', f1:'Formule 1', nascar:'NASCAR', motogp:'MotoGP', ipl:'IPL', pga:'PGA', lpga:'LPGA',
+};
+const whLeagueCache = new Map();
+function whaleLeagueOf(w){
+  const sl = String(w.slug||'').toLowerCase().split('-')[0];
+  if(WH_LEAGUES[sl]) return WH_LEAGUES[sl];
+  const key = (w.title||'');
+  if(whLeagueCache.has(key)) return whLeagueCache.get(key);
+  const t = key.toLowerCase(); let r = null;
+  if(/premier league/.test(t)) r='Premier League'; else if(/la ?liga/.test(t)) r='La Liga'; else if(/bundesliga/.test(t)) r='Bundesliga'; else if(/serie a/.test(t)) r='Serie A'; else if(/ligue 1/.test(t)) r='Ligue 1';
+  else if(/champions league/.test(t)) r='Ligue des champions'; else if(/\bnba\b/.test(t)) r='NBA';
+  whLeagueCache.set(key, r); return r;
+}
+let whaleLeague = 'all';
+function whaleLeagueMatch(w){ return whaleLeague==='all' || (whaleLeagueOf(w) || 'Autres') === whaleLeague; }
+function renderWhaleLeagueChips(){
+  const box = document.getElementById('whaleLeagueChips'); if(!box) return;
+  if(whaleSport==='all'){ box.innerHTML=''; return; }
+  const counts = {}, seen = new Set();
+  whaleData.forEach(w=>{
+    if(whaleClosed.has(w.conditionId) || !whaleSportMatch(w) || seen.has(w.conditionId)) return; seen.add(w.conditionId);
+    const l = whaleLeagueOf(w) || 'Autres'; counts[l] = (counts[l]||0)+1;
+  });
+  const keys = Object.keys(counts);
+  if(whaleLeague!=='all' && !counts[whaleLeague]) whaleLeague = 'all';
+  if(keys.length < 2){ box.innerHTML=''; return; }
+  const chip = (id,label,n)=>`<button class="wh-sp wh-lg ${whaleLeague===id?'on':''}" data-lg="${escapeHtml(id)}">${escapeHtml(label)}<em>${n}</em></button>`;
+  box.innerHTML = '<span class="wh-lab" style="margin-right:4px;">Ligue</span>' + chip('all','Toutes', seen.size) + keys.sort((a,b)=>counts[b]-counts[a]).map(k=>chip(k,k,counts[k])).join('');
+}
 let whaleSport = 'all'; // 'all' | 'any' (tous sports) | clé de WH_SPORTS
 function whaleSportMatch(w){
   if(whaleSport==='all') return true;
@@ -2659,7 +2741,7 @@ function renderWhaleBest(){
   const list = document.getElementById('whaleBestList');
   list.innerHTML = rows.length ? rows.map(r=>{
     const watched = isWatched(r.wallet), nm = r.name || shortAddr(r.wallet);
-    return `<div class="wh-bw"><div class="n"><span>${escapeHtml(nm)}</span><button class="wr-star wh-bstar ${watched?'on':''}" data-wallet="${r.wallet}" data-name="${escapeHtml(r.name||'')}" title="Suivre ce wallet">${watched?'⭐':'☆'}</button></div>
+    return `<div class="wh-bw"><div class="n"><a class="wlink" href="https://polymarket.com/profile/${r.wallet}" target="_blank" rel="noopener" title="Voir le profil Polymarket">${escapeHtml(nm.length>22 ? shortAddr(r.wallet) : nm)}</a><button class="wr-star wh-bstar ${watched?'on':''}" data-wallet="${r.wallet}" data-name="${escapeHtml(r.name||'')}" title="Suivre ce wallet">${watched?'⭐':'☆'}</button></div>
       <div class="p ${r.pnl>=0?'up':'down'}">${r.pnl>=0?'+':'−'}${fmtUsd(Math.abs(r.pnl))}</div>
       <div class="s">${Math.round(r.wins/r.n*100)}% de réussite sur ${r.n} positions soldées</div>
       <div class="s">Ici : ${r.n ? r.usd ? fmtUsd(r.usd) : '' : ''} sur ${byW.get(r.wallet).n} pari${byW.get(r.wallet).n>1?'s':''}</div></div>`;
@@ -2686,7 +2768,7 @@ function renderWhaleSportChips(){
 function whalePool(){
   const cat = document.getElementById('whaleCat').value;
   return whaleData.filter(w =>
-    w.side==='BUY' && !whaleClosed.has(w.conditionId) && (cat==='all' || whaleCatOf(w)===cat) && whaleSportMatch(w) && whaleWhenMatch(w) && (!whaleLiveOnly() || whaleIsLive(w))
+    w.side==='BUY' && !whaleClosed.has(w.conditionId) && (cat==='all' || whaleCatOf(w)===cat) && whaleSportMatch(w) && whaleLeagueMatch(w) && whaleWhenMatch(w) && (!whaleLiveOnly() || whaleIsLive(w))
   ).slice(0, WHALE_RECO_POOL);
 }
 
@@ -2741,7 +2823,7 @@ function whaleVisibleRowsBase(){
   return whaleCap(whaleData.filter(w =>
     (side==='all' || w.side===side) &&
     !whaleClosed.has(w.conditionId) &&
-    (cat==='all' || whaleCatOf(w)===cat) && whaleSportMatch(w) && whaleWhenMatch(w) &&
+    (cat==='all' || whaleCatOf(w)===cat) && whaleSportMatch(w) && whaleLeagueMatch(w) && whaleWhenMatch(w) &&
     (!whaleLiveOnly() || whaleIsLive(w))
   ));
 }
@@ -2934,6 +3016,64 @@ function checkPickAlerts(picks, pending){
     logAlert('pick', head, body, url);
   });
 }
+const SELHIST_KEY = 'pc_pick_hist_v1', SELHIST_MAX = 300;
+let selHist = (()=>{ try{ return JSON.parse(localStorage.getItem(SELHIST_KEY) || '[]'); }catch(e){ return []; } })();
+function selHistSave(){ try{ localStorage.setItem(SELHIST_KEY, JSON.stringify(selHist.slice(0, SELHIST_MAX))); }catch(e){} }
+function selHistRecord(picks){
+  let added = false;
+  picks.forEach(({w, r})=>{
+    const k = w.conditionId+'|'+String(w.outcome).toLowerCase();
+    if(selHist.some(h=>h.k===k)) return;
+    const mi = whaleEndCache.get(w.conditionId) || {};
+    const cur = mi.prices ? mi.prices[String(w.outcome).toLowerCase()] : undefined;
+    const avg = w.shares ? w.usd/w.shares : 0;
+    selHist.unshift({ k, cid:w.conditionId, slug:w.slug||'', title:w.title, outcome:w.outcome, wallet:w.wallet, score:r.score, p0:(cur!==undefined?cur:avg), ts:Date.now(), end:mi.end||'', res:null });
+    added = true;
+  });
+  if(added){ selHist = selHist.slice(0, SELHIST_MAX); selHistSave(); }
+}
+let selHistResolving = false, selHistLastCheck = 0;
+async function resolveSelHist(force){
+  if(selHistResolving || (!force && Date.now() - selHistLastCheck < 300000)) return;
+  const todo = selHist.filter(h=>!h.res && Date.now() - h.ts > 20*60000);
+  if(!todo.length) return;
+  selHistResolving = true; selHistLastCheck = Date.now();
+  try{
+    for(let i=0;i<todo.length;i+=20){
+      const chunk = todo.slice(i,i+20);
+      const q = chunk.map(h=>'condition_ids='+encodeURIComponent(h.cid)).join('&');
+      let mk = [];
+      try{ const res = await fetch(`${GAMMA}/markets?${q}&limit=${chunk.length}`); if(res.ok){ const j = await res.json(); if(Array.isArray(j)) mk = j; } }catch(e){}
+      chunk.forEach(h=>{
+        const m = mk.find(x=>String(x.conditionId).toLowerCase()===String(h.cid).toLowerCase()); if(!m) return;
+        try{
+          const outs = typeof m.outcomes==='string' ? JSON.parse(m.outcomes) : (m.outcomes||[]);
+          const pr = (typeof m.outcomePrices==='string' ? JSON.parse(m.outcomePrices) : (m.outcomePrices||[])).map(Number);
+          const idx = outs.findIndex(o=>String(o).toLowerCase()===String(h.outcome).toLowerCase());
+          if(idx<0 || !(m.closed===true || String(m.umaResolutionStatus||'').toLowerCase()==='resolved')) return;
+          if(pr[idx] >= 0.95) h.res = 'w'; else if(pr[idx] <= 0.05) h.res = 'l';
+        }catch(e){}
+      });
+    }
+    selHistSave();
+  } finally { selHistResolving = false; }
+  renderSelHist();
+}
+function renderSelHist(){
+  const body = document.getElementById('whaleHistBody'); if(!body) return;
+  const done = selHist.filter(h=>h.res), wins = done.filter(h=>h.res==='w').length;
+  const roi = arr => { if(!arr.length) return null; const t = arr.reduce((a,h)=>a + (h.res==='w' ? (1/Math.max(h.p0,0.02) - 1) : -1), 0); return t/arr.length*100; };
+  const hit = arr => arr.length ? Math.round(arr.filter(h=>h.res==='w').length/arr.length*100) : null;
+  const hi = done.filter(h=>h.score>=75), lo = done.filter(h=>h.score<75);
+  const rr = roi(done);
+  document.getElementById('whaleHistSum').textContent = selHist.length ? `${selHist.length} retenus · ${done.length} terminés${done.length ? ' · '+Math.round(wins/done.length*100)+'% gagnants' : ''}` : '';
+  const k = (l,v,c) => `<div class="hs-k"><div class="l">${l}</div><div class="v ${c||''}">${v}</div></div>`;
+  const pc = v => v===null ? '—' : v+'%';
+  body.innerHTML = !selHist.length ? '<div class="wh-sel-empty">Aucun pari retenu pour l\'instant : ils s\'enregistrent automatiquement quand ils apparaissent dans la Sélection.</div>' :
+    `<div class="hs-kpis">${k('Retenus', selHist.length)}${k('Terminés', done.length)}${k('Réussite globale', pc(hit(done)))}${k('Score ≥ 75', pc(hit(hi))+(hi.length?` <small style="font-size:11px;color:var(--ink-dim)">(${hi.length})</small>`:''))}${k('Score < 75', pc(hit(lo))+(lo.length?` <small style="font-size:11px;color:var(--ink-dim)">(${lo.length})</small>`:''))}${k('ROI théorique', rr===null?'—':(rr>=0?'+':'')+rr.toFixed(0)+'%', rr===null?'':(rr>=0?'up':'down'))}</div>
+    <div style="font-size:10.5px;color:var(--ink-dim);margin-bottom:6px;">ROI théorique : 1 unité misée sur chaque pari au prix du moment où il est apparu dans la Sélection (hors frais). Échantillon petit = à prendre avec prudence.</div>` +
+    selHist.slice(0,15).map(h=>`<div class="hs-row"><span class="hs-st ${h.res||'p'}">${h.res==='w'?'Gagné':h.res==='l'?'Perdu':'En cours'}</span><span class="t" title="${escapeHtml(h.title)}">${escapeHtml(h.title)} · <b>${escapeHtml(h.outcome)}</b></span><span>${(h.p0*100).toFixed(1)}¢</span><span style="color:var(--gold);font-weight:700;">${h.score}</span></div>`).join('');
+}
 function renderWhaleSelection(){
   const list = document.getElementById('whaleSelList'); if(!list) return;
   const pool = whalePool();
@@ -2945,6 +3085,7 @@ function renderWhaleSelection(){
     .filter(x => { const k = x.w.conditionId + '|' + String(x.w.outcome).toLowerCase(); if(seen.has(k)) return false; seen.add(k); return true; })
     .slice(0, 6);
   checkPickAlerts(picks, pending);
+  if(picks.length){ selHistRecord(picks); resolveSelHist(false); }
   document.getElementById('whaleSelCount').textContent = picks.length
     ? `(${picks.length} sur ${pool.length} gros achats analysés${pending ? ' · analyse en cours…' : ''})`
     : (pending ? '(analyse en cours…)' : '');
@@ -2974,7 +3115,7 @@ function renderWhaleSelection(){
         <div class="wh-score" style="--p:${r.score}"><span>${r.score}</span><small>/100</small></div></div>
       <div class="pk-bet"><span class="act-side buy">Achat</span><span class="chip ${chipCls(w.outcome)}">${escapeHtml(w.outcome)}</span><b class="pk-amt">${fmtUsd(w.usd)}</b></div>
       ${price}
-      <div class="pk-wal">${actAvatar(nm, w.wallet)}<div class="pk-wal-i"><div class="pk-wn">${escapeHtml(nm)}</div><div class="pk-wm">${q}${pnl}</div></div></div>
+      <div class="pk-wal">${actAvatar(nm, w.wallet)}<div class="pk-wal-i"><div class="pk-wn"><a class="wlink" href="https://polymarket.com/profile/${w.wallet}" target="_blank" rel="noopener" title="Voir le profil Polymarket">${escapeHtml(nm.length>22 ? shortAddr(w.wallet) : nm)}</a></div><div class="pk-wm">${q}${pnl}</div></div></div>
       <div class="pk-foot"><span>${mi.end ? 'Fin ' + fmtEndDate(mi.end) : ''}</span>${whaleStatusBadge(w.conditionId)}</div>
       <div class="wh-why">${top}${cons}</div></div>`;
   }).join('');
@@ -3010,7 +3151,9 @@ function renderWhales(skipEnd){
   const rows = whaleVisibleRows();
   renderWhaleChrome(rows);
   renderWhaleSportChips();
+  renderWhaleLeagueChips();
   renderWhaleBest();
+  renderSelHist();
   renderWhaleSelection();
   const catFilter = document.getElementById('whaleCat').value;
   const recoLevel = whaleRecoLevel();
@@ -3086,7 +3229,7 @@ function renderWhales(skipEnd){
       <td class="num">${(avg*100).toFixed(1)}¢${curCell}</td>
       <td class="num wh-amt" style="--w:${amtPct}%;"><b>${fmtUsd(w.usd)}</b>${(()=>{ if(w.side!=='BUY'||cur===undefined||!(avg>0)) return ''; const lat=(cur-avg)*w.shares; const st=parseGammaDate((mi||{}).start); const lv=st&&st-Date.now()<=0; return `<div class="wh-lat ${lat>=0?'up':'down'}" title="Gain latent si le prix reste là${lv?' · match en cours':''}">${lv?'<span class="lv">● LIVE</span>':''}${lat>=0?'+':'−'}${fmtUsd(Math.abs(lat))}</div>`; })()}</td>
       <td style="min-width:210px;">
-        <div class="wh-wal"><span title="${w.wallet}">${escapeHtml(w.name || shortAddr(w.wallet))}</span>
+        <div class="wh-wal"><a class="wlink" href="https://polymarket.com/profile/${w.wallet}" target="_blank" rel="noopener" title="Voir le profil Polymarket · ${w.wallet}">${escapeHtml(w.name || shortAddr(w.wallet))}</a>
           <button class="wr-star wh-star ${watched?'on':''}" data-wallet="${w.wallet}" data-name="${escapeHtml(w.name||'')}" title="Suivre ce wallet">${watched?'⭐':'☆'}</button>
           <a class="wr-copy" href="https://polymarket.com/profile/${w.wallet}" target="_blank" rel="noopener" title="Profil Polymarket">↗</a></div>
         <div class="wh-wal-sub">${prof}</div>
@@ -3159,7 +3302,7 @@ function wdOpen(w){
       ['Prix actuel', cur!==undefined ? (cur*100).toFixed(1)+'¢' : '—'],
       ['Fin du marché', mi.end ? fmtEndDate(mi.end) : '—']])}</div>
     ${score}
-    <div class="wd-sec"><h4>Wallet · ${who}</h4>${kv([
+    <div class="wd-sec"><h4>Wallet · <a class="wlink" href="https://polymarket.com/profile/${w.wallet}" target="_blank" rel="noopener">${who}</a></h4>${kv([
       ['Qualité', gp.qualityScore!=null ? `${gp.qualityScore}/100 (${escapeHtml(gp.qualityLabel||'')})` : '…'],
       ['PnL 30j', gp.total30d!=null ? (gp.total30d>=0?'+':'')+fmtUsd(gp.total30d) : '…'],
       ['Win rate', gp.winRate!=null ? `${Math.round(gp.winRate*100)}% (${gp.totalClosed} soldées)` : '—'],
@@ -3201,9 +3344,14 @@ document.getElementById('whaleWhenSeg').addEventListener('click', e=>{
   const b = e.target.closest('button[data-v]'); if(!b) return;
   whaleWhen = b.dataset.v; renderWhales();
 });
+document.getElementById('whaleLeagueChips').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-lg]'); if(!b) return;
+  whaleLeague = b.dataset.lg; renderWhales();
+});
+document.getElementById('whaleByMatch').addEventListener('change', ()=>renderWhales());
 document.getElementById('whaleSportChips').addEventListener('click', e=>{
   const b = e.target.closest('button[data-sp]'); if(!b) return;
-  whaleSport = b.dataset.sp; try{ localStorage.setItem('pc_whale_sport_v1', whaleSport); }catch(_){}
+  whaleSport = b.dataset.sp; whaleLeague = 'all'; try{ localStorage.setItem('pc_whale_sport_v1', whaleSport); }catch(_){}
   renderWhales();
 });
 try{ const sv = localStorage.getItem('pc_whale_sport_v1'); if(sv) whaleSport = sv; }catch(_){}
