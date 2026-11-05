@@ -590,6 +590,45 @@
   a.wlink{color:var(--ink); text-decoration:none; border-bottom:1px dashed transparent;}
   a.wlink:hover{color:var(--gold); border-bottom-color:var(--gold);}
   .wh-bw .n a.wlink{min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  /* ===== Design v3 : barre compacte, onglets, lisibilité ===== */
+  .wh-kpis{display:flex; flex-wrap:wrap; gap:0; background:var(--surface); border:1px solid var(--line); border-radius:10px; overflow:hidden;}
+  .wh-kpi{flex:1 1 150px; border:none !important; border-right:1px solid var(--line) !important; border-radius:0; padding:9px 14px; display:flex; flex-direction:column; transform:none !important; background:transparent;}
+  .wh-kpi:last-child{border-right:none !important;}
+  .wh-kpi::before{display:none;}
+  .wh-kpi .k-v{font-size:20px; margin-top:0;}
+  .wh-kpi .k-s{margin-top:0;}
+  .wh-bar.wl-card{padding:12px 16px; display:flex; flex-direction:column; gap:10px;}
+  .wh-bar .wh-sports{padding:0; border:none; background:none; box-shadow:none;}
+  .wh-bar .wh-sports:empty{display:none;}
+  .wh-bar .wh-toolbar{padding:0; border:none; background:none; box-shadow:none; gap:10px 18px;}
+  .wh-sp{padding:5px 12px; font-size:12px; min-height:30px;}
+  .wh-tabs.wl-card{padding:0; overflow:hidden;}
+  .wh-tabbar{display:flex; align-items:stretch; gap:2px; padding:0 8px; border-bottom:1px solid transparent;}
+  .wh-tabs.open .wh-tabbar{border-bottom-color:var(--line);}
+  .wh-tabbar button{background:none; border:none; border-bottom:2px solid transparent; color:var(--ink-dim); padding:11px 14px; border-radius:0; font-size:13px; cursor:pointer; font-family:inherit; text-transform:none; letter-spacing:0; font-weight:600; display:inline-flex; gap:7px; align-items:center;}
+  .wh-tabbar button:hover{color:var(--ink);}
+  .wh-tabbar button.on{color:var(--gold); border-bottom-color:var(--gold);}
+  .wh-tabbar button em{font-style:normal; font-size:11px; background:var(--surface-2); border:1px solid var(--line); border-radius:10px; padding:0 7px; color:var(--ink);}
+  .wh-tabbar button em:empty{display:none;}
+  .wh-tabbar .wt-toggle{margin-left:auto; font-size:14px;}
+  .wh-tabpanes{display:none; padding:14px 16px 16px;}
+  .wh-tabs.open .wh-tabpanes{display:block;}
+  .wh-tabs .wt-pane{display:none; border:none; background:transparent; box-shadow:none; padding:0;}
+  .wh-tabs .wt-pane.on{display:block;}
+  .wh-tabs .wh-sel-head .wh-sel-t{font-size:14px;}
+  /* lisibilité */
+  .wh-p, .wh-sel-s, .wh-sel-empty, .hs-k .l, .wh-hist .hs-row{font-family:'Space Grotesk', system-ui, sans-serif;}
+  .wh-p{font-size:13px; line-height:1.55;} .wh-sel-s{font-size:12.5px; line-height:1.5;} .wh-sel-empty{font-size:13px;}
+  .wh-lab, .wh-kpi .k-l, .wh-table thead th, .hs-k .l{font-size:11px;}
+  .wh-kpi .k-s, .wh-cat, .wh-why span, .wh-agree .t, .pk-q, .pk-wm, .wh-lat, .wh-badge, .wh-bw .s, .hs-st, .wh-expand, .pk-foot{font-size:11.5px;}
+  #tab-whales [style*="font-size:10.5px"], #tab-whales [style*="font-size:10px"], #tab-whales [style*="font-size:9.5px"]{font-size:11.5px !important;}
+  .wh-seg button{min-height:34px; padding:7px 13px; font-size:12.5px;}
+  #tab-whales select.cat-select, .wh-search input{min-height:34px; font-size:12.5px;}
+  #tab-whales .wh-star, #tab-whales .wr-copy, #tab-whales .wh-bstar{min-width:32px; min-height:32px; display:inline-flex; align-items:center; justify-content:center;}
+  #tab-whales :focus-visible{outline:2px solid var(--gold); outline-offset:2px; border-radius:4px;}
+  #whaleBody tr[data-cid]:focus-visible{outline-offset:-2px; background:var(--surface-2);}
+  /* hiérarchie des cartes : prix en retrait */
+  .pk-price{color:var(--ink-dim);} .pk-price b{color:var(--ink-dim); font-weight:600;}
   .wh-sel-empty{grid-column:1/-1; font-size:12.5px; color:var(--ink-dim); padding:6px 2px;}
   .wh-wal>a.wlink:first-child{max-width:230px; overflow-wrap:anywhere; word-break:break-all;}
   .wh-wal>span:first-child{max-width:230px; overflow-wrap:anywhere; word-break:break-all;}
@@ -1198,11 +1237,10 @@ tr.wh-sub td:first-child{padding-left:18px;}
 
   <div class="wh-kpis" id="whaleKpis"></div>
 
-  <div class="wl-card wh-sports" id="whaleSportChips"></div>
-
-  <div class="wl-card wh-sports" id="whaleLeagueChips"></div>
-
-  <div class="wl-card wh-toolbar">
+  <div class="wl-card wh-bar" id="whaleBar">
+  <div class="wh-sports" id="whaleSportChips"></div>
+  <div class="wh-sports" id="whaleLeagueChips"></div>
+  <div class="wh-toolbar">
     <div class="wh-field"><span class="wh-lab">Seuil par fill</span>
       <select id="whaleMin" class="cat-select" title="Seuil minimum par fill">
         <option value="2000">≥ $2K</option>
@@ -1254,26 +1292,32 @@ tr.wh-sub td:first-child{padding-left:18px;}
         <option value="0">Tous les paris</option><option value="60">Paris recommandés (score ≥ 60)</option><option value="75">Très recommandés (score ≥ 75)</option>
       </select>
     </div>
-    <label class="wh-group-toggle wh-field" title="Une ligne par marché : côté dominant, total par côté, nombre de wallets. Clique sur « ▸ N paris » pour voir le détail."><span class="wh-lab">Affichage</span><span><input type="checkbox" id="whaleGroup" checked> Grouper par marché</span></label>
-    <label class="wh-group-toggle wh-field" title="Un bloc par match : tous les marchés du même match (vainqueur, handicap, total) réunis"><span class="wh-lab">Match</span><span><input type="checkbox" id="whaleByMatch" checked> Regrouper par match</span></label>
+    <div class="wh-field"><span class="wh-lab">Vue</span><span class="wh-seg" id="whaleViewSeg" role="group" aria-label="Mode d'affichage"><button data-v="bets" title="Un pari par ligne">Paris</button><button data-v="mkt" title="Une ligne par marché : côté dominant, total par côté, nombre de wallets">Marchés</button><button data-v="match" title="Un bloc par match : tous ses marchés réunis">Matchs</button></span>
+      <input type="checkbox" id="whaleGroup" checked hidden><input type="checkbox" id="whaleByMatch" checked hidden></div>
+  </div>
   </div>
 
-  <section class="wl-card wh-sel" id="whaleSelCard">
+  <section class="wl-card wh-tabs" id="whaleTabs">
+  <div class="wh-tabbar" role="tablist"><button data-wt="sel" role="tab">⭐ Sélection <em id="wtSel"></em></button><button data-wt="best" role="tab" id="wtBestBtn" style="display:none">🏆 Meilleurs wallets <em id="wtBest"></em></button><button data-wt="hist" role="tab">📈 Historique <em id="wtHist"></em></button><button class="wt-toggle" id="wtToggle" title="Replier / déplier" aria-label="Replier ou déplier">▾</button></div>
+  <div class="wh-tabpanes">
+  <section class="wl-card wh-sel wt-pane" id="whaleSelCard">
     <div class="wh-sel-head"><div class="wh-sel-t">⭐ Sélection <span class="wh-sel-n" id="whaleSelCount"></span></div>
       <div class="wh-sel-s">Les meilleurs achats, classés par score global : qualité du wallet, PnL 30j, win rate, taille, consensus, prix encore accessible, zone de prix, échéance. Heuristique de tri, pas une garantie de gain.</div></div>
     <div class="wh-sel-list" id="whaleSelList"></div>
   </section>
 
-  <section class="wl-card wh-best" id="whaleBestCard" style="display:none">
+  <section class="wl-card wh-best wt-pane" id="whaleBestCard">
     <div class="wh-sel-head"><div class="wh-sel-t">🏆 Meilleurs wallets sport <span class="wh-sel-n" id="whaleBestN"></span></div>
       <div class="wh-sel-s">Résultats réels de chaque wallet sur ses dernières positions soldées dans le sport sélectionné (gain réalisé, taux de réussite), parmi les wallets qui ont parié dans cette liste.</div></div>
     <div class="wh-best-list" id="whaleBestList"></div>
   </section>
 
-  <details class="wl-card wh-hist" id="whaleHistCard">
-    <summary>📈 Historique de la Sélection <small id="whaleHistSum"></small></summary>
+  <section class="wl-card wh-hist wt-pane" id="whaleHistCard">
+    <div class="wh-sel-head"><div class="wh-sel-t">📈 Historique de la Sélection <span class="wh-sel-n" id="whaleHistSum"></span></div></div>
     <div id="whaleHistBody"></div>
-  </details>
+  </section>
+  </div>
+  </section>
 
   <div class="wl-card wh-table-card">
     <div style="overflow-x:auto;">
@@ -1415,31 +1459,131 @@ const DATA = 'https://data-api.polymarket.com';
    On intercepte fetch() de façon transparente (aucun appel existant à
    modifier) pour suivre le succès/échec des requêtes vers Gamma et Data API.
 ========================================================================= */
+const apiErrLog = [];
 const apiHealth = {
-  data:  { lastSuccessTs: null, lastErrorTs: null, consecutiveErrors: 0 },
-  gamma: { lastSuccessTs: null, lastErrorTs: null, consecutiveErrors: 0 },
+  data:  { lastSuccessTs: null, lastErrorTs: null, consecutiveErrors: 0, lastStatus: null },
+  gamma: { lastSuccessTs: null, lastErrorTs: null, consecutiveErrors: 0, lastStatus: null },
 };
 
 (function(){
   const nativeFetch = window.fetch.bind(window);
-  window.fetch = function(input, init){
+  // Limiteur : au plus 6 requêtes simultanées vers Polymarket (évite les 429 "trop de requêtes"),
+  // + 2 nouvelles tentatives espacées quand l'API répond 429 / 5xx.
+  const MAX_PAR = 6; let running = 0; const waiting = [];
+  const acquire = () => new Promise(res => { if(running < MAX_PAR){ running++; res(); } else waiting.push(res); });
+  const release = () => { const n = waiting.shift(); if(n) n(); else running--; };
+  const sleep = ms => new Promise(r => setTimeout(r, ms));
+  // ---- Adaptateur Data API v1 -> v2 (v1 retirée le 2 nov 2026 : 410 Gone) ----
+  // Les appels du dashboard restent écrits en "v1" ; ils sont traduits ici en /v2/... :
+  //   /trades -> /v2/trades · /positions -> /v2/positions · /closed-positions -> /v2/positions?status=CLOSED
+  //   market -> condition · sizeThreshold -> filter_type=TOKENS&filter_amount · offset -> curseur (pagination.next_cursor)
+  //   réponse {data:[...]} en snake_case -> tableau de lignes camelCase + alias v1 (asset, size, curPrice, cashPnl...).
+  const v2Cursors = new Map();
+  const camel = k => k.replace(/_([a-z0-9])/g, (m,c)=>c.toUpperCase());
+  const asEpoch = v => { if(typeof v === 'number') return v > 1e12 ? Math.floor(v/1000) : v; const d = new Date(v); return isNaN(d) ? undefined : Math.floor(d.getTime()/1000); };
+  function v2NormRow(r){
+    if(!r || typeof r !== 'object') return r;
+    const o = {};
+    for(const k in r) o[camel(k)] = r[k];
+    if(o.asset === undefined && o.tokenId !== undefined) o.asset = o.tokenId;
+    if(o.oppositeAsset === undefined && o.oppositeTokenId !== undefined) o.oppositeAsset = o.oppositeTokenId;
+    if(o.currentSize !== undefined || o.entryCostUsdc !== undefined || o.totalSize !== undefined || o.avgPrice !== undefined || o.realizedPnl !== undefined || o.totalPnl !== undefined){ // ligne de position (ouverte ou soldée)
+      if(o.size === undefined) o.size = o.currentSize;
+      if(o.curPrice === undefined) o.curPrice = o.currentPrice;
+      if(o.initialValue === undefined) o.initialValue = o.entryCostUsdc;
+      if(o.totalBought === undefined) o.totalBought = o.totalSize;
+      if(o.cashPnl === undefined) o.cashPnl = o.unrealizedPnl !== undefined ? o.unrealizedPnl : o.totalPnl;
+      if(o.realizedPnl === undefined) o.realizedPnl = o.totalPnl;
+      if(o.timestamp === undefined){ const t = asEpoch(o.closedAt || o.closeTimestamp || o.lastTradeTimestamp || o.updatedAt || o.endDate); if(t !== undefined) o.timestamp = t; }
+    }
+    if(typeof o.timestamp === 'string') { const t = asEpoch(o.timestamp); if(t !== undefined) o.timestamp = t; }
+    return o;
+  }
+  function v1ToV2(u){
+    const p = u.pathname; let path, status = null;
+    if(p === '/trades') path = '/v2/trades';
+    else if(p === '/positions') path = '/v2/positions';
+    else if(p === '/closed-positions'){ path = '/v2/positions'; status = 'CLOSED'; }
+    else return null;
+    const full = new URLSearchParams(), min = new URLSearchParams();
+    let sortDir = null;
+    u.searchParams.forEach((v,k)=>{
+      if(k === 'offset' || k === 'limit' || k === 'sortBy') return;
+      if(k === 'sortDirection'){ sortDir = v; return; }
+      if(k === 'market'){ full.set('condition', v); min.set('condition', v); return; }
+      if(k === 'sizeThreshold'){ full.set('filter_type', 'TOKENS'); full.set('filter_amount', v); return; }
+      if(k === 'takerOnly'){ full.set('taker_only', v); return; }
+      if(k === 'filterType'){ full.set('filter_type', v); return; }
+      if(k === 'filterAmount'){ full.set('filter_amount', v); return; }
+      full.set(k, v); min.set(k, v);
+    });
+    if(status){ full.set('status', status); min.set('status', status); }
+    if(sortDir === 'ASC' && path === '/v2/trades') full.set('sort_direction', 'ASC');
+    return { path, fullQs: full.toString(), minQs: min.toString() };
+  }
+  const jsonResp = rows => new Response(JSON.stringify(rows), { status: 200, headers: { 'Content-Type': 'application/json' } });
+  async function dataFetch(url, init){
+    let u; try{ u = new URL(url); }catch(e){ return nativeFetch(url, init); }
+    const t = v1ToV2(u);
+    if(!t) return nativeFetch(url, init);
+    const L = Math.min(parseInt(u.searchParams.get('limit') || '100', 10) || 100, 1000);
+    const off = parseInt(u.searchParams.get('offset') || '0', 10) || 0;
+    const key = t.path + '?' + t.fullQs + '|' + L;
+    let cursor = null, minimal = false;
+    if(off > 0){
+      const c = (v2Cursors.get(key) || {})[off];
+      if(!c) return jsonResp([]);          // pas de curseur mémorisé pour cette position : fin de pagination
+      cursor = c.c; minimal = c.m;
+    }
+    const attempt = async (min) => {
+      const qs = new URLSearchParams(min ? t.minQs : t.fullQs);
+      if(cursor) qs.set('cursor', cursor); else qs.set('limit', String(L));
+      return nativeFetch(`${DATA}${t.path}?${qs}`, init);
+    };
+    let res = await attempt(minimal);
+    if(res.status === 400 && !minimal){ minimal = true; res = await attempt(true); } // paramètre optionnel refusé : on retente sans
+    if(!res.ok) return res;
+    const j = await res.json();
+    const rows = Array.isArray(j) ? j : (j && Array.isArray(j.data) ? j.data : []);
+    const next = j && j.pagination ? j.pagination.next_cursor : null;
+    if(next){
+      if(v2Cursors.size > 300) v2Cursors.clear();
+      const m = v2Cursors.get(key) || {}; m[off + rows.length] = { c: next, m: minimal }; v2Cursors.set(key, m);
+    }
+    return jsonResp(rows.map(v2NormRow));
+  }
+
+  window.fetch = async function(input, init){
     const url = typeof input === 'string' ? input : ((input && input.url) || '');
     const bucket = url.includes('data-api.polymarket.com') ? 'data'
       : (url.includes('gamma-api.polymarket.com') ? 'gamma' : null);
-    const promise = nativeFetch(input, init);
-    if(bucket){
-      // Chaîne d'observation séparée : ne modifie pas la promesse renvoyée
-      // à l'appelant, se contente d'enregistrer le résultat au passage.
-      promise.then(res => recordApiResult(bucket, res.ok))
-             .catch(() => recordApiResult(bucket, false));
-    }
-    return promise;
+    if(!bucket) return nativeFetch(input, init);
+    await acquire();
+    try{
+      let res = null, err = null;
+      for(let attempt = 0; attempt < 3; attempt++){
+        try{ res = (bucket === 'data') ? await dataFetch(url, init) : await nativeFetch(input, init); err = null; }
+        catch(e){ res = null; err = e; }
+        const st = res ? res.status : 0;
+        if(res && st !== 429 && st < 500) break;
+        if(attempt < 2) await sleep(700 * Math.pow(2, attempt) + Math.random()*300);
+      }
+      recordApiResult(bucket, res ? res.ok : false, res ? res.status : 0);
+      if(!res || !res.ok){
+        try{ const u = new URL(url); apiErrLog.unshift({ t: new Date().toLocaleTimeString('fr-FR'), bucket, path: u.pathname + u.search.slice(0, 90), status: res ? res.status : 0, msg: err ? String(err.message||err) : '' }); apiErrLog.length = Math.min(apiErrLog.length, 12); }catch(e){}
+      }
+      if(err && !res) throw err;
+      return res;
+    } finally { release(); }
   };
 })();
 
-function recordApiResult(bucket, ok){
+function recordApiResult(bucket, ok, status){
   const b = apiHealth[bucket];
   if(!b) return;
+  b.lastStatus = status || 0;
+  // Une erreur "client" (400/404…) prouve que l'API répond : ce n'est pas une panne.
+  if(!ok && status >= 400 && status < 500 && status !== 429) ok = true;
   if(ok){
     b.lastSuccessTs = Date.now();
     b.consecutiveErrors = 0;
@@ -1482,9 +1626,19 @@ function renderApiHealthIndicator(){
   }
   el.className = `api-health ${cls}`;
   el.textContent = `● ${label}`;
-  el.title = `Gamma API : ${apiHealth.gamma.lastSuccessTs ? 'dernier succès ' + timeAgoShort(apiHealth.gamma.lastSuccessTs) : 'aucun succès récent'}${apiHealth.gamma.consecutiveErrors ? `, ${apiHealth.gamma.consecutiveErrors} échec(s) d'affilée` : ''}\nData API : ${apiHealth.data.lastSuccessTs ? 'dernier succès ' + timeAgoShort(apiHealth.data.lastSuccessTs) : 'aucun succès récent'}${apiHealth.data.consecutiveErrors ? `, ${apiHealth.data.consecutiveErrors} échec(s) d'affilée` : ''}`;
+  el.title = `Dernier statut HTTP — Gamma : ${apiHealth.gamma.lastStatus===null?'—':(apiHealth.gamma.lastStatus||'réseau')} · Data : ${apiHealth.data.lastStatus===null?'—':(apiHealth.data.lastStatus||'réseau')}\nGamma API : ${apiHealth.gamma.lastSuccessTs ? 'dernier succès ' + timeAgoShort(apiHealth.gamma.lastSuccessTs) : 'aucun succès récent'}${apiHealth.gamma.consecutiveErrors ? `, ${apiHealth.gamma.consecutiveErrors} échec(s) d'affilée` : ''}\nData API : ${apiHealth.data.lastSuccessTs ? 'dernier succès ' + timeAgoShort(apiHealth.data.lastSuccessTs) : 'aucun succès récent'}${apiHealth.data.consecutiveErrors ? `, ${apiHealth.data.consecutiveErrors} échec(s) d'affilée` : ''}`;
 }
 
+document.getElementById('apiHealthIndicator').addEventListener('click', ()=>{
+  let box = document.getElementById('apiErrBox');
+  if(box){ box.remove(); return; }
+  box = document.createElement('div'); box.id = 'apiErrBox';
+  box.style.cssText = 'position:fixed; right:16px; top:70px; z-index:9500; max-width:min(720px,92vw); max-height:60vh; overflow:auto; background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:12px 14px; font:11.5px/1.5 "JetBrains Mono",monospace; color:var(--ink); box-shadow:0 10px 30px rgba(0,0,0,.35); white-space:pre-wrap; cursor:pointer;';
+  box.textContent = 'Dernières requêtes en échec (clique pour fermer)\n\n' + (apiErrLog.length ? apiErrLog.map(e=>`${e.t} · ${e.bucket} · ${e.status||'réseau'}${e.msg?' · '+e.msg:''}\n   ${e.path}`).join('\n') : 'Aucune requête en échec enregistrée.');
+  box.addEventListener('click', ()=>box.remove());
+  document.body.appendChild(box);
+});
+document.getElementById('apiHealthIndicator').style.cursor = 'pointer';
 // Le texte ("il y a Xmin") doit se rafraîchir même sans nouvel appel API.
 setInterval(renderApiHealthIndicator, 30000);
 renderApiHealthIndicator();
@@ -2518,7 +2672,7 @@ function whaleCatOf(w){
    Filtres durs : ACHAT, marché ouvert, wallet analysé (qualité ≥ 50, PnL 30j > 0),
    prix actuel connu et pas déjà > 15¢ au-dessus du prix moyen d'entrée.
    Heuristique de tri, pas une garantie de gain. */
-const WHALE_RECO_POOL = 40; // nb de paris (les plus gros ACHATS) analysés quand le filtre est actif
+const WHALE_RECO_POOL = 30; // nb de paris (les plus gros ACHATS) analysés quand le filtre est actif
 let whaleConsKey = null, whaleConsMap = new Map();
 
 function whaleConsensus(w){
@@ -2697,8 +2851,16 @@ async function loadWalletSportStats(wallet){
   if(wSportStats.has(wallet)) return;
   wSportStats.set(wallet, { loading:true });
   try{
-    const res = await fetch(`${DATA}/closed-positions?user=${wallet}&limit=100&sortBy=TIMESTAMP&sortDirection=DESC`);
-    const rows = res.ok ? await res.json() : [];
+    // L'API plafonne closed-positions à 50 lignes par requête (limit=100 → erreur 400 → "API : en échec") : 2 pages max.
+    let rows = [];
+    for(let off=0; off<100; off+=50){
+      const res = await fetch(`${DATA}/closed-positions?user=${wallet}&limit=50&offset=${off}&sortBy=TIMESTAMP&sortDirection=DESC`);
+      if(!res.ok) break;
+      const page = await res.json();
+      if(!Array.isArray(page)) break;
+      rows = rows.concat(page);
+      if(page.length < 50) break;
+    }
     const by = {};
     (rows||[]).forEach(r=>{
       const sp = whaleSportOf({ slug: r.eventSlug || r.slug, title: r.title }); if(!sp) return;
@@ -2720,8 +2882,9 @@ async function loadBestSportWallets(list){
 }
 function renderWhaleBest(){
   const card = document.getElementById('whaleBestCard'); if(!card) return;
-  if(whaleSport === 'all'){ card.style.display = 'none'; return; }
-  card.style.display = '';
+  const bb = document.getElementById('wtBestBtn');
+  if(whaleSport === 'all'){ if(bb) bb.style.display = 'none'; if(whaleTabs.tab==='best'){ whaleTabs.tab='sel'; applyWhaleTabs(); } return; }
+  if(bb) bb.style.display = '';
   const byW = new Map();
   whaleData.forEach(w=>{
     if(w.side!=='BUY' || whaleClosed.has(w.conditionId) || !whaleSportMatch(w)) return;
@@ -2738,6 +2901,7 @@ function renderWhaleBest(){
   }).filter(Boolean).sort((a,b)=>b.pnl-a.pnl).slice(0,6);
   const pending = cands.filter(c=>{ const st = wSportStats.get(c.wallet); return !st || st.loading; }).length;
   document.getElementById('whaleBestN').textContent = `(${rows.length} sur ${cands.length} wallets${pending?' · analyse en cours…':''})`;
+  { const e = document.getElementById('wtBest'); if(e) e.textContent = rows.length || ''; }
   const list = document.getElementById('whaleBestList');
   list.innerHTML = rows.length ? rows.map(r=>{
     const watched = isWatched(r.wallet), nm = r.name || shortAddr(r.wallet);
@@ -2861,6 +3025,7 @@ function whaleMarketIsFinished(m){
   if(m.closed === true || m.archived === true) return true;
   if(m.active === false) return true;
   if(String(m.umaResolutionStatus || '').toLowerCase() === 'resolved') return true;
+  if(String(m.resolutionStatus || '').toLowerCase() === 'resolved') return true; // marchés Polymarket V2
   const endIso = m.endDate || m.endDateIso || '';
   if(endIso){
     const d = new Date(endIso);
@@ -2941,15 +3106,21 @@ async function loadWhaleEndDates(rows){
 
 async function fetchWhaleTrades(minUsd){
   const since = Math.floor(Date.now()/1000) - 24*3600;
-  const limit = 500, maxPages = 20;
-  let all = [];
+  const limit = 1000, maxPages = 12;
+  let all = [], withFilter = true;
   for(let page=0; page<maxPages; page++){
-    const url = `${DATA}/trades?limit=${limit}&offset=${page*limit}&filterType=CASH&filterAmount=${minUsd}`;
-    const res = await fetch(url);
-    if(!res.ok) throw new Error(`data-api ${res.status}`);
+    const q = withFilter ? `&filterType=CASH&filterAmount=${minUsd}` : '';
+    let res;
+    try{ res = await fetch(`${DATA}/trades?limit=${limit}&offset=${page*limit}${q}`); }
+    catch(e){ if(page===0) throw e; break; }
+    if(!res.ok){
+      if(page===0 && withFilter){ withFilter = false; page = -1; continue; } // 1re page refusée : on retente sans le filtre serveur (filtré ensuite ici)
+      if(page===0) throw new Error(`data-api ${res.status}`);
+      break; // pages suivantes refusées (limite d'offset…) : on garde ce qu'on a déjà
+    }
     const batch = await res.json();
     if(!Array.isArray(batch) || !batch.length) break;
-    all = all.concat(batch);
+    all = all.concat(withFilter ? batch : batch.filter(t => (parseFloat(t.size)*parseFloat(t.price)) >= minUsd));
     const oldest = Math.min(...batch.map(t=>t.timestamp||Infinity));
     if(oldest < since || batch.length < limit) break;
   }
@@ -3016,6 +3187,16 @@ function checkPickAlerts(picks, pending){
     logAlert('pick', head, body, url);
   });
 }
+let whaleTabs = (()=>{ try{ return Object.assign({ open:false, tab:'sel' }, JSON.parse(localStorage.getItem('pc_wh_tabs_v1')||'{}')); }catch(e){ return { open:false, tab:'sel' }; } })();
+function applyWhaleTabs(){
+  const box = document.getElementById('whaleTabs'); if(!box) return;
+  box.classList.toggle('open', !!whaleTabs.open);
+  box.querySelectorAll('.wh-tabbar button[data-wt]').forEach(b=>{ const on = whaleTabs.open && b.dataset.wt===whaleTabs.tab; b.classList.toggle('on', on); b.setAttribute('aria-selected', on?'true':'false'); });
+  const map = { sel:'whaleSelCard', best:'whaleBestCard', hist:'whaleHistCard' };
+  Object.entries(map).forEach(([k,id])=>{ const el = document.getElementById(id); if(el) el.classList.toggle('on', whaleTabs.open && whaleTabs.tab===k); });
+  const t = document.getElementById('wtToggle'); if(t){ t.textContent = whaleTabs.open ? '▴' : '▾'; }
+  try{ localStorage.setItem('pc_wh_tabs_v1', JSON.stringify(whaleTabs)); }catch(e){}
+}
 const SELHIST_KEY = 'pc_pick_hist_v1', SELHIST_MAX = 300;
 let selHist = (()=>{ try{ return JSON.parse(localStorage.getItem(SELHIST_KEY) || '[]'); }catch(e){ return []; } })();
 function selHistSave(){ try{ localStorage.setItem(SELHIST_KEY, JSON.stringify(selHist.slice(0, SELHIST_MAX))); }catch(e){} }
@@ -3050,7 +3231,7 @@ async function resolveSelHist(force){
           const outs = typeof m.outcomes==='string' ? JSON.parse(m.outcomes) : (m.outcomes||[]);
           const pr = (typeof m.outcomePrices==='string' ? JSON.parse(m.outcomePrices) : (m.outcomePrices||[])).map(Number);
           const idx = outs.findIndex(o=>String(o).toLowerCase()===String(h.outcome).toLowerCase());
-          if(idx<0 || !(m.closed===true || String(m.umaResolutionStatus||'').toLowerCase()==='resolved')) return;
+          if(idx<0 || !(m.closed===true || String(m.umaResolutionStatus||'').toLowerCase()==='resolved' || String(m.resolutionStatus||'').toLowerCase()==='resolved')) return;
           if(pr[idx] >= 0.95) h.res = 'w'; else if(pr[idx] <= 0.05) h.res = 'l';
         }catch(e){}
       });
@@ -3066,6 +3247,7 @@ function renderSelHist(){
   const hit = arr => arr.length ? Math.round(arr.filter(h=>h.res==='w').length/arr.length*100) : null;
   const hi = done.filter(h=>h.score>=75), lo = done.filter(h=>h.score<75);
   const rr = roi(done);
+  { const e = document.getElementById('wtHist'); if(e) e.textContent = selHist.length || ''; }
   document.getElementById('whaleHistSum').textContent = selHist.length ? `${selHist.length} retenus · ${done.length} terminés${done.length ? ' · '+Math.round(wins/done.length*100)+'% gagnants' : ''}` : '';
   const k = (l,v,c) => `<div class="hs-k"><div class="l">${l}</div><div class="v ${c||''}">${v}</div></div>`;
   const pc = v => v===null ? '—' : v+'%';
@@ -3084,6 +3266,7 @@ function renderWhaleSelection(){
     .sort((a,b) => b.r.score - a.r.score)
     .filter(x => { const k = x.w.conditionId + '|' + String(x.w.outcome).toLowerCase(); if(seen.has(k)) return false; seen.add(k); return true; })
     .slice(0, 6);
+  { const e = document.getElementById('wtSel'); if(e) e.textContent = picks.length || ''; }
   checkPickAlerts(picks, pending);
   if(picks.length){ selHistRecord(picks); resolveSelHist(false); }
   document.getElementById('whaleSelCount').textContent = picks.length
@@ -3106,7 +3289,7 @@ function renderWhaleSelection(){
     let price = '';
     if(cur !== undefined && avg > 0){
       const d = (cur - avg) * 100, good = d >= 0;
-      price = `<div class="pk-price"><span>${(avg*100).toFixed(1)}¢</span><i>→</i><b>${(cur*100).toFixed(1)}¢</b><em class="${good?'up':'down'}">${good?'+':''}${d.toFixed(1)}¢</em></div>`;
+      price = `<div class="pk-price"><span>${(avg*100).toFixed(1)}¢</span><i>→</i><b>${(cur*100).toFixed(1)}¢</b><em class="${good?'up':'down'}">${good?'▲ +':'▼ '}${d.toFixed(1)}¢</em></div>`;
     }
     const q = gp.qualityScore != null ? `<span class="pk-q q-${gp.qualityClass||''}">Qualité ${gp.qualityScore}</span>` : '';
     const pnl = gp.total30d != null ? `<span class="pk-pnl ${gp.total30d>=0?'up':'down'}">${gp.total30d>=0?'+':'−'}${fmtUsd(Math.abs(gp.total30d))} <small>30j</small></span>` : '';
@@ -3141,6 +3324,8 @@ function renderWhaleChrome(rows){
   const sv = document.getElementById('whaleSide').value, rv = document.getElementById('whaleReco').value;
   document.querySelectorAll('#whaleSideSeg button').forEach(b=>b.classList.toggle('on', b.dataset.v === sv));
   document.querySelectorAll('#whaleRecoSeg button').forEach(b=>b.classList.toggle('on', b.dataset.v === rv));
+  { const v = !document.getElementById('whaleGroup').checked ? 'bets' : (document.getElementById('whaleByMatch').checked ? 'match' : 'mkt');
+    document.querySelectorAll('#whaleViewSeg button').forEach(b=>b.classList.toggle('on', b.dataset.v === v)); }
   document.querySelectorAll('#whaleWhenSeg button').forEach(b=>b.classList.toggle('on', b.dataset.v === whaleWhen));
   const lv = document.getElementById('whaleLive').value;
   document.querySelectorAll('#whaleLiveSeg button').forEach(b=>b.classList.toggle('on', b.dataset.v === lv));
@@ -3214,7 +3399,7 @@ function renderWhales(skipEnd){
     const mkt = w.slug ? `<a class="mlink" href="https://polymarket.com/event/${encodeURIComponent(w.slug)}" target="_blank" rel="noopener"><span class="q">${escapeHtml(w.title)}</span></a>` : escapeHtml(w.title);
     const fl = opts.fillsLabel !== undefined ? opts.fillsLabel : (w.fills>1 ? w.fills+' fills' : '');
     const amtPct = Math.max(2, Math.min(100, (w.usd / (whaleMaxUsd || 1)) * 100));
-    return `<tr class="${w.side==='BUY'?'wh-buy':'wh-sell'}${opts.sub?' wh-sub':''}" data-cid="${escapeHtml(w.conditionId)}" data-wallet="${escapeHtml(w.wallet)}" data-out="${escapeHtml(String(w.outcome))}" data-side="${w.side}" title="Clique pour le détail">
+    return `<tr class="${w.side==='BUY'?'wh-buy':'wh-sell'}${opts.sub?' wh-sub':''}" data-cid="${escapeHtml(w.conditionId)}" data-wallet="${escapeHtml(w.wallet)}" data-out="${escapeHtml(String(w.outcome))}" data-side="${w.side}" tabindex="0" role="button" aria-label="Détail du pari : ${escapeHtml(w.title)}" title="Clique pour le détail">
       <td class="num" style="text-align:left;"><span class="wh-rank">${label}</span></td>
       <td class="q" style="white-space:normal;min-width:220px;">${mkt}${whaleSportOf(w) ? `<div><span class="wh-cat sport">${WH_SPORTS[whaleSportOf(w)].icon} ${WH_SPORTS[whaleSportOf(w)].label}</span></div>` : (whaleCatOf(w) ? `<div><span class="wh-cat">${escapeHtml(whaleCatOf(w))}</span></div>` : '')}</td>
       <td style="white-space:nowrap;"><span class="act-side ${w.side==='BUY'?'buy':'sell'}">${w.side==='BUY'?'ACHAT':'VENTE'}</span> <span class="chip ${chipCls(w.outcome)}">${escapeHtml(w.outcome)}</span>${fl?` <span style="color:var(--ink-dim);font-size:11px;">${fl}</span>`:''}${(()=>{
@@ -3227,7 +3412,7 @@ function renderWhales(skipEnd){
         return `<div style="font-size:10.5px;color:${col};font-weight:600;" title="${escapeHtml(det)}">${r.ok ? (r.score>=75?'🔥':(r.score>=60?'⭐':'')) : '⚠'} Reco ${r.score}/100</div>`;
       })()}${opts.extra||''}</td>
       <td class="num">${(avg*100).toFixed(1)}¢${curCell}</td>
-      <td class="num wh-amt" style="--w:${amtPct}%;"><b>${fmtUsd(w.usd)}</b>${(()=>{ if(w.side!=='BUY'||cur===undefined||!(avg>0)) return ''; const lat=(cur-avg)*w.shares; const st=parseGammaDate((mi||{}).start); const lv=st&&st-Date.now()<=0; return `<div class="wh-lat ${lat>=0?'up':'down'}" title="Gain latent si le prix reste là${lv?' · match en cours':''}">${lv?'<span class="lv">● LIVE</span>':''}${lat>=0?'+':'−'}${fmtUsd(Math.abs(lat))}</div>`; })()}</td>
+      <td class="num wh-amt" style="--w:${amtPct}%;"><b>${fmtUsd(w.usd)}</b>${(()=>{ if(w.side!=='BUY'||cur===undefined||!(avg>0)) return ''; const lat=(cur-avg)*w.shares; const st=parseGammaDate((mi||{}).start); const lv=st&&st-Date.now()<=0; return `<div class="wh-lat ${lat>=0?'up':'down'}" title="Gain latent si le prix reste là${lv?' · match en cours':''}">${lv?'<span class="lv">● LIVE</span>':''}${lat>=0?'▲ +':'▼ −'}${fmtUsd(Math.abs(lat))}</div>`; })()}</td>
       <td style="min-width:210px;">
         <div class="wh-wal"><a class="wlink" href="https://polymarket.com/profile/${w.wallet}" target="_blank" rel="noopener" title="Voir le profil Polymarket · ${w.wallet}">${escapeHtml(w.name || shortAddr(w.wallet))}</a>
           <button class="wr-star wh-star ${watched?'on':''}" data-wallet="${w.wallet}" data-name="${escapeHtml(w.name||'')}" title="Suivre ce wallet">${watched?'⭐':'☆'}</button>
@@ -3257,7 +3442,12 @@ async function loadWhales(){
     renderWhales();
     markPanelOk('whales');
   }catch(e){
-    if(!whaleData.length) body.innerHTML = '<tr><td colspan="8"><div class="err">API Polymarket indisponible — réessaie.</div></td></tr>';
+    if(!whaleData.length){
+      const last = apiErrLog.find(x=>x.bucket==='data') || apiErrLog[0];
+      const detail = last ? `${last.status ? 'HTTP '+last.status : 'erreur réseau'}${last.msg ? ' ('+last.msg+')' : ''} · ${last.bucket} · ${last.path}` : String(e && e.message || e);
+      body.innerHTML = `<tr><td colspan="8"><div class="err">API Polymarket indisponible — réessaie.<br><span style="font-size:11.5px;opacity:.8;word-break:break-all;">Détail : ${escapeHtml(detail)}</span><br><button class="alert-toggle" id="whaleRetryBtn" style="margin-top:8px;">↻ Réessayer</button></div></td></tr>`;
+      const rb = document.getElementById('whaleRetryBtn'); if(rb) rb.onclick = ()=>{ whaleData = []; loadWhales(); };
+    }
     markPanelStale('whales');
   }finally{
     whaleLoading = false;
@@ -3333,9 +3523,26 @@ document.getElementById('whaleBody').addEventListener('click', e=>{
          || whaleData.find(x => x.conditionId===tr.dataset.cid);
   if(w) wdOpen(w);
 });
+document.getElementById('whaleBody').addEventListener('keydown', e=>{
+  if((e.key!=='Enter' && e.key!==' ') || e.target.tagName!=='TR') return;
+  e.preventDefault(); e.target.click();
+});
 document.getElementById('wdOv').addEventListener('click', e=>{ if(e.target.id==='wdOv') wdClose(); });
 document.addEventListener('keydown', e=>{ if(e.key==='Escape') wdClose(); });
 { let t; document.getElementById('whaleSearch').addEventListener('input', ()=>{ clearTimeout(t); t = setTimeout(()=>renderWhales(true), 150); }); }
+document.getElementById('whaleTabs').addEventListener('click', e=>{
+  const t = e.target.closest('#wtToggle'); if(t){ whaleTabs.open = !whaleTabs.open; applyWhaleTabs(); return; }
+  const b = e.target.closest('.wh-tabbar button[data-wt]'); if(!b) return;
+  if(whaleTabs.open && whaleTabs.tab===b.dataset.wt) whaleTabs.open = false; else { whaleTabs.tab = b.dataset.wt; whaleTabs.open = true; }
+  applyWhaleTabs();
+});
+applyWhaleTabs();
+document.getElementById('whaleViewSeg').addEventListener('click', e=>{
+  const b = e.target.closest('button[data-v]'); if(!b) return;
+  const g = document.getElementById('whaleGroup'), m = document.getElementById('whaleByMatch');
+  g.checked = b.dataset.v !== 'bets'; m.checked = b.dataset.v === 'match';
+  renderWhales();
+});
 document.getElementById('whaleBestList').addEventListener('click', e=>{
   const b = e.target.closest('button.wh-bstar'); if(!b) return;
   togglePinWallet(b.dataset.wallet, b.dataset.name); renderWhales();
